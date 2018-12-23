@@ -1,5 +1,5 @@
 import 'package:memoapp/fakedata.dart';
-import 'package:memoapp/lingvo.dart';
+import 'package:memoapp/interfaces.dart';
 
 class AppData {
   ILingvoService lingvo = new FakeLingvoService();

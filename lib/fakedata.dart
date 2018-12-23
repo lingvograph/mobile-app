@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:memoapp/lingvo.dart';
+import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
 
 var words = [
