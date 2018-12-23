@@ -2,16 +2,21 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:audioplayer/audioplayer.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
 import 'package:memoapp/ui/loading.dart';
 
 T firstByKey<T>(Map<String, T> text, String key, [bool eq = true]) {
-  return text.entries.firstWhere((e) => (e.key == key) == eq).value;
+  var entry = text.entries.firstWhere((e) => (e.key == key) == eq, orElse: null);
+  if (entry == null) {
+    return null;
+  }
+  return entry.value;
 }
 
-const timeout = Duration(seconds: 3);
+const timeout = Duration(seconds: 5);
 const ms = const Duration(milliseconds: 1);
 
 setTimeout(void callback(), [int milliseconds]) {
@@ -19,10 +24,7 @@ setTimeout(void callback(), [int milliseconds]) {
   return new Timer(duration, callback);
 }
 
-//Stream<Word> words = Stream<int>.periodic(duration, (i) => 1).asyncMap((i) async {
-//  var word = await appData.lingvo.nextWord();
-//  return word;
-//});
+var audioPlayer = new AudioPlayer();
 
 // TODO cool transition between images
 
@@ -54,10 +56,19 @@ class HomeState extends State<HomeScreen> {
 
   nextWord() async {
     var word = await appData.lingvo.nextWord();
+    playSound();
     setState(() {
       this.word = word;
     });
     setTimeout(this.nextWord);
+  }
+
+  playSound() {
+    var firstLang = this.appState.user.firstLang;
+    var sound = firstByKey(word.pronunciation, firstLang, false);
+    if (sound != null) {
+      audioPlayer.play(sound.url);
+    }
   }
 }
 

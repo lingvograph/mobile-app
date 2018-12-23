@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memoapp/data.dart';
 import 'package:memoapp/screen/home.dart';
 import 'package:memoapp/screen/login.dart';
 import 'package:memoapp/model.dart';
@@ -6,6 +7,7 @@ import 'package:memoapp/state.dart';
 
 void main() async {
   var state = await AppState.load();
+  appData.lingvo.nextWord();
   return runApp(App(state));
 }
 

@@ -1,4 +1,4 @@
-Map<String, T> mapObjects<T>(Map<String, dynamic> json, T f(Map<String, dynamic> val)) {
+Map<String, T> map<T>(Map<String, dynamic> json, T f(dynamic val)) {
   if (json == null) {
     return new Map();
   }
@@ -19,30 +19,44 @@ class User {
 }
 
 class Word {
-  Map<String, String> text; // text representation in different languages
-  Map<String, String> transcription; // transcription in different languages
-  Resource image;
-  Map<String, Resource> pronunciation; // top pronunciations in different languages
+  // text representation in different languages
+  Map<String, String> text;
 
-  Word.fromJson(Map<String, dynamic> json)
-      : text = json['text'],
-        transcription = json['transcription'],
-        image = Resource.fromJson(json['image']),
-        pronunciation = mapObjects(json['pronunciation'], (t) => Resource.fromJson(t));
+  // transcriptions in different languages
+  Map<String, String> transcription;
+
+  // transcription in different languages
+  Resource image;
+
+  // top pronunciations in different languages
+  Map<String, Resource> pronunciation;
+
+  Word.fromJson(Map<String, dynamic> json) {
+    text = json['text'];
+    transcription = json['transcription'];
+    image = Resource.fromAny(json['image']);
+    pronunciation = map(json['pronunciation'], (t) => Resource.fromAny(t));
+  }
 }
 
 class Resource {
   String contentType;
   String url;
 
-  Resource.fromJson(dynamic json) {
-    if (json is String) {
-      url = json;
-      // TODO by extension
-      contentType = 'image/jpg';
-    } else {
-      contentType = json['content_type'];
-      url = json['url'];
+  Resource(this.url, [String contentType = null]) {
+    // TODO by extension
+    this.contentType = contentType == null ? 'image/jpg' : contentType;
+  }
+
+  Resource.fromJson(Map<String, dynamic> json) {
+    contentType = json['content_type'];
+    url = json['url'];
+  }
+
+  static Resource fromAny(dynamic val) {
+    if (val is String) {
+      return Resource(val as String);
     }
+    return Resource.fromJson(val);
   }
 }
