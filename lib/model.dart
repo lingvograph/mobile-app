@@ -62,7 +62,7 @@ class Resource {
   String contentType;
   String url;
 
-  Resource(this.url, [String contentType = null]) {
+  Resource(this.url, [String contentType]) {
     // TODO by extension
     this.contentType = contentType == null ? 'image/jpg' : contentType;
   }
@@ -74,7 +74,7 @@ class Resource {
 
   static Resource fromAny(dynamic val) {
     if (val is String) {
-      return Resource(val as String);
+      return Resource(val);
     }
     return Resource.fromJson(val);
   }
