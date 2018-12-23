@@ -5,32 +5,20 @@ import 'package:memoapp/model.dart';
 
 var words = [
   {
-    'text': {
-      'en': 'house',
-      'ru': 'дом',
-    },
-    'transcription': {
-      'en': 'hause',
-      'ru': "'хаус",
-    },
+    'text@en': 'house',
+    'text@ru': 'дом',
+    'transcription@en': 'hause',
+    'transcription@ru': "'хаус",
+    'pronunciation@en': 'https://howjsay.com/mp3/house.mp3',
     'image': 'http://epicpix.com/wp-content/uploads/2016/04/ff_3280.jpg',
-    'pronunciation': {
-      'en': 'https://howjsay.com/mp3/house.mp3',
-    },
   },
   {
-    'text': {
-      'en': 'lake',
-      'ru': 'озеро',
-    },
-    'transcription': {
-      'en': 'leik',
-      'ru': "'лэйк",
-    },
+    'text@en': 'lake',
+    'text@ru': 'озеро',
+    'transcription@en': 'leik',
+    'transcription@ru': "'лэйк",
+    'pronunciation@en': 'https://howjsay.com/mp3/lake.mp3',
     'image': 'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
-    'pronunciation': {
-      'en': 'https://howjsay.com/mp3/lake.mp3',
-    },
   },
 ].map((t) => Word.fromJson(t))
 .toList();

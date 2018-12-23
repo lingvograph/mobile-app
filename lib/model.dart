@@ -5,6 +5,24 @@ Map<String, T> map<T>(Map<String, dynamic> json, T f(dynamic val)) {
   return json.map((k, v) => MapEntry(k, f(v)));
 }
 
+Map<String, dynamic> nest(Map<String, dynamic> json) {
+  var result = new Map<String, dynamic>();
+  json.forEach((k, v) {
+    var i = k.indexOf('@');
+    if (i >= 0) {
+      var p = k.substring(0, i);
+      if (!result.containsKey(p)) {
+        result[p] = new Map<String, dynamic>();
+      }
+      var lang = k.substring(i + 1);
+      result[p][lang] = v;
+    } else {
+      result[k] = v;
+    }
+  });
+  return result;
+}
+
 class User {
   String name;
   String firstLang = 'ru';
@@ -32,10 +50,11 @@ class Word {
   Map<String, Resource> pronunciation;
 
   Word.fromJson(Map<String, dynamic> json) {
-    text = json['text'];
-    transcription = json['transcription'];
-    image = Resource.fromAny(json['image']);
-    pronunciation = map(json['pronunciation'], (t) => Resource.fromAny(t));
+    var d = nest(json);
+    text = map(d['text'], (t) => t as String);
+    transcription = map(d['transcription'], (t) => t as String);
+    image = Resource.fromAny(d['image']);
+    pronunciation = map(d['pronunciation'], (t) => Resource.fromAny(t));
   }
 }
 
