@@ -1,9 +1,30 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
 import 'package:memoapp/ui/loading.dart';
+
+T firstByKey<T>(Map<String, T> text, String key, [bool eq = true]) {
+  return text.entries.firstWhere((e) => (e.key == key) == eq).value;
+}
+
+const timeout = Duration(seconds: 3);
+const ms = const Duration(milliseconds: 1);
+
+setTimeout(void callback(), [int milliseconds]) {
+  var duration = milliseconds == null ? timeout : ms * milliseconds;
+  return new Timer(duration, callback);
+}
+
+//Stream<Word> words = Stream<int>.periodic(duration, (i) => 1).asyncMap((i) async {
+//  var word = await appData.lingvo.nextWord();
+//  return word;
+//});
+
+// TODO cool transition between images
 
 // main screen with word
 class HomeScreen extends StatefulWidget {
@@ -36,6 +57,7 @@ class HomeState extends State<HomeScreen> {
     setState(() {
       this.word = word;
     });
+    setTimeout(this.nextWord);
   }
 }
 
@@ -47,16 +69,11 @@ class WordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-//    var image = CachedNetworkImage(
-//      placeholder: CircularProgressIndicator(),
-//      imageUrl: word.image.url,
-//    );
-    var screenSize = MediaQuery.of(context).size;
     var user = this.appState.user;
     var firstLang = user.firstLang;
-    var text1 = word.text.entries.firstWhere((e) => e.key != firstLang).value;
-    var text2 = word.text.entries.firstWhere((e) => e.key == firstLang).value;
-    var transcription = word.transcription.entries.firstWhere((e) => e.key == firstLang).value;
+    var text1 = firstByKey(word.text, firstLang, false);
+    var text2 = firstByKey(word.text, firstLang, true);
+    var trans = firstByKey(word.transcription, firstLang, true);
     return Scaffold(
       body: Center(
         child: Container(
@@ -86,7 +103,7 @@ class WordView extends StatelessWidget {
                 Positioned(
                   left: 0,
                   top: 50,
-                  child: new Text(text2 + ' [' + transcription + ']',
+                  child: new Text(text2 + ' [' + trans + ']',
                       style: new TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20.0,

@@ -11,9 +11,20 @@ var words = [
     },
     'transcription': {
       'en': 'hause',
-      'ru': 'хаус',
+      'ru': "'хаус",
     },
     'image': 'http://epicpix.com/wp-content/uploads/2016/04/ff_3280.jpg',
+  },
+  {
+    'text': {
+      'en': 'lake',
+      'ru': 'озеро',
+    },
+    'transcription': {
+      'en': 'leik',
+      'ru': "'лэйк",
+    },
+    'image': 'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
   }
 ].map((t) => Word.fromJson(t))
 .toList();
