@@ -23,6 +23,7 @@ dependencies:
   validate: ^1.7.0
   cached_network_image: ^0.5.1
   audioplayer: ^0.5.2
+  http_auth: ^0.2.1
 
 dev_dependencies:
   flutter_test:

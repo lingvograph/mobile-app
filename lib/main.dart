@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/screen/home.dart';
 import 'package:memoapp/screen/login.dart';
-import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
 
 void main() async {
@@ -39,12 +38,15 @@ class AppBody extends StatefulWidget {
 
 class _AppState extends State<AppBody> {
   AppState state;
-  LoginData _loginState = new LoginData();
+  LoginState _loginState = new LoginState();
 
   _AppState(this.state);
 
-  void onLogin(User user) {
-    state.user = user;
+  void onLogin(LoginData data) {
+    setState(() {
+      state.user = data.user;
+      state.apiToken = data.apiToken;
+    });
 
     Navigator.push(
       context,
@@ -58,7 +60,7 @@ class _AppState extends State<AppBody> {
       return HomeScreen(state);
     }
     return LoginScreen(
-        data: _loginState,
+        state: _loginState,
         onLogin: onLogin,
     );
   }

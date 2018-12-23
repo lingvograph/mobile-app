@@ -6,17 +6,17 @@ const PREFS_KEY = 'APP_STATE';
 
 class AppState {
   User _user;
-  String apiToken;
+  String _apiToken;
 
   AppState();
 
   AppState.fromJson(Map json)
       : _user = User.fromJson(json["user"]),
-        apiToken = json["api_token"];
+        _apiToken = json["api_token"];
 
   Map<String, dynamic> toJson() => {
         'user': _user,
-        'api_token': apiToken,
+        'api_token': _apiToken,
       };
 
   static Future<AppState> load() async {
@@ -51,5 +51,13 @@ class AppState {
     save();
   }
 
-  get isLoggedIn => _user != null && apiToken != null && apiToken.length > 0;
+  get apiToken {
+    return _apiToken;
+  }
+  set apiToken(String value) {
+    _apiToken = value;
+    save();
+  }
+
+  get isLoggedIn => _user != null && _apiToken != null && _apiToken.length > 0;
 }

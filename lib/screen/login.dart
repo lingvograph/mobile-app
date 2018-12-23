@@ -1,37 +1,49 @@
 import 'package:flutter/material.dart';
+import 'package:memoapp/api.dart';
 import 'package:validate/validate.dart';
 import 'package:memoapp/model.dart';
 
 // TODO loading state
+// TODO login error
 
-class LoginData {
+class LoginState {
   String username = "";
   String password = "";
 }
 
+class LoginData {
+  User user;
+  String apiToken;
+
+  LoginData(this.user, this.apiToken);
+}
+
 class LoginScreen extends StatefulWidget {
-  final LoginData data;
-  final ValueChanged<User> onLogin;
+  final LoginState state;
+  final ValueChanged<LoginData> onLogin;
 
   LoginScreen({
     Key key,
-    this.data,
+    this.state,
     this.onLogin,
   }) : super(key: key);
 
   @override
-  _LoginState createState() => _LoginState(data);
+  _LoginState createState() => _LoginState(state);
 }
 
 class _LoginState extends State<LoginScreen> {
-  final LoginData data;
+  final LoginState data;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
   _LoginState(this.data);
 
-  void submit() {
-    // TODO api call
-    widget.onLogin(User(data.username, 'ru'));
+  void submit() async {
+    // TODO handle login error
+    var token = await login(data.username, data.password);
+    // TODO request user data/preferences
+    var user = User(data.username, 'ru');
+    widget.onLogin(LoginData(user, token));
   }
 
   String validateUsername(String value) {
