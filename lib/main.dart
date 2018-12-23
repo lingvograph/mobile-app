@@ -2,10 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/home.dart';
 import 'package:memoapp/login.dart';
 import 'package:memoapp/model.dart';
+import 'package:memoapp/state.dart';
 
-void main() => runApp(App());
+void main() async {
+  var state = await AppState.load();
+  return runApp(App(state));
+}
 
 class App extends StatelessWidget {
+  AppState state;
+
+  App(this.state);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -13,30 +21,39 @@ class App extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: AppBody(),
+      home: AppBody(state),
     );
   }
 }
 
 class AppBody extends StatefulWidget {
+  AppState state;
+
+  AppBody(this.state);
+
   @override
-  _AppState createState() => _AppState();
+  _AppState createState() => _AppState(state);
 }
 
 class _AppState extends State<AppBody> {
-  User _user;
+  AppState state;
   LoginData _loginState = new LoginData();
 
+  _AppState(this.state);
+
   void onLogin(User user) {
-    setState(() {
-      _user = user;
-    });
+    state.user = user;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage(state)),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_user != null) {
-      return HomePage();
+    if (state.isLoggedIn) {
+      return HomePage(state);
     }
     return LoginPage(
         data: _loginState,
