@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
+import 'package:memoapp/ui/loading.dart';
 
 // main screen with word
 class HomeScreen extends StatefulWidget {
@@ -35,15 +36,6 @@ class HomeState extends State<HomeScreen> {
     setState(() {
       this.word = word;
     });
-  }
-}
-
-class Loading extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Text("Loading..."),
-    );
   }
 }
 
