@@ -56,9 +56,9 @@ class HomeState extends State<HomeScreen> {
 
   nextWord() async {
     var word = await appData.lingvo.nextWord();
-    playSound();
     setState(() {
       this.word = word;
+      playSound();
     });
     setTimeout(this.nextWord);
   }
