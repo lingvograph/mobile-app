@@ -7,8 +7,9 @@ Map<String, T> mapObjects<T>(Map<String, dynamic> json, T f(Map<String, dynamic>
 
 class User {
   String name;
+  String firstLang = 'ru';
 
-  User(this.name);
+  User(this.name, this.firstLang);
 
   User.fromJson(Map json) : name = json['name'];
 

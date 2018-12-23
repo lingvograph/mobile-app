@@ -31,7 +31,7 @@ class _LoginState extends State<LoginScreen> {
 
   void submit() {
     // TODO api call
-    widget.onLogin(User(data.username));
+    widget.onLogin(User(data.username, 'ru'));
   }
 
   String validateUsername(String value) {

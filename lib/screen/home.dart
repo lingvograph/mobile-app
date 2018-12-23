@@ -7,7 +7,7 @@ import 'package:memoapp/ui/loading.dart';
 
 // main screen with word
 class HomeScreen extends StatefulWidget {
-  AppState appState;
+  final AppState appState;
 
   HomeScreen(this.appState);
 
@@ -28,7 +28,7 @@ class HomeState extends State<HomeScreen> {
     if (word == null) {
       return Loading();
     }
-    return WordView(word);
+    return WordView(appState, word);
   }
 
   nextWord() async {
@@ -40,18 +40,61 @@ class HomeState extends State<HomeScreen> {
 }
 
 class WordView extends StatelessWidget {
-  Word word;
+  final AppState appState;
+  final Word word;
 
-  WordView(this.word);
+  WordView(this.appState, this.word);
 
   @override
   Widget build(BuildContext context) {
+//    var image = CachedNetworkImage(
+//      placeholder: CircularProgressIndicator(),
+//      imageUrl: word.image.url,
+//    );
+    var screenSize = MediaQuery.of(context).size;
+    var user = this.appState.user;
+    var firstLang = user.firstLang;
+    var text1 = word.text.entries.firstWhere((e) => e.key != firstLang).value;
+    var text2 = word.text.entries.firstWhere((e) => e.key == firstLang).value;
+    var transcription = word.transcription.entries.firstWhere((e) => e.key == firstLang).value;
     return Scaffold(
       body: Center(
-        child: CachedNetworkImage(
-          placeholder: CircularProgressIndicator(),
-          imageUrl: word.image.url,
-        ),
+        child: Container(
+            constraints: new BoxConstraints.expand(
+              height: 200.0,
+            ),
+            padding: new EdgeInsets.only(left: 16.0, bottom: 8.0, right: 16.0),
+            decoration: new BoxDecoration(
+              image: new DecorationImage(
+                image: new CachedNetworkImageProvider(word.image.url),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: Stack(
+              // TODO improve position of subtitles
+              children: <Widget>[
+                Positioned(
+                  left: 0,
+                  top: 10,
+                  child: new Text(text1,
+                      style: new TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 40.0,
+                        color: Colors.white,
+                      )),
+                ),
+                Positioned(
+                  left: 0,
+                  top: 50,
+                  child: new Text(text2 + ' [' + transcription + ']',
+                      style: new TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20.0,
+                        color: Colors.white,
+                      )),
+                ),
+              ],
+            )),
       ),
     );
   }

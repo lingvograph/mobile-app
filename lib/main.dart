@@ -10,7 +10,7 @@ void main() async {
 }
 
 class App extends StatelessWidget {
-  AppState state;
+  final AppState state;
 
   App(this.state);
 
@@ -27,7 +27,7 @@ class App extends StatelessWidget {
 }
 
 class AppBody extends StatefulWidget {
-  AppState state;
+  final AppState state;
 
   AppBody(this.state);
 
