@@ -9,11 +9,11 @@ class LoginData {
   String password = "";
 }
 
-class LoginPage extends StatefulWidget {
+class LoginScreen extends StatefulWidget {
   final LoginData data;
   final ValueChanged<User> onLogin;
 
-  LoginPage({
+  LoginScreen({
     Key key,
     this.data,
     this.onLogin,
@@ -23,7 +23,7 @@ class LoginPage extends StatefulWidget {
   _LoginState createState() => _LoginState(data);
 }
 
-class _LoginState extends State<LoginPage> {
+class _LoginState extends State<LoginScreen> {
   final LoginData data;
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
@@ -35,11 +35,12 @@ class _LoginState extends State<LoginPage> {
   }
 
   String validateUsername(String value) {
-    try {
-      Validate.isEmail(value);
-    } catch (e) {
-      return 'The E-mail Address must be a valid email address.';
-    }
+    // TODO validate username or email
+//    try {
+//      Validate.isEmail(value);
+//    } catch (e) {
+//      return 'The E-mail Address must be a valid email address.';
+//    }
     return null;
   }
 
