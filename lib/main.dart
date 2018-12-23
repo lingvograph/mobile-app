@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/home.dart';
-import 'package:memoapp/login.dart';
+import 'package:memoapp/screen/home.dart';
+import 'package:memoapp/screen/login.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
 
@@ -46,16 +46,16 @@ class _AppState extends State<AppBody> {
 
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => HomePage(state)),
+      MaterialPageRoute(builder: (context) => HomeScreen(state)),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     if (state.isLoggedIn) {
-      return HomePage(state);
+      return HomeScreen(state);
     }
-    return LoginPage(
+    return LoginScreen(
         data: _loginState,
         onLogin: onLogin,
     );

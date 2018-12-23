@@ -21,6 +21,7 @@ dependencies:
   cupertino_icons: ^0.1.2
   shared_preferences: ^0.4.3
   validate: ^1.7.0
+  cached_network_image: ^0.5.1
 
 dev_dependencies:
   flutter_test:
