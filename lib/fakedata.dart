@@ -20,15 +20,25 @@ var words = [
     'pronunciation@en': 'https://howjsay.com/mp3/lake.mp3',
     'image': 'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
   },
+  {
+    'text@en': 'girl',
+    'text@ru': 'девушка',
+    'transcription@en': 'gerl',
+    'transcription@ru': "'гёл",
+    'pronunciation@en': 'https://howjsay.com/mp3/girl.mp3',
+    'image': 'https://i.ytimg.com/vi/ktlQrO2Sifg/maxresdefault.jpg',
+  },
 ].map((t) => Word.fromJson(t))
 .toList();
 
-var rnd = new Random();
+var i = 0;
 
 class FakeLingvoService implements ILingvoService {
   @override
   Future<Word> nextWord() async {
-    var i = rnd.nextInt(words.length);
-    return words[i];
+    if (i >= words.length) {
+      i = 0;
+    }
+    return words[i++];
   }
 }
