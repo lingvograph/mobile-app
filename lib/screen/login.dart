@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
+import 'package:memoapp/data.dart';
+import 'package:memoapp/state.dart';
 import 'package:validate/validate.dart';
 import 'package:memoapp/model.dart';
 
@@ -11,39 +13,32 @@ class LoginState {
   String password = "";
 }
 
-class LoginData {
-  User user;
-  String apiToken;
-
-  LoginData(this.user, this.apiToken);
-}
-
 class LoginScreen extends StatefulWidget {
-  final LoginState state;
-  final ValueChanged<LoginData> onLogin;
-
-  LoginScreen({
-    Key key,
-    this.state,
-    this.onLogin,
-  }) : super(key: key);
-
   @override
-  _LoginState createState() => _LoginState(state);
+  _LoginState createState() => _LoginState();
 }
 
 class _LoginState extends State<LoginScreen> {
-  final LoginState data;
+  final AppState appState = appData.appState;
+  final LoginState data = new LoginState();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
-  _LoginState(this.data);
-
   void submit() async {
+    final form = _formKey.currentState;
+    if (!form.validate()) {
+      return;
+    }
+    // setState(() => _isLoading = true);
+    form.save();
+
     // TODO handle login error
     var token = await login(data.username, data.password);
     // TODO request user data/preferences
     var user = User(data.username, 'ru');
-    widget.onLogin(LoginData(user, token));
+
+    appState.user = user;
+    appState.apiToken = token;
+    Navigator.of(context).pushReplacementNamed('/home');
   }
 
   String validateUsername(String value) {

@@ -8,8 +8,11 @@ import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
 import 'package:memoapp/ui/loading.dart';
 
-T firstByKey<T>(Map<String, T> text, String key, [bool eq = true]) {
-  var entry = text.entries.firstWhere((e) => (e.key == key) == eq, orElse: null);
+T firstByKey<T>(Map<String, T> map, String key, [bool eq = true]) {
+  if (map.isEmpty) {
+    return null;
+  }
+  var entry = map.entries.firstWhere((e) => (e.key == key) == eq, orElse: null);
   if (entry == null) {
     return null;
   }
@@ -30,9 +33,7 @@ var audioPlayer = new AudioPlayer();
 
 // main screen with word
 class HomeScreen extends StatefulWidget {
-  final AppState appState;
-
-  HomeScreen(this.appState);
+  final AppState appState = appData.appState;
 
   @override
   State<StatefulWidget> createState() => HomeState(appState);

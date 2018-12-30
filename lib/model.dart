@@ -43,7 +43,7 @@ class Word {
   // transcriptions in different languages
   Map<String, String> transcription;
 
-  // transcription in different languages
+  // TODO set of relevant images
   Resource image;
 
   // top pronunciations in different languages
