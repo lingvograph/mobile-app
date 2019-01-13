@@ -49,6 +49,7 @@ class HomeState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO goto login if appState has null user
     if (word == null) {
       return Loading();
     }
@@ -65,7 +66,7 @@ class HomeState extends State<HomeScreen> {
   }
 
   playSound() {
-    var firstLang = this.appState.user.firstLang;
+    var firstLang = this.appState.user?.firstLang ?? 'ru';
     var sound = firstByKey(word.pronunciation, firstLang, false);
     if (sound != null) {
       audioPlayer.play(sound.url);
@@ -81,8 +82,7 @@ class WordView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var user = this.appState.user;
-    var firstLang = user.firstLang;
+    var firstLang = this.appState.user?.firstLang ?? 'ru';
     var text1 = firstByKey(word.text, firstLang, false);
     var text2 = firstByKey(word.text, firstLang, true);
     var trans = firstByKey(word.transcription, firstLang, true);
