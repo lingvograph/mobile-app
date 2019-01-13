@@ -56,7 +56,8 @@ class RealLingvoService implements ILingvoService {
     try {
       var resp = await query(q);
       if (resp.statusCode == 200) {
-        var results = jsonDecode(resp.body);
+        var respText = utf8.decode(resp.bodyBytes);
+        var results = jsonDecode(respText);
         total = results['count'][0]['total'];
 
         var result = results['words'][0];
