@@ -7,29 +7,10 @@ import 'package:memoapp/model.dart';
 import 'package:memoapp/state.dart';
 
 // TODO GraphQL query to get unknown/learning word, if no words get random word
-
-class RealLingvoService implements ILingvoService {
-  AppState appState;
-  int offset = 0;
-  int total = 0;
-  FakeLingvoService fakeService = new FakeLingvoService();
-
-  RealLingvoService(this.appState);
-
-  @override
-  Future<Word> nextWord() async {
-    if (!appState.isLoggedIn) {
-      return fakeService.nextWord();
-    }
-    if (offset >= total) {
-      offset = 0;
-    }
-
-    var firstLang = appState.user.firstLang;
-
-    // TODO find words in order of preferences
-    var filter = '@filter(not eq(lang, "${firstLang}"))';
-    var q = """{
+// TODO find words in order of preferences
+makeQuery(String firstLang, int offset) {
+  var filter = '@filter(not eq(lang, "${firstLang}"))';
+  var q = """{
       words(func: has(<_word>), offset: $offset, first: 1) ${filter} {
         text
         lang
@@ -53,6 +34,28 @@ class RealLingvoService implements ILingvoService {
         total: count(uid)
       }
     }""";
+  return q;
+}
+
+class RealLingvoService implements ILingvoService {
+  AppState appState;
+  int offset = 0;
+  int total = 0;
+  FakeLingvoService fakeService = new FakeLingvoService();
+
+  RealLingvoService(this.appState);
+
+  @override
+  Future<Word> nextWord() async {
+    if (!appState.isLoggedIn) {
+      return fakeService.nextWord();
+    }
+    if (offset >= total) {
+      offset = 0;
+    }
+
+    var firstLang = appState.user.firstLang;
+    var q = makeQuery(firstLang, offset);
     try {
       var resp = await query(q);
       if (resp.statusCode == 200) {
