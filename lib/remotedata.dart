@@ -9,9 +9,9 @@ import 'package:memoapp/state.dart';
 // TODO GraphQL query to get unknown/learning word, if no words get random word
 // TODO find words in order of preferences
 makeQuery(String firstLang, int offset) {
-  var filter = '@filter(not eq(lang, "${firstLang}"))';
+  var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
-      words(func: has(<_word>), offset: $offset, first: 1) ${filter} {
+      words(func: has(<_word>), offset: $offset, first: 1) $filter {
         text
         lang
         transcription
@@ -30,7 +30,7 @@ makeQuery(String firstLang, int offset) {
           url
         }
       }
-      count(func: has(<_word>)) ${filter} {
+      count(func: has(<_word>)) $filter {
         total: count(uid)
       }
     }""";
@@ -68,12 +68,12 @@ class RealLingvoService implements ILingvoService {
 
         var setProps = (dynamic t) {
           var lang = t['lang'];
-          w["text@${lang}"] = t['text'];
+          w["text@$lang"] = t['text'];
           if (t.containsKey('transcription')) {
-            w["transcription@${lang}"] = t['transcription'];
+            w["transcription@$lang"] = t['transcription'];
           }
           if (t.containsKey('pronounced_as')) {
-            w["pronunciation@${lang}"] = t['pronounced_as'][0];
+            w["pronunciation@$lang"] = t['pronounced_as'][0];
           }
         };
 
