@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:memoapp/api.dart';
 import 'package:memoapp/fakedata.dart';
 import 'package:memoapp/interfaces.dart';
@@ -57,39 +55,34 @@ class RealLingvoService implements ILingvoService {
     var firstLang = appState.user.firstLang;
     var q = makeQuery(firstLang, offset);
     try {
-      var resp = await query(q);
-      if (resp.statusCode == 200) {
-        var respText = utf8.decode(resp.bodyBytes);
-        var results = jsonDecode(respText);
-        total = results['count'][0]['total'];
+      var results = await query(q);
+      total = results['count'][0]['total'];
 
-        var result = results['words'][0];
-        var w = Map<String, dynamic>();
+      var result = results['words'][0];
+      var w = Map<String, dynamic>();
 
-        var setProps = (dynamic t) {
-          var lang = t['lang'];
-          w["text@$lang"] = t['text'];
-          if (t.containsKey('transcription')) {
-            w["transcription@$lang"] = t['transcription'];
-          }
-          if (t.containsKey('pronounced_as')) {
-            w["pronunciation@$lang"] = t['pronounced_as'][0];
-          }
-        };
-
-        setProps(result);
-        if (result.containsKey('translated_as')) {
-          result['translated_as'].forEach(setProps);
+      var setProps = (dynamic t) {
+        var lang = t['lang'];
+        w["text@$lang"] = t['text'];
+        if (t.containsKey('transcription')) {
+          w["transcription@$lang"] = t['transcription'];
         }
-        if (result.containsKey('relevant')) {
-          w['image'] = result['relevant'][0];
+        if (t.containsKey('pronounced_as')) {
+          w["pronunciation@$lang"] = t['pronounced_as'][0];
         }
+      };
 
-        var word = Word.fromJson(w);
-        offset += 1;
-        return word;
+      setProps(result);
+      if (result.containsKey('translated_as')) {
+        result['translated_as'].forEach(setProps);
       }
-      return fakeService.nextWord();
+      if (result.containsKey('relevant')) {
+        w['image'] = result['relevant'][0];
+      }
+
+      var word = Word.fromJson(w);
+      offset += 1;
+      return word;
     } catch (err) {
       return fakeService.nextWord();
     }

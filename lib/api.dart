@@ -43,7 +43,7 @@ Future<String> login(String username, String password) async {
   return json['token'] as String;
 }
 
-Future<Response> query(String query) async {
+Future<dynamic> query(String query) async {
   var headers = {
     'Authorization': 'Bearer ' + authState.apiToken,
     'Content-Type': 'application/graphql',
@@ -51,6 +51,9 @@ Future<Response> query(String query) async {
   var resp = await post(makeApiURL('/query'), headers: headers, body: query);
   if (resp.statusCode == 401) {
     authState.notify(false);
+    throw new StateError('bad auth');
   }
-  return resp;
+  var respText = utf8.decode(resp.bodyBytes);
+  var results = jsonDecode(respText);
+  return results;
 }
