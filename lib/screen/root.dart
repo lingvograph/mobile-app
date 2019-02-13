@@ -28,7 +28,7 @@ class _RootState extends State<RootScreen> implements AuthStateListener {
   // TODO global handling of unauthorized error
   @override
   void onChanged(bool isLoggedIn) {
-    var route = isLoggedIn ? '/home' : '/';
+    var route = isLoggedIn ? '/home' : '/login';
     Navigator.of(context).pushReplacementNamed(route);
   }
 }
