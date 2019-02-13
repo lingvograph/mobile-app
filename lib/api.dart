@@ -3,7 +3,7 @@ import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
 
 // TODO move to config
-const apiBaseURL = 'http://192.168.0.107:4200/api';
+const apiBaseURL = 'http://tsvbits.com:4200/api';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
