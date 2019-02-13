@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/routes.dart';
-import 'package:memoapp/state.dart';
+import 'package:memoapp/appstate.dart';
 
 void main() async {
   var state = await AppState.load();

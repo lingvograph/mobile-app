@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/data.dart';
-import 'package:memoapp/state.dart';
+import 'package:memoapp/appstate.dart';
 import 'package:memoapp/model.dart';
 
 // TODO loading state

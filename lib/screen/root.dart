@@ -3,7 +3,7 @@ import 'package:memoapp/api.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/screen/home.dart';
 import 'package:memoapp/screen/login.dart';
-import 'package:memoapp/state.dart';
+import 'package:memoapp/appstate.dart';
 
 class RootScreen extends StatefulWidget {
   @override

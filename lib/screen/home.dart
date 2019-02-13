@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/state.dart';
+import 'package:memoapp/appstate.dart';
 import 'package:memoapp/components/appbar.dart';
 import 'package:memoapp/components/loading.dart';
 import 'package:memoapp/components/wordview.dart';

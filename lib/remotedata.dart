@@ -2,7 +2,7 @@ import 'package:memoapp/api.dart';
 import 'package:memoapp/fakedata.dart';
 import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/state.dart';
+import 'package:memoapp/appstate.dart';
 
 // TODO GraphQL query to get unknown/learning word, if no words get random word
 // TODO find words in order of preferences
