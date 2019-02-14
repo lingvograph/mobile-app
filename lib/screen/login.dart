@@ -40,6 +40,15 @@ class _LoginState extends State<LoginScreen> {
     Navigator.of(context).pushReplacementNamed('/home');
   }
 
+  void loginVk() {
+  debugPrint("vk");
+  }
+  void loginGoogle() {
+
+  }
+  void loginFacebook() {
+
+  }
   String validateUsername(String value) {
     // TODO validate username or email
 //    try {
@@ -120,10 +129,37 @@ class _LoginState extends State<LoginScreen> {
                     ),
                     color: Colors.blue,
                   )),
+              new LoginImageBtn(src: "assets/logingoogle.png", onTap:()=> loginGoogle ,),
+
+              new LoginImageBtn(src: "assets/loginfacebook.png", onTap:()=> loginFacebook ),
+
+              new LoginImageBtn(src: "assets/loginvk.png", onTap:()=> loginVk ),
+
             ],
           ),
         ),
       ),
     );
   }
+}
+class LoginImageBtn extends StatefulWidget
+{
+  String src;
+  Function onTap;
+  LoginImageBtn({@required this.src, this.onTap});
+
+  @override
+  _LoginImageBtnState createState() => _LoginImageBtnState();
+}
+
+class _LoginImageBtnState extends State<LoginImageBtn>
+{
+  @override
+  Widget build(BuildContext context) {
+    return new Container(padding: EdgeInsets.only(top: 10),
+      alignment: Alignment(-0.1, 0),child:
+        InkWell(child:
+          Image.asset(widget.src ,height: 40,), onTap:widget.onTap),);
+  }
+
 }
