@@ -17,7 +17,9 @@ class WordView extends StatelessWidget {
     var text2 = firstByKey(word.text, firstLang, true);
     var trans = firstByKey(word.transcription, firstLang, true);
     return Padding(padding: EdgeInsets.only(top: 10,left: 10,right: 10),child: Center(
-      child: Container
+      child:new Column(children: <Widget>[
+
+        Container
         (
           constraints: new BoxConstraints.expand(
             height: 200.0,
@@ -54,6 +56,8 @@ class WordView extends StatelessWidget {
               ),
             ],
           )),
+          Container(alignment: Alignment(-0.9, 0), child: Image.asset("assets/playaudio.png",width: 30, height: 30,)),
+      ],) ,
     ),
     );
   }
