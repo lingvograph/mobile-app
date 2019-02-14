@@ -16,13 +16,14 @@ class WordView extends StatelessWidget {
     var text1 = firstByKey(word.text, firstLang, false);
     var text2 = firstByKey(word.text, firstLang, true);
     var trans = firstByKey(word.transcription, firstLang, true);
-    return Center(
-      child: Container(
+    return Padding(padding: EdgeInsets.only(top: 10,left: 10,right: 10),child: Center(
+      child: Container
+        (
           constraints: new BoxConstraints.expand(
             height: 200.0,
           ),
           padding: new EdgeInsets.only(left: 16.0, bottom: 8.0, right: 16.0),
-          decoration: new BoxDecoration(
+          decoration: new BoxDecoration(borderRadius: BorderRadius.circular(20),border: new Border.all(color: Colors.blueAccent,width: 2),
             image: new DecorationImage(
               image: new CachedNetworkImageProvider(word.image.url),
               fit: BoxFit.cover,
@@ -53,6 +54,7 @@ class WordView extends StatelessWidget {
               ),
             ],
           )),
+    ),
     );
   }
 }
