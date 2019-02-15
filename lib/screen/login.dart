@@ -40,14 +40,15 @@ class _LoginState extends State<LoginScreen> {
     Navigator.of(context).pushReplacementNamed('/home');
   }
 
-  void loginVk() {
+  loginVk() {
   debugPrint("vk");
   }
-  void loginGoogle() {
+  loginGoogle() {
+    debugPrint("gg");
 
   }
-  void loginFacebook() {
-
+  loginFacebook() {
+    debugPrint("fb");
   }
   String validateUsername(String value) {
     // TODO validate username or email
@@ -121,7 +122,7 @@ class _LoginState extends State<LoginScreen> {
                   height: 40,
                   margin: new EdgeInsets.all(30.0),
                   child: RaisedButton(
-                    shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(20.0)),
+                    shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
                     onPressed: submit,
                     child: Text(
                       'Login',
@@ -129,11 +130,12 @@ class _LoginState extends State<LoginScreen> {
                     ),
                     color: Colors.blue,
                   )),
-              new LoginImageBtn(src: "assets/logingoogle.png", onTap:()=> loginGoogle ,),
 
-              new LoginImageBtn(src: "assets/loginfacebook.png", onTap:()=> loginFacebook ),
+              new LoginImageBtn(src: "assets/logingoogle.png", onTap: loginGoogle ,),
 
-              new LoginImageBtn(src: "assets/loginvk.png", onTap:()=> loginVk ),
+              new LoginImageBtn(src: "assets/loginfacebook.png", onTap: loginFacebook ),
+
+              new LoginImageBtn(src: "assets/loginvk.png", onTap: loginVk ),
 
             ],
           ),
@@ -156,10 +158,11 @@ class _LoginImageBtnState extends State<LoginImageBtn>
 {
   @override
   Widget build(BuildContext context) {
+    //debugPrint(widget.onTap.toString());
     return new Container(padding: EdgeInsets.only(top: 10),
       alignment: Alignment(-0.1, 0),child:
         InkWell(child:
-          Image.asset(widget.src ,height: 40,), onTap:widget.onTap),);
+          Image.asset(widget.src ,height: 40,), onTap: widget.onTap),);
   }
 
 }
