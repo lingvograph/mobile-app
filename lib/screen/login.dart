@@ -3,7 +3,7 @@ import 'package:memoapp/api.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/inputfielddecoration.dart';
+import 'package:memoapp/components/inputfielddecoration.dart';
 // TODO loading state
 // TODO login error
 
@@ -41,14 +41,11 @@ class _LoginState extends State<LoginScreen> {
   }
 
   loginVk() {
-  debugPrint("vk");
   }
   loginGoogle() {
-    debugPrint("gg");
 
   }
   loginFacebook() {
-    debugPrint("fb");
   }
   String validateUsername(String value) {
     // TODO validate username or email
