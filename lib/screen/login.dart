@@ -3,7 +3,7 @@ import 'package:memoapp/api.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/model.dart';
-
+import 'package:memoapp/components/inputfielddecoration.dart';
 // TODO loading state
 // TODO login error
 
@@ -40,6 +40,13 @@ class _LoginState extends State<LoginScreen> {
     Navigator.of(context).pushReplacementNamed('/home');
   }
 
+  loginVk() {
+  }
+  loginGoogle() {
+
+  }
+  loginFacebook() {
+  }
   String validateUsername(String value) {
     // TODO validate username or email
 //    try {
@@ -53,6 +60,13 @@ class _LoginState extends State<LoginScreen> {
   String validatePassword(String value) {
     if (value.length < 6) {
       return 'The Password must be at least 6 characters.';
+    }
+    else if( value.contains(" ")) {
+        return 'The Password must not contain spaces.';
+      }
+    else if( value.contains(".") || value.contains("|") || value.contains("|")|| value.contains(";")|| value.contains(",")
+        || value.contains("!")|| value.contains("?")) {
+      return 'The Password must not contain \". , ; ! ?\" and so';
     }
     return null;
   }
@@ -72,6 +86,8 @@ class _LoginState extends State<LoginScreen> {
           child: ListView(
             children: <Widget>[
               // username field
+
+              new InputFieldDecoration(child:
               TextFormField(
                 onSaved: (String value) {
                   data.username = value;
@@ -81,8 +97,10 @@ class _LoginState extends State<LoginScreen> {
                   labelText: 'Username or email address',
                 ),
                 validator: validateUsername,
-              ),
+              )),
               // password field
+              new Padding(padding: EdgeInsets.all(7)),///Border-divider between two fields
+              new InputFieldDecoration(child:
               TextFormField(
                 onSaved: (String value) {
                   data.password = value;
@@ -93,23 +111,55 @@ class _LoginState extends State<LoginScreen> {
                   labelText: 'Enter your password',
                 ),
                 validator: validatePassword,
-              ),
+              )),
               // login button
+              //width field is now properly working so it is sized by padding
               Container(
-                  width: screenSize.width,
-                  margin: new EdgeInsets.only(top: 20.0),
+                  width: 200,
+                  height: 40,
+                  margin: new EdgeInsets.all(30.0),
                   child: RaisedButton(
+                    shape: new RoundedRectangleBorder(borderRadius: new BorderRadius.circular(10.0)),
                     onPressed: submit,
                     child: Text(
                       'Login',
-                      style: new TextStyle(color: Colors.white),
+                      style: new TextStyle(color: Colors.white, fontSize: 18),
                     ),
                     color: Colors.blue,
                   )),
+
+              new LoginImageBtn(src: "assets/logingoogle.png", onTap: loginGoogle ,),
+
+              new LoginImageBtn(src: "assets/loginfacebook.png", onTap: loginFacebook ),
+
+              new LoginImageBtn(src: "assets/loginvk.png", onTap: loginVk ),
+
             ],
           ),
         ),
       ),
     );
   }
+}
+class LoginImageBtn extends StatefulWidget
+{
+  String src;
+  Function onTap;
+  LoginImageBtn({@required this.src, this.onTap});
+
+  @override
+  _LoginImageBtnState createState() => _LoginImageBtnState();
+}
+
+class _LoginImageBtnState extends State<LoginImageBtn>
+{
+  @override
+  Widget build(BuildContext context) {
+    //debugPrint(widget.onTap.toString());
+    return new Container(padding: EdgeInsets.only(top: 10),
+      alignment: Alignment(-0.1, 0),child:
+        InkWell(child:
+          Image.asset(widget.src ,height: 40,), onTap: widget.onTap),);
+  }
+
 }

@@ -4,13 +4,7 @@ buildAppBar(BuildContext context) {
   return AppBar(
     title: Text('Learn'),
     actions: <Widget>[
-      IconButton(
-        icon: Icon(Icons.home),
-        tooltip: 'home',
-        onPressed: () {
-
-        },
-      ),
+     
       IconButton(
         icon: Icon(Icons.search),
         tooltip: 'Search',
@@ -19,5 +13,6 @@ buildAppBar(BuildContext context) {
         },
       ),
     ],
+
   );
 }
