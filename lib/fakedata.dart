@@ -16,7 +16,8 @@ var words = [
     'transcription@en': 'leik',
     'transcription@ru': "'лэйк",
     'pronunciation@en': 'https://howjsay.com/mp3/lake.mp3',
-    'image': 'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
+    'image':
+        'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
   },
   {
     'text@en': 'girl',
@@ -32,9 +33,10 @@ var words = [
     'transcription@en': 'bed',
     'transcription@ru': "'бэд",
     'pronunciation@en': 'https://howjsay.com/mp3/bed.mp3',
-    'image': 'https://hoff.ru//upload/iblock/9be/9be0921f96cf2f30b4e5136c4eccd7d8.jpg',
+    'image':
+        'https://hoff.ru//upload/iblock/9be/9be0921f96cf2f30b4e5136c4eccd7d8.jpg',
   },
-   {
+  {
     'text@en': 'boy',
     'text@ru': 'мальчик',
     'transcription@en': 'bOI',
@@ -48,15 +50,17 @@ var words = [
     'transcription@en': 'bOdI',
     'transcription@ru': "'боди",
     'pronunciation@en': 'https://howjsay.com/mp3/body.mp3',
-    'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKLUYuJGon1owJX__Y7Ov3uzLVPwMzK7dXDS375I5DRRP3ISprGA',
+    'image':
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKLUYuJGon1owJX__Y7Ov3uzLVPwMzK7dXDS375I5DRRP3ISprGA',
   },
-   {
+  {
     'text@en': 'car',
     'text@ru': 'автомобиль',
     'transcription@en': 'kɑːr',
     'transcription@ru': "'кар",
     'pronunciation@en': 'https://howjsay.com/mp3/car.mp3',
-    'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmIGgC7NLbTyrby1pTLhexemP0apw-H_zJ0at2BdJhPuHdhqiu',
+    'image':
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmIGgC7NLbTyrby1pTLhexemP0apw-H_zJ0at2BdJhPuHdhqiu',
   },
   {
     'text@en': 'door',
@@ -66,8 +70,7 @@ var words = [
     'pronunciation@en': 'https://howjsay.com/mp3/door.mp3',
     'image': 'https://images.obi.ru/product/RU/800x600/400211_1.jpg',
   },
-].map((t) => Word.fromJson(t))
-.toList();
+].map((t) => Word.fromJson(t)).toList();
 
 var i = 0;
 
