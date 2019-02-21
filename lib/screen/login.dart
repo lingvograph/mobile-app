@@ -4,6 +4,7 @@ import 'package:memoapp/appstate.dart';
 import 'package:memoapp/components/inputfielddecoration.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
+import 'package:memoapp/oauth_login.dart';
 
 // TODO loading state
 // TODO login error
@@ -41,11 +42,17 @@ class _LoginState extends State<LoginScreen> {
     Navigator.of(context).pushReplacementNamed('/home');
   }
 
-  loginVk() {}
+  loginVk() {
+    oauthLogin(context, 'vk');
+  }
 
-  loginGoogle() {}
+  loginGoogle() {
+    oauthLogin(context, 'google');
+  }
 
-  loginFacebook() {}
+  loginFacebook() {
+    oauthLogin(context, 'facebook');
+  }
 
   String validateUsername(String value) {
     // TODO validate username or email
