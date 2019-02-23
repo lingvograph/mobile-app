@@ -4,14 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/components/cardtextstyle.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/appstate.dart';
-import 'package:memoapp/screen/carddetailview.dart';
 import 'package:memoapp/utils.dart';
+import 'package:memoapp/wordaudioslist.dart';
 
-class WordView extends StatelessWidget {
+class DetailedWordView extends StatelessWidget {
   final AppState appState;
   final Word word;
 
-  WordView({this.appState, this.word});
+  DetailedWordView({this.appState, this.word});
 
   @override
   Widget build(BuildContext context) {
@@ -20,18 +20,15 @@ class WordView extends StatelessWidget {
     var text2 = firstByKey(word.text, firstLang, true);
     var trans = firstByKey(word.transcription, firstLang, true);
 
-    return Padding(
-      padding: EdgeInsets.only(left: 10, right: 10, top: 10),
-      child: Container(
-        decoration: new BoxDecoration(
-            color: Colors.grey[100],
-            borderRadius: BorderRadius.circular(20),
-            border: new Border.all(color: Colors.blueAccent, width: 2)),
-        child: Padding(
-          padding: EdgeInsets.only(top: 10, left: 10, right: 10),
-          child: Column(
-            children: <Widget>[
-              Container(
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text("Login"),
+      ),
+      body: ListView(
+        children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+              child: Container(
                   constraints: new BoxConstraints.expand(
                     height: 200.0,
                   ),
@@ -39,9 +36,6 @@ class WordView extends StatelessWidget {
                     // TODO improve position of subtitles
                     children: <Widget>[
                       new InkWell(
-                        onTap: () {
-                          openThisCard(context, appState,word);
-                        },
                         child: new Container(
                           padding: new EdgeInsets.only(
                               left: 16.0, bottom: 8.0, right: 16.0),
@@ -70,43 +64,12 @@ class WordView extends StatelessWidget {
                       ),
                     ],
                   )),
-              new Row(
-                children: <Widget>[
-                  Container(
-                    //alignment: Alignment(-0.7, 0),
-                    padding: EdgeInsets.only(left: 20, top: 5),
-                    child: InkWell(
-                        onTap: () {
-                          playSound();
-                        },
-                        child: Image.asset(
-                          "assets/playaudio.png",
-                          width: 30,
-                          height: 30,
-                        )),
-                  ),
-                ],
-              )
-            ],
-          ),
-        ),
+            ),
+            new WordAudiosList(word: word,),
+
+
+        ],
       ),
     );
   }
-
-  void playSound() {
-    var audioPlayer = new AudioPlayer();
-    var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var sound = firstByKey(word.pronunciation, firstLang, false);
-    if (sound != null) {
-      audioPlayer.play(sound.url);
-    }
-  }
-
-  void openThisCard(BuildContext ctxt, AppState state, Word word) {
-    Navigator.push(
-        ctxt,
-        MaterialPageRoute(builder: (context) => new DetailedWordView(appState: state, word: word,)));
-  }
-
 }
