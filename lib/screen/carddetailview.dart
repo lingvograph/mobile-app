@@ -6,6 +6,7 @@ import 'package:memoapp/model.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/utils.dart';
 import 'package:memoapp/wordaudioslist.dart';
+import 'package:memoapp/wordusageexampleslist.dart';
 
 class DetailedWordView extends StatelessWidget {
   final AppState appState;
@@ -22,7 +23,7 @@ class DetailedWordView extends StatelessWidget {
 
     return new Scaffold(
       appBar: AppBar(
-        title: Text("Login"),
+        title: Text("Word view"),
       ),
       body: ListView(
         children: <Widget>[
@@ -66,7 +67,7 @@ class DetailedWordView extends StatelessWidget {
                   )),
             ),
             new WordAudiosList(word: word,),
-
+            new WordUsagesList(word: word,),
 
         ],
       ),

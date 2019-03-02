@@ -16,7 +16,7 @@ var words = [
     'transcription@en': 'leik',
     'transcription@ru': "'лэйк",
     'pronunciation@en': 'https://howjsay.com/mp3/lake.mp3',
-    'image': 'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
+    'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/%D0%9E%D0%B7%D0%B5%D1%80%D0%BE_%D0%A1%D0%BC%D0%B5%D1%80%D0%B4%D1%8F%D1%87%D1%8C%D0%B5.jpg/1200px-%D0%9E%D0%B7%D0%B5%D1%80%D0%BE_%D0%A1%D0%BC%D0%B5%D1%80%D0%B4%D1%8F%D1%87%D1%8C%D0%B5.jpg',
   },
   {
     'text@en': 'girl',
@@ -32,7 +32,7 @@ var words = [
     'transcription@en': 'bed',
     'transcription@ru': "'бэд",
     'pronunciation@en': 'https://howjsay.com/mp3/bed.mp3',
-    'image': 'https://hoff.ru//upload/iblock/9be/9be0921f96cf2f30b4e5136c4eccd7d8.jpg',
+    'image': 'https://ormatek.com/upload/products/2b4/f32/2b4f3266f8c711e6951c2c768a5115e1/main/2b4f3266-f8c7-11e6-951c-2c768a5115e1_4ea178f7-4536-11e7-bc9d-2c768a5115e1.jpeg',
   },
    {
     'text@en': 'boy',
