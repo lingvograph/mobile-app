@@ -27,48 +27,50 @@ class DetailedWordView extends StatelessWidget {
       ),
       body: ListView(
         children: <Widget>[
-            Padding(
-              padding: EdgeInsets.only(top: 10, left: 15, right: 15),
-              child: Container(
-                  constraints: new BoxConstraints.expand(
-                    height: 200.0,
-                  ),
-                  child: Stack(
-                    // TODO improve position of subtitles
-                    children: <Widget>[
-                      new InkWell(
-                        child: new Container(
-                          padding: new EdgeInsets.only(
-                              left: 16.0, bottom: 8.0, right: 16.0),
-                          decoration: new BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border:
-                                new Border.all(color: Colors.grey, width: 2),
-                            image: new DecorationImage(
-                              image: new CachedNetworkImageProvider(
-                                  word.image.url),
-                              fit: BoxFit.cover,
-                            ),
+          Padding(
+            padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+            child: Container(
+                constraints: new BoxConstraints.expand(
+                  height: 200.0,
+                ),
+                child: Stack(
+                  // TODO improve position of subtitles
+                  children: <Widget>[
+                    new InkWell(
+                      child: new Container(
+                        padding: new EdgeInsets.only(
+                            left: 16.0, bottom: 8.0, right: 16.0),
+                        decoration: new BoxDecoration(
+                          borderRadius: BorderRadius.circular(10),
+                          border: new Border.all(color: Colors.grey, width: 2),
+                          image: new DecorationImage(
+                            image:
+                                new CachedNetworkImageProvider(word.image.url),
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
-                      Positioned(
-                        left: 10,
-                        top: 10,
-                        child: new Text(text1, style: WordTextStyle),
-                      ),
-                      Positioned(
-                        left: 10,
-                        top: 50,
-                        child: new Text(text2 + ' [' + trans + ']',
-                            style: TranscriptionTextStyle),
-                      ),
-                    ],
-                  )),
-            ),
-            new WordAudiosList(word: word,),
-            new WordUsagesList(word: word,),
-
+                    ),
+                    Positioned(
+                      left: 10,
+                      top: 10,
+                      child: new Text(text1, style: WordTextStyle),
+                    ),
+                    Positioned(
+                      left: 10,
+                      top: 50,
+                      child: new Text(text2 + ' [' + trans + ']',
+                          style: TranscriptionTextStyle),
+                    ),
+                  ],
+                )),
+          ),
+          new WordAudiosList(
+            word: word,
+          ),
+          new WordUsagesList(
+            word: word,
+          ),
         ],
       ),
     );

@@ -82,12 +82,13 @@ class HomeState extends State<HomeScreen> {
   }
 
   void playSound(int index) {
-    this.setState((){var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var sound = firstByKey(words[index].pronunciation, firstLang, false);
-    if (sound != null) {
-      audioPlayer.play(sound.url);
-    }});
-
+    this.setState(() {
+      var firstLang = this.appState.user?.firstLang ?? 'ru';
+      var sound = firstByKey(words[index].pronunciation, firstLang, false);
+      if (sound != null) {
+        audioPlayer.play(sound.url);
+      }
+    });
   }
 
   void initTabView() {

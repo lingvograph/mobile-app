@@ -40,7 +40,7 @@ class WordView extends StatelessWidget {
                     children: <Widget>[
                       new InkWell(
                         onTap: () {
-                          openThisCard(context, appState,word);
+                          openThisCard(context, appState, word);
                         },
                         child: new Container(
                           padding: new EdgeInsets.only(
@@ -106,7 +106,10 @@ class WordView extends StatelessWidget {
   void openThisCard(BuildContext ctxt, AppState state, Word word) {
     Navigator.push(
         ctxt,
-        MaterialPageRoute(builder: (context) => new DetailedWordView(appState: state, word: word,)));
+        MaterialPageRoute(
+            builder: (context) => new DetailedWordView(
+                  appState: state,
+                  word: word,
+                )));
   }
-
 }

@@ -16,7 +16,7 @@ class _ListState extends State<WordUsagesList> {
   double width;
   @override
   Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width/4;
+    width = MediaQuery.of(context).size.width / 4;
     usageExamples = new List();
     usageExamples.add(new UsageExample());
     usageExamples.add(new UsageExample());
