@@ -7,7 +7,6 @@ void main() async {
   var state = await AppState.load();
   // TODO check API token
   appData.appState = state;
-  appData.lingvo.nextWord();
   return runApp(App(state));
 }
 

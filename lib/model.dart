@@ -37,6 +37,8 @@ class User {
 }
 
 class Word {
+  String id;
+
   // text representation in different languages
   Map<String, String> text;
 
@@ -52,6 +54,7 @@ class Word {
   Word.fromJson(Map<String, dynamic> json) {
     var d = nest(json);
     text = map(d['text'], (t) => t as String);
+    id = d['id'] ?? text;
     transcription = map(d['transcription'], (t) => t as String);
     image = Resource.fromAny(d['image']);
     pronunciation = map(d['pronunciation'], (t) => Resource.fromAny(t));
@@ -78,4 +81,11 @@ class Resource {
     }
     return Resource.fromJson(val);
   }
+}
+
+class ListResult<T> {
+  List<T> items;
+  int total;
+
+  ListResult(this.items, this.total);
 }
