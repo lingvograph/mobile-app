@@ -76,17 +76,19 @@ class HomeState extends State<HomeScreen> {
     var word = await appData.lingvo.nextWord();
     setState(() {
       this.word = word;
-      playSound();
+      playSound(0);
     });
     setTimeout(this.nextWord, timeout);
   }
 
-  playSound() {
-    var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var sound = firstByKey(word.pronunciation, firstLang, false);
-    if (sound != null) {
-      audioPlayer.play(sound.url);
-    }
+  void playSound(int index) {
+    this.setState(() {
+      var firstLang = this.appState.user?.firstLang ?? 'ru';
+      var sound = firstByKey(words[index].pronunciation, firstLang, false);
+      if (sound != null) {
+        audioPlayer.play(sound.url);
+      }
+    });
   }
 
   void initTabView() {
@@ -121,7 +123,10 @@ class HomeState extends State<HomeScreen> {
           if (index == wordsLoaded - 1) {
             loadNextWord();
           }
-          return new WordView(appState, words[index]);
+          return new WordView(
+            appState: appState,
+            word: words[index],
+          );
         }));
     tabScreens.add(Icon(Icons.add));
     tabScreens.add(new UserProfile());
