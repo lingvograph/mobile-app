@@ -1,5 +1,5 @@
 import 'package:memoapp/api.dart';
-import 'package:memoapp/appstate.dart';
+import 'package:memoapp/data.dart';
 import 'package:memoapp/fakedata.dart';
 import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
@@ -9,26 +9,26 @@ import 'package:memoapp/model.dart';
 makeQuery(String firstLang, int offset) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
-      words(func: has(<_word>), offset: $offset, first: 1) $filter {
+      terms(func: has(<_term>), offset: $offset, first: 100) $filter {
         text
         lang
-        transcription
+        transcript: transcript@ru:en
         translated_as {
           text
           lang
-          transcription
-          pronounced_as {
+          transcript: transcript@ru:en
+          audio {
             url
           }
         }
-        pronounced_as {
+        audio {
           url
         }
-        relevant {
+        visual {
           url
         }
       }
-      count(func: has(<_word>)) $filter {
+      count(func: has(<_term>)) $filter {
         total: count(uid)
       }
     }""";
@@ -36,15 +36,13 @@ makeQuery(String firstLang, int offset) {
 }
 
 class RealLingvoService implements ILingvoService {
-  AppState appState;
   int offset = 0;
   int total = 0;
   FakeLingvoService fakeService = new FakeLingvoService();
 
-  RealLingvoService(this.appState);
-
   @override
   Future<Word> nextWord() async {
+    var appState = appData.appState;
     if (!appState.isLoggedIn) {
       return fakeService.nextWord();
     }
@@ -58,17 +56,17 @@ class RealLingvoService implements ILingvoService {
       var results = await query(q);
       total = results['count'][0]['total'];
 
-      var result = results['words'][0];
+      var result = results['terms'][0];
       var w = Map<String, dynamic>();
 
       var setProps = (dynamic t) {
         var lang = t['lang'];
         w["text@$lang"] = t['text'];
-        if (t.containsKey('transcription')) {
-          w["transcription@$lang"] = t['transcription'];
+        if (t.containsKey('transcript')) {
+          w["transcription@$lang"] = t['transcript'];
         }
-        if (t.containsKey('pronounced_as')) {
-          w["pronunciation@$lang"] = t['pronounced_as'][0];
+        if (t.containsKey('audio')) {
+          w["pronunciation@$lang"] = t['audio'][0];
         }
       };
 
@@ -76,8 +74,8 @@ class RealLingvoService implements ILingvoService {
       if (result.containsKey('translated_as')) {
         result['translated_as'].forEach(setProps);
       }
-      if (result.containsKey('relevant')) {
-        w['image'] = result['relevant'][0];
+      if (result.containsKey('visual')) {
+        w['image'] = result['visual'][0];
       }
 
       var word = Word.fromJson(w);
