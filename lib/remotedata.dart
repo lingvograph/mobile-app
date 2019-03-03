@@ -13,14 +13,11 @@ makeQuery(String firstLang, int offset, int limit) {
         uid
         text
         lang
-        transcript: transcript@ru:en
+        transcript@ru
+        transcript@en
         translated_as {
           text
           lang
-          transcript: transcript@ru:en
-          audio {
-            url
-          }
         }
         audio {
           url
@@ -67,13 +64,24 @@ class RealLingvoService implements ILingvoService {
       if (t.containsKey('uid')) {
         w['id'] = t['uid'];
       }
+
       var lang = t['lang'];
       w['text@$lang'] = t['text'];
-      if (t.containsKey('transcript')) {
-        w['transcription@$lang'] = t['transcript'];
-      }
+
+      ['ru', 'en'].forEach((lang) {
+        if (t.containsKey('transcript@$lang')) {
+          var k = 'transcription@$lang';
+          if (!w.containsKey(k)) {
+            w[k] = t['transcript@$lang'];
+          }
+        }
+      });
+
       if (t.containsKey('audio')) {
-        w['pronunciation@$lang'] = t['audio'][0];
+        var k = 'pronunciation@$lang';
+        if (!w.containsKey(k)) {
+          w[k] = t['audio'][0];
+        }
       }
     };
 
