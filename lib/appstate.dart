@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:memoapp/api.dart';
 import 'package:memoapp/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,13 +51,13 @@ class AppState implements AuthStateListener {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var json = jsonEncode(this);
       prefs.setString(PREFS_KEY, json);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   get user {
     return _user;
   }
+
   set user(User value) {
     _user = value;
     save();
@@ -65,17 +66,19 @@ class AppState implements AuthStateListener {
   get apiToken {
     return _apiToken;
   }
+
   set apiToken(String value) {
     _apiToken = value;
     setToken(value);
     save();
   }
 
-  get isLoggedIn => _user != null
-      && _user.name != null
-      && _user.name.length > 0
-      && _apiToken != null
-      && _apiToken.length > 0;
+  get isLoggedIn =>
+      _user != null &&
+      _user.name != null &&
+      _user.name.length > 0 &&
+      _apiToken != null &&
+      _apiToken.length > 0;
 
   @override
   void onChanged(bool isLoggedIn) {
