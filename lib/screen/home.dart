@@ -6,6 +6,7 @@ import 'package:memoapp/appstate.dart';
 import 'package:memoapp/components/appbar.dart';
 import 'package:memoapp/components/loading.dart';
 import 'package:memoapp/components/wordview.dart';
+import 'package:memoapp/screen/contentmanagment.dart';
 import 'package:memoapp/screen/userprofile.dart';
 import 'package:memoapp/utils.dart';
 
@@ -82,12 +83,13 @@ class HomeState extends State<HomeScreen> {
   }
 
   void playSound(int index) {
-    this.setState((){var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var sound = firstByKey(words[index].pronunciation, firstLang, false);
-    if (sound != null) {
-      audioPlayer.play(sound.url);
-    }});
-
+    this.setState(() {
+      var firstLang = this.appState.user?.firstLang ?? 'ru';
+      var sound = firstByKey(words[index].pronunciation, firstLang, false);
+      if (sound != null) {
+        audioPlayer.play(sound.url);
+      }
+    });
   }
 
   void initTabView() {
@@ -127,7 +129,7 @@ class HomeState extends State<HomeScreen> {
             word: words[index],
           );
         }));
-    tabScreens.add(Icon(Icons.add));
+    tabScreens.add(new ContentManager());
     tabScreens.add(new UserProfile());
   }
 }

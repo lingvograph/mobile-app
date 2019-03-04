@@ -13,6 +13,7 @@ environment:
   sdk: ">=2.0.0-dev.68.0 <3.0.0"
 
 dependencies:
+  flutter_sound: ^1.0.6
   flutter:
     sdk: flutter
   flutter_localizations:
