@@ -1,12 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:audioplayer/audioplayer.dart';
-import 'package:memoapp/data.dart';
-import 'package:memoapp/model.dart';
-import 'package:memoapp/appstate.dart';
-import 'package:memoapp/components/appbar.dart';
-import 'package:memoapp/components/loading.dart';
-import 'package:memoapp/components/wordview.dart';
-import 'package:memoapp/utils.dart';
+import 'package:memoapp/components/localization.dart';
+import 'package:memoapp/localres.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -24,6 +18,7 @@ class _ProfileState extends State<UserProfile> {
   void openAchievements() {
     this.setState(() {
       currentProfileWindow = new UserAchievments();
+      print(getString(key: PasswordLengthNotifications));
     });
   }
 

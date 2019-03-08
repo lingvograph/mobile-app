@@ -1,11 +1,10 @@
-import 'package:flutter/material.dart';
 import 'package:audioplayer/audioplayer.dart';
-import 'package:memoapp/data.dart';
-import 'package:memoapp/model.dart';
-import 'package:memoapp/appstate.dart';
+import 'package:flutter/material.dart';
 import 'package:memoapp/components/appbar.dart';
 import 'package:memoapp/components/loading.dart';
 import 'package:memoapp/components/wordview.dart';
+import 'package:memoapp/data.dart';
+import 'package:memoapp/model.dart';
 import 'package:memoapp/screen/contentmanagment.dart';
 import 'package:memoapp/screen/userprofile.dart';
 import 'package:memoapp/utils.dart';
@@ -18,34 +17,44 @@ var audioPlayer = new AudioPlayer();
 
 // main screen with word
 class HomeScreen extends StatefulWidget {
-  final AppState appState = appData.appState;
-
   @override
-  State<StatefulWidget> createState() => HomeState(appState);
+  State<StatefulWidget> createState() => HomeState();
 }
 
 class HomeState extends State<HomeScreen> {
-  AppState appState;
-  Word word;
-  List<Word> words;
-  int wordsLoaded;
+  List<Word> words = new List();
+  int total;
+  ScrollController scrollController = new ScrollController();
 
-  List<Widget> tabs;
-  List<Widget> tabScreens;
+  get appState {
+    return appData.appState;
+  }
 
-  HomeState(this.appState) {
-    initTabView();
-    wordsLoaded = 0;
-    words = new List();
-    for (int i = 0; i < 4; i++) {
-      loadNextWord();
-    }
+  @override
+  void initState() {
+    super.initState();
+
+    fetchPage();
+
+    scrollController.addListener(() {
+      var atBottom = scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent;
+      if (atBottom && words.length < total) {
+        fetchPage();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     // TODO goto login if appState has null user
-    if (wordsLoaded == 0) {
+    if (words.length == 0) {
       return Loading();
     }
     return MaterialApp(
@@ -54,32 +63,22 @@ class HomeState extends State<HomeScreen> {
           child: Scaffold(
             appBar: buildAppBar(context),
             bottomNavigationBar: new TabBar(
-              tabs: tabs,
+              tabs: makeTabs(),
             ),
             body: TabBarView(
-              children: tabScreens,
+              children: makeTabViews(),
             ),
           )),
     );
   }
 
   /*create new method */
-  loadNextWord() async {
-    var word = await appData.lingvo.nextWord();
+  fetchPage() async {
+    var result = await appData.lingvo.fetch(words.length, 5);
     setState(() {
-      words.add(word);
-      wordsLoaded++;
+      total = result.total;
+      words.addAll(result.items);
     });
-    //setTimeout(this.nextWord, timeout);
-  }
-
-  nextWord() async {
-    var word = await appData.lingvo.nextWord();
-    setState(() {
-      this.word = word;
-      playSound(0);
-    });
-    setTimeout(this.nextWord, timeout);
   }
 
   void playSound(int index) {
@@ -92,44 +91,46 @@ class HomeState extends State<HomeScreen> {
     });
   }
 
-  void initTabView() {
-    tabs = new List();
-    tabScreens = new List();
-    tabs.add(new Tab(
-      icon: new Icon(
-        Icons.home,
-        color: Colors.black,
+  List<Widget> makeTabs() {
+    return [
+      new Tab(
+        icon: new Icon(
+          Icons.home,
+          color: Colors.black,
+        ),
       ),
-    ));
-    tabs.add(new Tab(
-      icon: new Icon(
-        Icons.add,
-        color: Colors.black,
+      new Tab(
+        icon: new Icon(
+          Icons.add,
+          color: Colors.black,
+        ),
       ),
-    ));
-    tabs.add(new Tab(
-      icon: new Icon(
-        Icons.perm_identity,
-        color: Colors.black,
+      new Tab(
+        icon: new Icon(
+          Icons.perm_identity,
+          color: Colors.black,
+        ),
       ),
-    ));
+    ].toList();
+  }
 
-    tabScreens.add(new ListView.builder(
-        itemCount: wordsLoaded,
+  List<Widget> makeTabViews() {
+    return [
+      makeListView(),
+      new ContentManager(),
+      new UserProfile(),
+    ].toList();
+  }
+
+  Widget makeListView() {
+    return new ListView.builder(
+        controller: scrollController,
+        itemCount: words.length,
         itemBuilder: (BuildContext context, int index) {
-          /*Loading new element after just reaching end of list, infinit scroll effect
-                  * Also need to clear previous items of list(have no idea how to do it)
-                  * May it will be OK to stop loading after reaching the last possible item,
-                  * but the is no method to check elements count now*/
-          if (index == wordsLoaded - 1) {
-            loadNextWord();
-          }
           return new WordView(
             appState: appState,
             word: words[index],
           );
-        }));
-    tabScreens.add(new ContentManager());
-    tabScreens.add(new UserProfile());
+        });
   }
 }

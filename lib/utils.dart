@@ -4,7 +4,7 @@ T firstByKey<T>(Map<String, T> map, String key, [bool eq = true]) {
   if (map.isEmpty) {
     return null;
   }
-  var entry = map.entries.firstWhere((e) => (e.key == key) == eq, orElse: null);
+  var entry = map.entries.firstWhere((e) => (e.key == key) == eq, orElse: () => null);
   if (entry == null) {
     return null;
   }

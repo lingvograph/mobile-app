@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
 
@@ -66,17 +68,16 @@ var words = [
     'pronunciation@en': 'https://howjsay.com/mp3/door.mp3',
     'image': 'https://images.obi.ru/product/RU/800x600/400211_1.jpg',
   },
-].map((t) => Word.fromJson(t))
-.toList();
-
-var i = 0;
+].map((t) => Word.fromJson(t)).toList();
 
 class FakeLingvoService implements ILingvoService {
   @override
-  Future<Word> nextWord() async {
-    if (i >= words.length) {
-      i = 0;
+  Future<ListResult<Word>> fetch(int offset, int limit) async {
+    if (offset >= words.length) {
+      throw new Exception("offset out of range");
     }
-    return words[i++];
+    var end = min(words.length, offset + limit);
+    var list = words.sublist(offset, end);
+    return new ListResult<Word>(list, words.length);
   }
 }

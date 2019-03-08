@@ -24,7 +24,7 @@ class _ListState extends State<WordAudiosList> {
     audios.add(new LoadedAudio());
     audios.add(new LoadedAudio());
     audios.add(new LoadedAudio());
-    width = MediaQuery.of(context).size.width/4;
+    width = MediaQuery.of(context).size.width / 4;
     return new Center(
       child: Padding(
         padding: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
@@ -48,21 +48,21 @@ class _ListState extends State<WordAudiosList> {
                           borderRadius: BorderRadius.circular(10)),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              new IconButton(
-                                  icon: Icon(
-                                    Icons.navigate_before,
-                                    size: 25,
-                                  ),
-                                  onPressed: null),
-                              new IconButton(
-                                  icon: Icon(
-                                    Icons.navigate_next,
-                                    size: 25,
-                                  ),
-                                  onPressed: null),
-                            ],
-                          ))),
+                        children: <Widget>[
+                          new IconButton(
+                              icon: Icon(
+                                Icons.navigate_before,
+                                size: 25,
+                              ),
+                              onPressed: null),
+                          new IconButton(
+                              icon: Icon(
+                                Icons.navigate_next,
+                                size: 25,
+                              ),
+                              onPressed: null),
+                        ],
+                      ))),
             ],
           ),
         ),

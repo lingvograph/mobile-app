@@ -18,7 +18,7 @@ class WordView extends StatelessWidget {
     var firstLang = this.appState.user?.firstLang ?? 'ru';
     var text1 = firstByKey(word.text, firstLang, false);
     var text2 = firstByKey(word.text, firstLang, true);
-    var trans = firstByKey(word.transcription, firstLang, true);
+    var trans = firstByKey(word.transcription, firstLang, true) ?? '';
 
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 10),
@@ -106,7 +106,11 @@ class WordView extends StatelessWidget {
   void openThisCard(BuildContext ctxt, AppState state, Word word) {
     Navigator.push(
         ctxt,
-        MaterialPageRoute(builder: (context) => new DetailedWordView(appState: state, word: word,)));
+        MaterialPageRoute(
+            builder: (context) => new DetailedWordView(
+                  appState: state,
+                  word: word,
+                )));
   }
 
 }

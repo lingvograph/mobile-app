@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-
 var TranscriptionTextStyle = new TextStyle(
   shadows: <Shadow>[
     Shadow(

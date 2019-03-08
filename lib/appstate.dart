@@ -57,6 +57,7 @@ class AppState implements AuthStateListener {
   get user {
     return _user;
   }
+
   set user(User value) {
     _user = value;
     save();
@@ -65,17 +66,19 @@ class AppState implements AuthStateListener {
   get apiToken {
     return _apiToken;
   }
+
   set apiToken(String value) {
     _apiToken = value;
     setToken(value);
     save();
   }
 
-  get isLoggedIn => _user != null
-      && _user.name != null
-      && _user.name.length > 0
-      && _apiToken != null
-      && _apiToken.length > 0;
+  get isLoggedIn =>
+      _user != null &&
+      _user.name != null &&
+      _user.name.length > 0 &&
+      _apiToken != null &&
+      _apiToken.length > 0;
 
   @override
   void onChanged(bool isLoggedIn) {

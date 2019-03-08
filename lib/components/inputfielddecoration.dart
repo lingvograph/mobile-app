@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class InputFieldDecoration extends StatefulWidget {
   Widget child;
+
   InputFieldDecoration({@required this.child});
 
   @override
