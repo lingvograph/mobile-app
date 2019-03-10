@@ -6,20 +6,18 @@ import 'package:memoapp/model.dart';
 
 // TODO GraphQL query to get unknown/learning word, if no words get random word
 // TODO find words in order of preferences
-makeQuery(String firstLang, int offset) {
+makeQuery(String firstLang, int offset, int limit) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
-      terms(func: has(<_term>), offset: $offset, first: 100) $filter {
+      terms(func: has(<_term>), offset: $offset, first: $limit) $filter {
+        uid
         text
         lang
-        transcript: transcript@ru:en
+        transcript@ru
+        transcript@en
         translated_as {
           text
           lang
-          transcript: transcript@ru:en
-          audio {
-            url
-          }
         }
         audio {
           url
@@ -36,53 +34,65 @@ makeQuery(String firstLang, int offset) {
 }
 
 class RealLingvoService implements ILingvoService {
-  int offset = 0;
-  int total = 0;
   FakeLingvoService fakeService = new FakeLingvoService();
 
   @override
-  Future<Word> nextWord() async {
+  Future<ListResult<Word>> fetch(int offset, int limit) async {
     var appState = appData.appState;
     if (!appState.isLoggedIn) {
-      return fakeService.nextWord();
-    }
-    if (offset >= total) {
-      offset = 0;
+      return fakeService.fetch(offset, limit);
     }
 
     var firstLang = appState.user.firstLang;
-    var q = makeQuery(firstLang, offset);
+    var q = makeQuery(firstLang, offset, limit);
+
     try {
       var results = await query(q);
-      total = results['count'][0]['total'];
-
-      var result = results['terms'][0];
-      var w = Map<String, dynamic>();
-
-      var setProps = (dynamic t) {
-        var lang = t['lang'];
-        w["text@$lang"] = t['text'];
-        if (t.containsKey('transcript')) {
-          w["transcription@$lang"] = t['transcript'];
-        }
-        if (t.containsKey('audio')) {
-          w["pronunciation@$lang"] = t['audio'][0];
-        }
-      };
-
-      setProps(result);
-      if (result.containsKey('translated_as')) {
-        result['translated_as'].forEach(setProps);
-      }
-      if (result.containsKey('visual')) {
-        w['image'] = result['visual'][0];
-      }
-
-      var word = Word.fromJson(w);
-      offset += 1;
-      return word;
+      var total = results['count'][0]['total'];
+      var terms = results['terms'] as List<dynamic>;
+      var items = terms.map((t) => decode(t)).toList();
+      return new ListResult<Word>(items, total);
     } catch (err) {
-      return fakeService.nextWord();
+      return fakeService.fetch(offset, limit);
     }
+  }
+
+  Word decode(dynamic result) {
+    var w = Map<String, dynamic>();
+
+    var setProps = (dynamic t) {
+      if (t.containsKey('uid')) {
+        w['id'] = t['uid'];
+      }
+
+      var lang = t['lang'];
+      w['text@$lang'] = t['text'];
+
+      ['ru', 'en'].forEach((lang) {
+        if (t.containsKey('transcript@$lang')) {
+          var k = 'transcription@$lang';
+          if (!w.containsKey(k)) {
+            w[k] = t['transcript@$lang'];
+          }
+        }
+      });
+
+      if (t.containsKey('audio')) {
+        var k = 'pronunciation@$lang';
+        if (!w.containsKey(k)) {
+          w[k] = t['audio'][0];
+        }
+      }
+    };
+
+    setProps(result);
+    if (result.containsKey('translated_as')) {
+      result['translated_as'].forEach(setProps);
+    }
+    if (result.containsKey('visual')) {
+      w['image'] = result['visual'][0];
+    }
+
+    return Word.fromJson(w);
   }
 }

@@ -1,5 +1,5 @@
 import 'package:memoapp/model.dart';
 
 abstract class ILingvoService {
-  Future<Word> nextWord();
+  Future<ListResult<Word>> fetch(int offset, int limit);
 }
