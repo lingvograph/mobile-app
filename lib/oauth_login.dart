@@ -5,7 +5,7 @@ import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:memoapp/api.dart';
 
 oauthLogin(BuildContext ctx, String provider) async {
-  var url = apiBaseURL + '/oauth/login/' + provider;
+  var url = baseURL + '/oauth/login/' + provider;
   var plugin = new FlutterWebviewPlugin();
   plugin.launch(
     url,

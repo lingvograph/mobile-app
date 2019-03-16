@@ -1,10 +1,11 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
 
 // TODO move to config
-const apiBaseURL = 'http://tsvbits.com:4200/api';
+const baseURL = 'http://lingvograph.com:4200';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
@@ -25,6 +26,10 @@ class AuthState {
     }
     _subscribers.forEach((AuthStateListener s) => s.onChanged(isLoggedIn));
   }
+
+  String get authorizationHeader {
+    return 'Bearer $apiToken';
+  }
 }
 
 var authState = new AuthState();
@@ -34,22 +39,27 @@ void setToken(String token) {
 }
 
 String makeApiURL(String path) {
-  return apiBaseURL + path;
+  return baseURL + path;
 }
 
-Future<String> login(String username, String password) async {
+Future<String> login(String username, password) async {
   var http = BasicAuthClient(username, password);
   var res = await http.post(makeApiURL('/login'));
   var json = jsonDecode(res.body);
   return json['token'] as String;
 }
 
-Future<dynamic> query(String query) async {
+/// a generic POST API call
+/// @param path relative path to API method
+/// @param contentType mime type of a body
+/// @param body content to be posted
+Future<dynamic> postData(String methodPath, contentType, dynamic body) async {
   var headers = {
-    'Authorization': 'Bearer ' + authState.apiToken,
-    'Content-Type': 'application/graphql',
+    'Authorization': authState.authorizationHeader,
+    'Content-Type': contentType,
   };
-  var resp = await post(makeApiURL('/query'), headers: headers, body: query);
+  var url = makeApiURL(methodPath);
+  var resp = await post(url, headers: headers, body: body);
   if (resp.statusCode == 401) {
     authState.notify(false);
     throw new StateError('bad auth');
@@ -57,4 +67,73 @@ Future<dynamic> query(String query) async {
   var respText = utf8.decode(resp.bodyBytes);
   var results = jsonDecode(respText);
   return results;
+}
+
+/// Make a GraphQL query
+Future<dynamic> query(String query) async {
+  return postData('/api/query', 'application/graphql', query);
+}
+
+/// Upload a file
+/// @param path a file path
+/// @param contentType mime type of a file
+/// @param body file content, bytes or file stream
+Future<FileInfo> upload(String path, String contentType, dynamic body) async {
+  var result = await postData('/api/file/${path}', contentType, body);
+  return FileInfo.fromJson(result);
+}
+
+class FileInfo {
+  String uid;
+  String path;
+  String url;
+  String contentType;
+
+  FileInfo.fromJson(Map<String, dynamic> json) {
+    uid = json['uid'];
+    path = json['path'];
+    url = json['url'];
+    contentType = json['content_type'];
+  }
+}
+
+class NQuad {
+  String subject;
+  String predicate;
+  String object;
+
+  @override
+  String toString() {
+    return '$subject <$predicate> $object .';
+  }
+
+  /// Make a N-Quad string. If subject or object is not defined returns null.
+  static String format(String subject, predicate, object) {
+    if (subject == null || subject.isEmpty) {
+      return null;
+    }
+    if (object == null || object.isEmpty) {
+      return null;
+    }
+    return '$subject <$predicate> $object .';
+  }
+}
+
+Future<dynamic> updateGraph(Iterable<dynamic> nquads) {
+  var body = nquads.map((t) => t.toString()).join('\n');
+  return postData('/api/data/nquads', 'application/n-quads', body);
+}
+
+class TermUpdate {
+  String audioUid;
+  String imageUid;
+}
+
+/// Allows to connect given term to audio or image
+Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
+  var nquads = [
+    NQuad.format(termUid, 'audio', input.audioUid),
+    NQuad.format(termUid, 'visual', input.imageUid),
+  ].where((t) => t != null && t.isNotEmpty).toList();
+  return updateGraph(nquads);
 }

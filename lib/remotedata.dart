@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:memoapp/api.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/fakedata.dart';
@@ -6,7 +8,7 @@ import 'package:memoapp/model.dart';
 
 // TODO GraphQL query to get unknown/learning word, if no words get random word
 // TODO find words in order of preferences
-makeQuery(String firstLang, int offset, int limit) {
+makeQuery(String firstLang, int offset, limit) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
       terms(func: has(<_term>), offset: $offset, first: $limit) $filter {
@@ -37,24 +39,15 @@ class RealLingvoService implements ILingvoService {
   FakeLingvoService fakeService = new FakeLingvoService();
 
   @override
-  Future<ListResult<Word>> fetch(int offset, int limit) async {
+  Future<ListResult<Word>> fetch(int offset, limit) async {
     var appState = appData.appState;
-    if (!appState.isLoggedIn) {
-      return fakeService.fetch(offset, limit);
-    }
-
     var firstLang = appState.user.firstLang;
     var q = makeQuery(firstLang, offset, limit);
-
-    try {
-      var results = await query(q);
-      var total = results['count'][0]['total'];
-      var terms = results['terms'] as List<dynamic>;
-      var items = terms.map((t) => decode(t)).toList();
-      return new ListResult<Word>(items, total);
-    } catch (err) {
-      return fakeService.fetch(offset, limit);
-    }
+    var results = await query(q);
+    var total = results['count'][0]['total'];
+    var terms = results['terms'] as List<dynamic>;
+    var items = terms.map((t) => decode(t)).toList();
+    return new ListResult<Word>(items, total);
   }
 
   Word decode(dynamic result) {

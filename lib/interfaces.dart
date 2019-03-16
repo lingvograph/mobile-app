@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:memoapp/model.dart';
 
 abstract class ILingvoService {
