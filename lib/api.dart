@@ -45,7 +45,7 @@ String makeApiURL(String path) {
 
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
-  var res = await http.post(makeApiURL('/login'));
+  var res = await http.post(makeApiURL('/api/login'));
   var json = jsonDecode(res.body);
   return json['token'] as String;
 }
