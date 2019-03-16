@@ -7,7 +7,7 @@ import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
 
 // TODO filter known words
-makeQuery(String firstLang, int offset, limit) {
+makeQuery(String firstLang, int offset, int limit) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
       terms(func: has(<_term>), offset: $offset, first: $limit) $filter {
@@ -38,7 +38,7 @@ class RealLingvoService implements ILingvoService {
   FakeLingvoService fakeService = new FakeLingvoService();
 
   @override
-  Future<ListResult<Word>> fetch(int offset, limit) async {
+  Future<ListResult<Word>> fetch(int offset, int limit) async {
     var appState = appData.appState;
     var firstLang = appState.user.firstLang;
     var q = makeQuery(firstLang, offset, limit);

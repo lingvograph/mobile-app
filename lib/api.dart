@@ -43,7 +43,7 @@ String makeApiURL(String path) {
   return baseURL + path;
 }
 
-Future<String> login(String username, password) async {
+Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
   var res = await http.post(makeApiURL('/login'));
   var json = jsonDecode(res.body);
@@ -54,7 +54,7 @@ Future<String> login(String username, password) async {
 /// @param path relative path to API method
 /// @param contentType mime type of a body
 /// @param body content to be posted
-Future<dynamic> postData(String methodPath, contentType, dynamic body) async {
+Future<dynamic> postData(String methodPath, String contentType, dynamic body) async {
   var headers = {
     'Authorization': authState.authorizationHeader,
     'Content-Type': contentType,
@@ -109,7 +109,7 @@ class NQuad {
   }
 
   /// Make a N-Quad string. If subject or object is not defined returns null.
-  static String format(String subject, predicate, object) {
+  static String format(String subject, String predicate, String object) {
     if (subject == null || subject.isEmpty) {
       return null;
     }
