@@ -6,7 +6,7 @@ import 'package:http_auth/http_auth.dart';
 import 'package:memoapp/model.dart';
 
 // TODO move to config
-const baseURL = 'http://lingvograph.com:4200';
+const baseURL = 'http://lingvograph.com';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
