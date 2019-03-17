@@ -34,12 +34,7 @@ class _LoginState extends State<LoginScreen> {
 
     // TODO handle login error
     var token = await login(data.username, data.password);
-    // TODO request user data/preferences
-    var user = User(data.username, 'ru');
-
-    appState.user = user;
-    appState.apiToken = token;
-    Navigator.of(context).pushReplacementNamed('/home');
+    await appState.onLogin(context, token);
   }
 
   loginVk() {

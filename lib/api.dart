@@ -6,7 +6,7 @@ import 'package:http_auth/http_auth.dart';
 import 'package:memoapp/model.dart';
 
 // TODO move to config
-const baseURL = 'http://lingvograph.com';
+const baseURL = 'https://lingvograph.com';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
@@ -43,6 +43,7 @@ String makeApiURL(String path) {
   return baseURL + path;
 }
 
+// TODO handle login error
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
   var res = await http.post(makeApiURL('/api/login'));
@@ -68,6 +69,28 @@ Future<dynamic> postData(String methodPath, String contentType, dynamic body) as
   var respText = utf8.decode(resp.bodyBytes);
   var results = jsonDecode(respText);
   return results;
+}
+
+/// a generic GET API call
+/// @param path relative path to API method
+Future<dynamic> getData(String methodPath) async {
+  var headers = {
+    'Authorization': authState.authorizationHeader,
+  };
+  var url = makeApiURL(methodPath);
+  var resp = await get(url, headers: headers);
+  if (resp.statusCode == 401) {
+    authState.notify(false);
+    throw new StateError('bad auth');
+  }
+  var respText = utf8.decode(resp.bodyBytes);
+  var results = jsonDecode(respText);
+  return results;
+}
+
+Future<User> fetchCurrentUser() async {
+  var results = await getData('/api/me');
+  return User.fromJson(results);
 }
 
 /// Make a GraphQL query
