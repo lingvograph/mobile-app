@@ -44,11 +44,41 @@ String makeApiURL(String path, {bool withKey = true}) {
   return BASE_URL + path + (withKey ? '?key=$API_KEY' : '');
 }
 
+dynamic parseJSON(Response resp) {
+  var respText = utf8.decode(resp.bodyBytes);
+  return jsonDecode(respText);
+}
+
+bool isOK(Response resp) {
+  return resp.statusCode >= 200 && resp.statusCode < 300;
+}
+
+bool isJSON(Response resp) {
+  if (resp.headers.containsKey('Content-Type')) {
+    var s = resp.headers['Content-Type'];
+    return s != null && s.startsWith('application/json');
+  }
+  return false;
+}
+
+String getErrorMessage(Response resp) {
+  if (isJSON(resp)) {
+    var json = parseJSON(resp);
+    var error = json['error'] as String;
+    return error;
+  } else {
+    return utf8.decode(resp.bodyBytes);
+  }
+}
+
 // TODO handle login error
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
-  var res = await http.post(makeApiURL('/api/login', withKey: false));
-  var json = jsonDecode(res.body);
+  var resp = await http.post(makeApiURL('/api/login', withKey: false));
+  if (!isOK(resp)) {
+    throw new Exception(getErrorMessage(resp));
+  }
+  var json = parseJSON(resp);
   return json['token'] as String;
 }
 
@@ -67,8 +97,10 @@ Future<dynamic> postData(String methodPath, String contentType, dynamic body) as
     authState.notify(false);
     throw new StateError('bad auth');
   }
-  var respText = utf8.decode(resp.bodyBytes);
-  var results = jsonDecode(respText);
+  if (!isOK(resp)) {
+    throw new Exception(getErrorMessage(resp));
+  }
+  var results = parseJSON(resp);
   return results;
 }
 
@@ -84,8 +116,10 @@ Future<dynamic> getData(String methodPath) async {
     authState.notify(false);
     throw new StateError('bad auth');
   }
-  var respText = utf8.decode(resp.bodyBytes);
-  var results = jsonDecode(respText);
+  if (!isOK(resp)) {
+    throw new Exception(getErrorMessage(resp));
+  }
+  var results = parseJSON(resp);
   return results;
 }
 
