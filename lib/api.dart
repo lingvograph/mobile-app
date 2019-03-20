@@ -6,7 +6,8 @@ import 'package:http_auth/http_auth.dart';
 import 'package:memoapp/model.dart';
 
 // TODO move to config
-const baseURL = 'https://lingvograph.com';
+const BASE_URL = 'https://lingvograph.com';
+const API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImFwcF9zZWNyZXQiOiJRRUk3NTNOODJPQ1VJWEk2In0.eyJhcHBfaWQiOiJRVERIOUtZNSJ9.SC9pgbkOB4aMdMZ8xM39eqCAJAmXRZ9T6EyiEIXvfkE';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
@@ -39,14 +40,14 @@ void setToken(String token) {
   authState.apiToken = token;
 }
 
-String makeApiURL(String path) {
-  return baseURL + path;
+String makeApiURL(String path, {bool withKey = true}) {
+  return BASE_URL + path + (withKey ? '?key=$API_KEY' : '');
 }
 
 // TODO handle login error
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
-  var res = await http.post(makeApiURL('/api/login'));
+  var res = await http.post(makeApiURL('/api/login', withKey: false));
   var json = jsonDecode(res.body);
   return json['token'] as String;
 }
