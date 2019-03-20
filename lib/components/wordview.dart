@@ -16,8 +16,8 @@ class WordView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var text1 = firstByKey(word.text, firstLang, false);
-    var text2 = firstByKey(word.text, firstLang, true);
+    var text1 = firstByKey(word.text, firstLang, false) ?? '';
+    var text2 = firstByKey(word.text, firstLang, true) ?? '';
     var trans = firstByKey(word.transcription, firstLang, true) ?? '';
 
     return Padding(
