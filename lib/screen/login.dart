@@ -3,7 +3,6 @@ import 'package:memoapp/api.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/components/inputfielddecoration.dart';
 import 'package:memoapp/data.dart';
-import 'package:memoapp/model.dart';
 import 'package:memoapp/oauth_login.dart';
 
 // TODO loading indicator
@@ -89,6 +88,46 @@ class _LoginState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
+    final username = new InputFieldDecoration(
+        child: TextFormField(
+      onSaved: (String value) {
+        data.username = value;
+      },
+      decoration: InputDecoration(
+        hintText: 'you@example.com',
+        labelText: 'Username or email address',
+      ),
+      validator: validateUsername,
+    ));
+
+    final password = new InputFieldDecoration(
+        child: TextFormField(
+      onSaved: (String value) {
+        data.password = value;
+      },
+      obscureText: true, // password
+      decoration: InputDecoration(
+        hintText: 'Password',
+        labelText: 'Enter your password',
+      ),
+      validator: validatePassword,
+    ));
+
+    var loginBtn = Container(
+        width: 200,
+        height: 40,
+        margin: new EdgeInsets.all(30.0),
+        child: RaisedButton(
+          shape: new RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(10.0)),
+          onPressed: submit,
+          child: Text(
+            'Login',
+            style: new TextStyle(color: Colors.white, fontSize: 18),
+          ),
+          color: Colors.blue,
+        ));
+
     return Scaffold(
       appBar: AppBar(
         title: Text("Login"),
@@ -99,61 +138,13 @@ class _LoginState extends State<LoginScreen> {
           key: _formKey,
           child: ListView(
             children: <Widget>[
-              // username field
-
-              new InputFieldDecoration(
-                  child: TextFormField(
-                onSaved: (String value) {
-                  data.username = value;
-                },
-                decoration: InputDecoration(
-                  hintText: 'you@example.com',
-                  labelText: 'Username or email address',
-                ),
-                validator: validateUsername,
-              )),
-              // password field
+              username,
               new Padding(padding: EdgeInsets.all(7)),
-
-              ///Border-divider between two fields
-              new InputFieldDecoration(
-                  child: TextFormField(
-                onSaved: (String value) {
-                  data.password = value;
-                },
-                obscureText: true, // password
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  labelText: 'Enter your password',
-                ),
-                validator: validatePassword,
-              )),
-              // login button
-              //width field is now properly working so it is sized by padding
-              Container(
-                  width: 200,
-                  height: 40,
-                  margin: new EdgeInsets.all(30.0),
-                  child: RaisedButton(
-                    shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(10.0)),
-                    onPressed: submit,
-                    child: Text(
-                      'Login',
-                      style: new TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                    color: Colors.blue,
-                  )),
-
-              new LoginImageBtn(
-                src: "assets/logingoogle.png",
-                onTap: loginGoogle,
-              ),
-
-              new LoginImageBtn(
-                  src: "assets/loginfacebook.png", onTap: loginFacebook),
-
-              new LoginImageBtn(src: "assets/loginvk.png", onTap: loginVk),
+              password,
+              loginBtn,
+              new ImageButton("assets/logingoogle.png", loginGoogle),
+              new ImageButton("assets/loginfacebook.png", loginFacebook),
+              new ImageButton("assets/loginvk.png", loginVk),
             ],
           ),
         ),
@@ -162,29 +153,23 @@ class _LoginState extends State<LoginScreen> {
   }
 }
 
-class LoginImageBtn extends StatefulWidget {
+class ImageButton extends StatelessWidget {
   String src;
   Function onTap;
 
-  LoginImageBtn({@required this.src, this.onTap});
+  ImageButton(this.src, this.onTap);
 
-  @override
-  _LoginImageBtnState createState() => _LoginImageBtnState();
-}
-
-class _LoginImageBtnState extends State<LoginImageBtn> {
   @override
   Widget build(BuildContext context) {
-    //debugPrint(widget.onTap.toString());
     return new Container(
       padding: EdgeInsets.only(top: 10),
       alignment: Alignment(-0.1, 0),
       child: InkWell(
           child: Image.asset(
-            widget.src,
+            src,
             height: 40,
           ),
-          onTap: widget.onTap),
+          onTap: onTap),
     );
   }
 }
