@@ -57,33 +57,6 @@ class _LoginState extends State<LoginScreen> {
     oauthLogin(context, 'facebook');
   }
 
-  String validateUsername(String value) {
-    // TODO validate username or email
-//    try {
-//      Validate.isEmail(value);
-//    } catch (e) {
-//      return 'The E-mail Address must be a valid email address.';
-//    }
-    return null;
-  }
-
-  String validatePassword(String value) {
-    if (value.length < 6) {
-      return 'The Password must be at least 6 characters.';
-    } else if (value.contains(" ")) {
-      return 'The Password must not contain spaces.';
-    } else if (value.contains(".") ||
-        value.contains("|") ||
-        value.contains("|") ||
-        value.contains(";") ||
-        value.contains(",") ||
-        value.contains("!") ||
-        value.contains("?")) {
-      return 'The Password must not contain \". , ; ! ?\" and so';
-    }
-    return null;
-  }
-
   @override
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
@@ -97,7 +70,7 @@ class _LoginState extends State<LoginScreen> {
         hintText: 'you@example.com',
         labelText: 'Username or email address',
       ),
-      validator: validateUsername,
+      validator: Validators.username,
     ));
 
     final password = new InputFieldDecoration(
@@ -110,7 +83,7 @@ class _LoginState extends State<LoginScreen> {
         hintText: 'Password',
         labelText: 'Enter your password',
       ),
-      validator: validatePassword,
+      validator: Validators.password,
     ));
 
     var loginBtn = Container(
@@ -150,6 +123,35 @@ class _LoginState extends State<LoginScreen> {
         ),
       ),
     );
+  }
+}
+
+class Validators {
+  static String username(String value) {
+    // TODO validate username or email
+//    try {
+//      Validate.isEmail(value);
+//    } catch (e) {
+//      return 'The E-mail Address must be a valid email address.';
+//    }
+    return null;
+  }
+
+  static String password(String value) {
+    if (value.length < 6) {
+      return 'The Password must be at least 6 characters.';
+    } else if (value.contains(" ")) {
+      return 'The Password must not contain spaces.';
+    } else if (value.contains(".") ||
+        value.contains("|") ||
+        value.contains("|") ||
+        value.contains(";") ||
+        value.contains(",") ||
+        value.contains("!") ||
+        value.contains("?")) {
+      return 'The Password must not contain \". , ; ! ?\" and so';
+    }
+    return null;
   }
 }
 
