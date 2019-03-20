@@ -6,19 +6,33 @@ import 'package:memoapp/data.dart';
 import 'package:memoapp/oauth_login.dart';
 
 // TODO loading indicator
-// TODO display login error
 
 class LoginState {
   String username = "";
   String password = "";
 }
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Login"),
+      ),
+      body: Container(
+        padding: new EdgeInsets.all(20.0),
+        child: LoginForm(),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<LoginScreen> {
+class _LoginState extends State<LoginForm> {
   final AppState appState = appData.appState;
   final LoginState data = new LoginState();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -40,8 +54,11 @@ class _LoginState extends State<LoginScreen> {
 
       var token = await login(data.username, data.password);
       await appState.onLogin(context, token);
-    } catch (err) {
-      // TODO display error
+    } on StateError catch (err) {
+      final snackBar = SnackBar(
+        content: Text(err.message),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
     }
   }
 
@@ -64,7 +81,9 @@ class _LoginState extends State<LoginScreen> {
     final username = new InputFieldDecoration(
         child: TextFormField(
       onSaved: (String value) {
-        data.username = value;
+        setState(() {
+          data.username = value;
+        });
       },
       decoration: InputDecoration(
         hintText: 'you@example.com',
@@ -76,7 +95,9 @@ class _LoginState extends State<LoginScreen> {
     final password = new InputFieldDecoration(
         child: TextFormField(
       onSaved: (String value) {
-        data.password = value;
+        setState(() {
+          data.password = value;
+        });
       },
       obscureText: true, // password
       decoration: InputDecoration(
@@ -101,26 +122,18 @@ class _LoginState extends State<LoginScreen> {
           color: Colors.blue,
         ));
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Login"),
-      ),
-      body: Container(
-        padding: new EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              username,
-              new Padding(padding: EdgeInsets.all(7)),
-              password,
-              loginBtn,
-              new ImageButton("assets/logingoogle.png", loginGoogle),
-              new ImageButton("assets/loginfacebook.png", loginFacebook),
-              new ImageButton("assets/loginvk.png", loginVk),
-            ],
-          ),
-        ),
+    return Form(
+      key: _formKey,
+      child: ListView(
+        children: <Widget>[
+          username,
+          new Padding(padding: EdgeInsets.all(7)),
+          password,
+          loginBtn,
+          new ImageButton("assets/logingoogle.png", loginGoogle),
+          new ImageButton("assets/loginfacebook.png", loginFacebook),
+          new ImageButton("assets/loginvk.png", loginVk),
+        ],
       ),
     );
   }
