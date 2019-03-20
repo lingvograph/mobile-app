@@ -6,8 +6,8 @@ import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/oauth_login.dart';
 
-// TODO loading state
-// TODO login error
+// TODO loading indicator
+// TODO display login error
 
 class LoginState {
   String username = "";
@@ -29,12 +29,21 @@ class _LoginState extends State<LoginScreen> {
     if (!form.validate()) {
       return;
     }
-    // setState(() => _isLoading = true);
+
     form.save();
 
-    // TODO handle login error
-    var token = await login(data.username, data.password);
-    await appState.onLogin(context, token);
+    if (!form.validate()) {
+      return;
+    }
+
+    try {
+      // setState(() => _isLoading = true);
+
+      var token = await login(data.username, data.password);
+      await appState.onLogin(context, token);
+    } catch (err) {
+      // TODO display error
+    }
   }
 
   loginVk() {
