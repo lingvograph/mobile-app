@@ -5,21 +5,23 @@ import 'package:memoapp/model.dart';
 
 final String PasswordLengthNotifications = "passwordLengthNotifications";
 
+String _ru = "ru";
+String _en = "en";
 var Translations = '''
   {
     "name": 
       [
         {
-          "en":"mige",
-          "ru":"mikhail"
+          "$_en":"mige",
+          "$_ru":"mikhail"
         }
       ],
       
       "$PasswordLengthNotifications": 
       [
         {
-          "en":"The Password must be at least 6 characters.",
-          "ru":"Пароль дожен включать как минимум 6 символов"
+          "$_en":"The Password must be at least 6 characters.",
+          "$_ru":"Пароль дожен включать как минимум 6 символов"
         }
       ]
   }

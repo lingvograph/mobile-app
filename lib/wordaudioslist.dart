@@ -42,7 +42,7 @@ class _ListState extends State<WordAudiosList> {
               Padding(
                   padding: EdgeInsets.only(top: 4, left: width, right: width),
                   child: Container(
-                    //padding: EdgeInsets.only(left: width),
+                      //padding: EdgeInsets.only(left: width),
                       decoration: BoxDecoration(
                           color: Colors.grey[200],
                           borderRadius: BorderRadius.circular(10)),

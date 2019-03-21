@@ -6,6 +6,7 @@ import 'package:memoapp/components/localization.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/localres.dart';
 import 'package:memoapp/model.dart';
+import 'package:memoapp/oauth_login.dart';
 
 // TODO loading state
 // TODO login error
@@ -35,19 +36,20 @@ class _LoginState extends State<LoginScreen> {
 
     // TODO handle login error
     var token = await login(data.username, data.password);
-    // TODO request user data/preferences
-    var user = User(data.username, 'ru');
-
-    appState.user = user;
-    appState.apiToken = token;
-    Navigator.of(context).pushReplacementNamed('/home');
+    await appState.onLogin(context, token);
   }
 
-  loginVk() {}
+  loginVk() {
+    oauthLogin(context, 'vk');
+  }
 
-  loginGoogle() {}
+  loginGoogle() {
+    oauthLogin(context, 'google');
+  }
 
-  loginFacebook() {}
+  loginFacebook() {
+    oauthLogin(context, 'facebook');
+  }
 
   String validateUsername(String value) {
     // TODO validate username or email
@@ -61,7 +63,7 @@ class _LoginState extends State<LoginScreen> {
 
   String validatePassword(String value) {
     if (value.length < 6) {
-      return getString(key: PasswordLengthNotifications);
+      return 'The Password must be at least 6 characters.';
     } else if (value.contains(" ")) {
       return 'The Password must not contain spaces.';
     } else if (value.contains(".") ||

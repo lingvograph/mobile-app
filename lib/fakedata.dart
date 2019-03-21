@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:memoapp/interfaces.dart';
@@ -18,7 +19,8 @@ var words = [
     'transcription@en': 'leik',
     'transcription@ru': "'лэйк",
     'pronunciation@en': 'https://howjsay.com/mp3/lake.mp3',
-    'image': 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/%D0%9E%D0%B7%D0%B5%D1%80%D0%BE_%D0%A1%D0%BC%D0%B5%D1%80%D0%B4%D1%8F%D1%87%D1%8C%D0%B5.jpg/1200px-%D0%9E%D0%B7%D0%B5%D1%80%D0%BE_%D0%A1%D0%BC%D0%B5%D1%80%D0%B4%D1%8F%D1%87%D1%8C%D0%B5.jpg',
+    'image':
+        'https://github.com/flutter/website/blob/master/src/_includes/code/layout/lakes/images/lake.jpg?raw=true',
   },
   {
     'text@en': 'girl',

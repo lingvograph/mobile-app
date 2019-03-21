@@ -29,7 +29,9 @@ class User {
 
   User(this.name, this.firstLang);
 
-  User.fromJson(Map json) : name = json['name'];
+  User.fromJson(Map json)
+      : name = json['name'],
+        firstLang = json.containsKey('first_lang') ? json['first_lang'] : 'ru';
 
   Map<String, dynamic> toJson() => {
         'name': name,

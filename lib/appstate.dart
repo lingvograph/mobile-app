@@ -1,4 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -50,8 +53,7 @@ class AppState implements AuthStateListener {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       var json = jsonEncode(this);
       prefs.setString(PREFS_KEY, json);
-    } catch (e) {
-    }
+    } catch (e) {}
   }
 
   get user {
@@ -87,5 +89,11 @@ class AppState implements AuthStateListener {
       _user = null;
       _apiToken = null;
     }
+  }
+
+  onLogin(BuildContext context, String token) async {
+    apiToken = token;
+    user = await fetchCurrentUser();
+    Navigator.of(context).pushReplacementNamed('/home');
   }
 }
