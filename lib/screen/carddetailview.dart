@@ -5,7 +5,7 @@ import 'package:memoapp/components/cardtextstyle.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/utils.dart';
-import 'package:memoapp/wordaudioslist.dart';
+import 'package:memoapp/pronounciationlist.dart';
 import 'package:memoapp/wordusageexampleslist.dart';
 
 class DetailedWordView extends StatelessWidget {
@@ -65,7 +65,7 @@ class DetailedWordView extends StatelessWidget {
                   ],
                 )),
           ),
-          new WordAudiosList(
+          new PronounciationList(
             word: word,
           ),
           new WordUsagesList(
