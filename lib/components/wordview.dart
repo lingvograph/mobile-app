@@ -16,8 +16,8 @@ class WordView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var text1 = firstByKey(word.text, firstLang, false);
-    var text2 = firstByKey(word.text, firstLang, true);
+    var text1 = firstByKey(word.text, firstLang, false) ?? '';
+    var text2 = firstByKey(word.text, firstLang, true) ?? '';
     var trans = firstByKey(word.transcription, firstLang, true) ?? '';
 
     return Padding(
@@ -40,7 +40,7 @@ class WordView extends StatelessWidget {
                     children: <Widget>[
                       new InkWell(
                         onTap: () {
-                          openThisCard(context, appState,word);
+                          openThisCard(context, appState, word);
                         },
                         child: new Container(
                           padding: new EdgeInsets.only(

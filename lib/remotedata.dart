@@ -6,8 +6,7 @@ import 'package:memoapp/fakedata.dart';
 import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
 
-// TODO GraphQL query to get unknown/learning word, if no words get random word
-// TODO find words in order of preferences
+// TODO filter known words
 makeQuery(String firstLang, int offset, int limit) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{

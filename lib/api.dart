@@ -6,7 +6,8 @@ import 'package:http_auth/http_auth.dart';
 import 'package:memoapp/model.dart';
 
 // TODO move to config
-const baseURL = 'https://lingvograph.com';
+const BASE_URL = 'https://lingvograph.com';
+const API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImFwcF9zZWNyZXQiOiJRRUk3NTNOODJPQ1VJWEk2In0.eyJhcHBfaWQiOiJRVERIOUtZNSJ9.SC9pgbkOB4aMdMZ8xM39eqCAJAmXRZ9T6EyiEIXvfkE';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
@@ -39,15 +40,52 @@ void setToken(String token) {
   authState.apiToken = token;
 }
 
-String makeApiURL(String path) {
-  return baseURL + path;
+String makeApiURL(String path, {bool withKey = true}) {
+  return BASE_URL + path + (withKey ? '?key=$API_KEY' : '');
+}
+
+dynamic parseJSON(Response resp) {
+  var respText = utf8.decode(resp.bodyBytes);
+  return jsonDecode(respText);
+}
+
+bool isOK(Response resp) {
+  return resp.statusCode >= 200 && resp.statusCode < 300;
+}
+
+bool isJSON(Response resp) {
+  if (resp.headers.containsKey('content-type')) {
+    var s = resp.headers['content-type'];
+    return s != null && s.startsWith('application/json');
+  }
+  return false;
+}
+
+String getErrorMessage(Response resp) {
+  if (isJSON(resp)) {
+    var json = parseJSON(resp) as Map<String, dynamic>;
+    if (json.containsKey('error')) {
+      var error = json['error'] as String;
+      return error;
+    }
+    if (json.containsKey('error_message')) {
+      var error = json['error_message'] as String;
+      return error;
+    }
+    return utf8.decode(resp.bodyBytes);
+  } else {
+    return utf8.decode(resp.bodyBytes);
+  }
 }
 
 // TODO handle login error
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
-  var res = await http.post(makeApiURL('/api/login'));
-  var json = jsonDecode(res.body);
+  var resp = await http.post(makeApiURL('/api/login', withKey: false));
+  if (!isOK(resp)) {
+    throw new StateError(getErrorMessage(resp));
+  }
+  var json = parseJSON(resp);
   return json['token'] as String;
 }
 
@@ -66,8 +104,10 @@ Future<dynamic> postData(String methodPath, String contentType, dynamic body) as
     authState.notify(false);
     throw new StateError('bad auth');
   }
-  var respText = utf8.decode(resp.bodyBytes);
-  var results = jsonDecode(respText);
+  if (!isOK(resp)) {
+    throw new StateError(getErrorMessage(resp));
+  }
+  var results = parseJSON(resp);
   return results;
 }
 
@@ -83,8 +123,10 @@ Future<dynamic> getData(String methodPath) async {
     authState.notify(false);
     throw new StateError('bad auth');
   }
-  var respText = utf8.decode(resp.bodyBytes);
-  var results = jsonDecode(respText);
+  if (!isOK(resp)) {
+    throw new StateError(getErrorMessage(resp));
+  }
+  var results = parseJSON(resp);
   return results;
 }
 

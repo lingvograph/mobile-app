@@ -118,4 +118,3 @@ class _AudioState extends State<LoadedAudio> {
     );
   }
 }
-

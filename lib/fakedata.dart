@@ -36,9 +36,10 @@ var words = [
     'transcription@en': 'bed',
     'transcription@ru': "'бэд",
     'pronunciation@en': 'https://howjsay.com/mp3/bed.mp3',
-    'image': 'https://ormatek.com/upload/products/2b4/f32/2b4f3266f8c711e6951c2c768a5115e1/main/2b4f3266-f8c7-11e6-951c-2c768a5115e1_4ea178f7-4536-11e7-bc9d-2c768a5115e1.jpeg',
+    'image':
+        'https://hoff.ru//upload/iblock/9be/9be0921f96cf2f30b4e5136c4eccd7d8.jpg',
   },
-   {
+  {
     'text@en': 'boy',
     'text@ru': 'мальчик',
     'transcription@en': 'bOI',
@@ -52,15 +53,17 @@ var words = [
     'transcription@en': 'bOdI',
     'transcription@ru': "'боди",
     'pronunciation@en': 'https://howjsay.com/mp3/body.mp3',
-    'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKLUYuJGon1owJX__Y7Ov3uzLVPwMzK7dXDS375I5DRRP3ISprGA',
+    'image':
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKLUYuJGon1owJX__Y7Ov3uzLVPwMzK7dXDS375I5DRRP3ISprGA',
   },
-   {
+  {
     'text@en': 'car',
     'text@ru': 'автомобиль',
     'transcription@en': 'kɑːr',
     'transcription@ru': "'кар",
     'pronunciation@en': 'https://howjsay.com/mp3/car.mp3',
-    'image': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmIGgC7NLbTyrby1pTLhexemP0apw-H_zJ0at2BdJhPuHdhqiu',
+    'image':
+        'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmIGgC7NLbTyrby1pTLhexemP0apw-H_zJ0at2BdJhPuHdhqiu',
   },
   {
     'text@en': 'door',

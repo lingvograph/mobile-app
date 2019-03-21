@@ -16,12 +16,27 @@ class LoginState {
   String password = "";
 }
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Login"),
+      ),
+      body: Container(
+        padding: new EdgeInsets.all(20.0),
+        child: LoginForm(),
+      ),
+    );
+  }
+}
+
+class LoginForm extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
 }
 
-class _LoginState extends State<LoginScreen> {
+class _LoginState extends State<LoginForm> {
   final AppState appState = appData.appState;
   final LoginState data = new LoginState();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
@@ -31,12 +46,24 @@ class _LoginState extends State<LoginScreen> {
     if (!form.validate()) {
       return;
     }
-    // setState(() => _isLoading = true);
+
     form.save();
 
-    // TODO handle login error
-    var token = await login(data.username, data.password);
-    await appState.onLogin(context, token);
+    if (!form.validate()) {
+      return;
+    }
+
+    try {
+      // setState(() => _isLoading = true);
+
+      var token = await login(data.username, data.password);
+      await appState.onLogin(context, token);
+    } on StateError catch (err) {
+      final snackBar = SnackBar(
+        content: Text(err.message),
+      );
+      Scaffold.of(context).showSnackBar(snackBar);
+    }
   }
 
   loginVk() {
@@ -82,103 +109,113 @@ class _LoginState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Login"),
+    final username = new InputFieldDecoration(
+        child: TextFormField(
+      onSaved: (String value) {
+        setState(() {
+          data.username = value;
+        });
+      },
+      decoration: InputDecoration(
+        hintText: 'you@example.com',
+        labelText: 'Username or email address',
       ),
-      body: Container(
-        padding: new EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: <Widget>[
-              // username field
+      validator: Validators.username,
+    ));
 
-              new InputFieldDecoration(
-                  child: TextFormField(
-                onSaved: (String value) {
-                  data.username = value;
-                },
-                decoration: InputDecoration(
-                  hintText: 'you@example.com',
-                  labelText: 'Username or email address',
-                ),
-                validator: validateUsername,
-              )),
-              // password field
-              new Padding(padding: EdgeInsets.all(7)),
+    final password = new InputFieldDecoration(
+        child: TextFormField(
+      onSaved: (String value) {
+        setState(() {
+          data.password = value;
+        });
+      },
+      obscureText: true, // password
+      decoration: InputDecoration(
+        hintText: 'Password',
+        labelText: 'Enter your password',
+      ),
+      validator: Validators.password,
+    ));
 
-              ///Border-divider between two fields
-              new InputFieldDecoration(
-                  child: TextFormField(
-                onSaved: (String value) {
-                  data.password = value;
-                },
-                obscureText: true, // password
-                decoration: InputDecoration(
-                  hintText: 'Password',
-                  labelText: 'Enter your password',
-                ),
-                validator: validatePassword,
-              )),
-              // login button
-              //width field is now properly working so it is sized by padding
-              Container(
-                  width: 200,
-                  height: 40,
-                  margin: new EdgeInsets.all(30.0),
-                  child: RaisedButton(
-                    shape: new RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(10.0)),
-                    onPressed: submit,
-                    child: Text(
-                      'Login',
-                      style: new TextStyle(color: Colors.white, fontSize: 18),
-                    ),
-                    color: Colors.blue,
-                  )),
-
-              new LoginImageBtn(
-                src: "assets/logingoogle.png",
-                onTap: loginGoogle,
-              ),
-
-              new LoginImageBtn(
-                  src: "assets/loginfacebook.png", onTap: loginFacebook),
-
-              new LoginImageBtn(src: "assets/loginvk.png", onTap: loginVk),
-            ],
+    var loginBtn = Container(
+        width: 200,
+        height: 40,
+        margin: new EdgeInsets.all(30.0),
+        child: RaisedButton(
+          shape: new RoundedRectangleBorder(
+              borderRadius: new BorderRadius.circular(10.0)),
+          onPressed: submit,
+          child: Text(
+            'Login',
+            style: new TextStyle(color: Colors.white, fontSize: 18),
           ),
-        ),
+          color: Colors.blue,
+        ));
+
+    return Form(
+      key: _formKey,
+      child: ListView(
+        children: <Widget>[
+          username,
+          new Padding(padding: EdgeInsets.all(7)),
+          password,
+          loginBtn,
+          new ImageButton("assets/logingoogle.png", loginGoogle),
+          new ImageButton("assets/loginfacebook.png", loginFacebook),
+          new ImageButton("assets/loginvk.png", loginVk),
+        ],
       ),
     );
   }
 }
 
-class LoginImageBtn extends StatefulWidget {
+class Validators {
+  static String username(String value) {
+    // TODO validate username or email
+//    try {
+//      Validate.isEmail(value);
+//    } catch (e) {
+//      return 'The E-mail Address must be a valid email address.';
+//    }
+    return null;
+  }
+
+  static String password(String value) {
+    if (value.length < 6) {
+      return 'The Password must be at least 6 characters.';
+    } else if (value.contains(" ")) {
+      return 'The Password must not contain spaces.';
+    } else if (value.contains(".") ||
+        value.contains("|") ||
+        value.contains("|") ||
+        value.contains(";") ||
+        value.contains(",") ||
+        value.contains("!") ||
+        value.contains("?")) {
+      return 'The Password must not contain \". , ; ! ?\" and so';
+    }
+    return null;
+  }
+}
+
+class ImageButton extends StatelessWidget {
   String src;
   Function onTap;
 
-  LoginImageBtn({@required this.src, this.onTap});
+  ImageButton(this.src, this.onTap);
 
-  @override
-  _LoginImageBtnState createState() => _LoginImageBtnState();
-}
-
-class _LoginImageBtnState extends State<LoginImageBtn> {
   @override
   Widget build(BuildContext context) {
-    //debugPrint(widget.onTap.toString());
     return new Container(
       padding: EdgeInsets.only(top: 10),
       alignment: Alignment(-0.1, 0),
       child: InkWell(
           child: Image.asset(
-            widget.src,
+            src,
             height: 40,
           ),
-          onTap: widget.onTap),
+          onTap: onTap),
     );
   }
-
 }

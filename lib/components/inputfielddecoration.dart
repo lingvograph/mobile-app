@@ -17,8 +17,7 @@ class _DecorationState extends State<InputFieldDecoration> {
       padding: EdgeInsets.only(left: 10, right: 10, bottom: 5),
       decoration: BoxDecoration(
           color: Colors.grey[100], borderRadius: BorderRadius.circular(20)),
-      child:
-        widget.child,
+      child: widget.child,
     );
   }
 }
