@@ -10,7 +10,7 @@ import 'package:memoapp/model.dart';
 makeQuery(String firstLang, int offset, int limit) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
-      terms(func: has(<_term>), offset: $offset, first: $limit) $filter {
+      terms(func: has(Term), offset: $offset, first: $limit) $filter {
         uid
         text
         lang
@@ -27,7 +27,7 @@ makeQuery(String firstLang, int offset, int limit) {
           url
         }
       }
-      count(func: has(<_term>)) $filter {
+      count(func: has(Term)) $filter {
         total: count(uid)
       }
     }""";
