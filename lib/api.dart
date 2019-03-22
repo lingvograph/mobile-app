@@ -7,7 +7,8 @@ import 'package:memoapp/model.dart';
 
 // TODO move to config
 const BASE_URL = 'https://lingvograph.com';
-const API_KEY = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImFwcF9zZWNyZXQiOiJRRUk3NTNOODJPQ1VJWEk2In0.eyJhcHBfaWQiOiJRVERIOUtZNSJ9.SC9pgbkOB4aMdMZ8xM39eqCAJAmXRZ9T6EyiEIXvfkE';
+const API_KEY =
+    'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiIsImFwcF9zZWNyZXQiOiJRRUk3NTNOODJPQ1VJWEk2In0.eyJhcHBfaWQiOiJRVERIOUtZNSJ9.SC9pgbkOB4aMdMZ8xM39eqCAJAmXRZ9T6EyiEIXvfkE';
 
 abstract class AuthStateListener {
   void onChanged(bool isLoggedIn);
@@ -93,7 +94,8 @@ Future<String> login(String username, String password) async {
 /// @param path relative path to API method
 /// @param contentType mime type of a body
 /// @param body content to be posted
-Future<dynamic> postData(String methodPath, String contentType, dynamic body) async {
+Future<dynamic> postData(
+    String methodPath, String contentType, dynamic body) async {
   var headers = {
     'Authorization': authState.authorizationHeader,
     'Content-Type': contentType,
@@ -232,7 +234,8 @@ class AudioInfo {
 }
 
 // TODO order by popularity
-Future<ListResult<AudioInfo>> fetchAudioList(String termUid, int offset, limit) async {
+Future<ListResult<AudioInfo>> fetchAudioList(
+    String termUid, int offset, limit) async {
   var q = """{
       term(func: uid($termUid)) {
         audio (offset: $offset, first: $limit) {

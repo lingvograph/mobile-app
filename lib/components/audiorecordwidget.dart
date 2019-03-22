@@ -8,7 +8,6 @@ import 'package:intl/intl.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class RecordAudioWidget extends StatefulWidget {
-
   @override
   _RecordState createState() => _RecordState();
 }
@@ -55,11 +54,11 @@ class _RecordState extends State<RecordAudioWidget> {
       });
       _dbPeakSubscription =
           flutterSound.onRecorderDbPeakChanged.listen((value) {
-            print("got update -> $value");
-            setState(() {
-              this._dbLevel = value;
-            });
-          });
+        print("got update -> $value");
+        setState(() {
+          this._dbLevel = value;
+        });
+      });
 
       this.setState(() {
         this._isRecording = true;
@@ -185,10 +184,10 @@ class _RecordState extends State<RecordAudioWidget> {
             ),
             _isRecording
                 ? LinearProgressIndicator(
-              value: 100.0 / 120.0 * (this._dbLevel ?? 1) / 100,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-              backgroundColor: Colors.red,
-            )
+                    value: 100.0 / 120.0 * (this._dbLevel ?? 1) / 100,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                    backgroundColor: Colors.red,
+                  )
                 : Container()
           ],
         ),
@@ -244,66 +243,70 @@ class _RecordState extends State<RecordAudioWidget> {
             ),
           ],
         ),
-        Padding(padding: EdgeInsets.only(left: 20,right: 20), child: Container(
-          alignment: Alignment(0, 0),
-          padding: EdgeInsets.all(10),
-          decoration: BoxDecoration(
-              color: Colors.grey[100], borderRadius: BorderRadius.circular(20)),
-          child: Row(
-            children: <Widget>[
-              Container(
-                width: 56.0,
-                height: 56.0,
-                child: ClipOval(
-                  child: FlatButton(
-                    onPressed: () {
-                      startPlayer();
-                    },
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.play_circle_outline,
-                      size: 30,
+        Padding(
+          padding: EdgeInsets.only(left: 20, right: 20),
+          child: Container(
+            alignment: Alignment(0, 0),
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Colors.grey[100],
+                borderRadius: BorderRadius.circular(20)),
+            child: Row(
+              children: <Widget>[
+                Container(
+                  width: 56.0,
+                  height: 56.0,
+                  child: ClipOval(
+                    child: FlatButton(
+                      onPressed: () {
+                        startPlayer();
+                      },
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.play_circle_outline,
+                        size: 30,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Container(
-                width: 56.0,
-                height: 56.0,
-                child: ClipOval(
-                  child: FlatButton(
-                    onPressed: () {
-                      pausePlayer();
-                    },
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.pause_circle_outline,
-                      size: 40,
+                Container(
+                  width: 56.0,
+                  height: 56.0,
+                  child: ClipOval(
+                    child: FlatButton(
+                      onPressed: () {
+                        pausePlayer();
+                      },
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.pause_circle_outline,
+                        size: 40,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Container(
-                width: 56.0,
-                height: 56.0,
-                child: ClipOval(
-                  child: FlatButton(
-                    onPressed: () {
-                      stopPlayer();
-                    },
-                    padding: EdgeInsets.all(8.0),
-                    child: Icon(
-                      Icons.stop,
-                      size: 30,
+                Container(
+                  width: 56.0,
+                  height: 56.0,
+                  child: ClipOval(
+                    child: FlatButton(
+                      onPressed: () {
+                        stopPlayer();
+                      },
+                      padding: EdgeInsets.all(8.0),
+                      child: Icon(
+                        Icons.stop,
+                        size: 30,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
+              ],
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+            ),
           ),
-        ),),
+        ),
         Container(
             height: 56.0,
             child: Slider(

@@ -29,15 +29,13 @@ class WordView extends StatelessWidget {
           child: Stack(
             // TODO improve position of subtitles
             children: <Widget>[
-
               new InkWell(
-                onTap: ()
-                {
+                onTap: () {
                   openThisCard(context, appState, word);
                 },
                 child: new Container(
                   padding:
-                  new EdgeInsets.only(left: 16.0, bottom: 8.0, right: 16.0),
+                      new EdgeInsets.only(left: 16.0, bottom: 8.0, right: 16.0),
                   decoration: new BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: new Border.all(color: Colors.grey, width: 2),
@@ -63,16 +61,28 @@ class WordView extends StatelessWidget {
                 left: 10,
                 top: 100,
                 child: InkWell(
-                    onTap: ()
-                    {
+                    onTap: () {
                       playSound();
                     },
-                    child: Stack(children: <Widget>[Positioned(left: 3, top: 1,child:Icon(
-                      Icons.play_circle_outline, color: Colors.black,
-                      size: 60,)), Positioned(child:Icon(
-                      Icons.play_circle_outline, color: Colors.white,
-                      size: 60,),)
-                    ],)),
+                    child: Stack(
+                      children: <Widget>[
+                        Positioned(
+                            left: 3,
+                            top: 1,
+                            child: Icon(
+                              Icons.play_circle_outline,
+                              color: Colors.black,
+                              size: 60,
+                            )),
+                        Positioned(
+                          child: Icon(
+                            Icons.play_circle_outline,
+                            color: Colors.white,
+                            size: 60,
+                          ),
+                        )
+                      ],
+                    )),
               ),
             ],
           )),
@@ -83,23 +93,18 @@ class WordView extends StatelessWidget {
     var audioPlayer = new AudioPlayer();
     var firstLang = this.appState.user?.firstLang ?? 'ru';
     var sound = firstByKey(word.pronunciation, firstLang, false);
-    if (sound != null)
-    {
+    if (sound != null) {
       audioPlayer.play(sound.url);
     }
   }
 
-  void openThisCard(BuildContext ctxt, AppState state, Word word)
-  {
+  void openThisCard(BuildContext ctxt, AppState state, Word word) {
     Navigator.push(
         ctxt,
         MaterialPageRoute(
-            builder: (context)
-            =>
-            new DetailedWordView(
-              appState: state,
-              word: word,
-            )));
+            builder: (context) => new DetailedWordView(
+                  appState: state,
+                  word: word,
+                )));
   }
-
 }

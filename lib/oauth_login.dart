@@ -12,7 +12,8 @@ oauthLogin(BuildContext ctx, String provider) async {
     url,
     withJavascript: true,
     appCacheEnabled: true,
-    userAgent: 'Mozilla/5.0 (Linux; Android 8.0.0; TA-1053 Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3368.0 Mobile Safari/537.36',
+    userAgent:
+        'Mozilla/5.0 (Linux; Android 8.0.0; TA-1053 Build/OPR1.170623.026) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/67.0.3368.0 Mobile Safari/537.36',
   );
   var onToken = new StreamController();
 
