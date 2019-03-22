@@ -7,16 +7,14 @@ import 'package:memoapp/appstate.dart';
 import 'package:memoapp/screen/carddetailview.dart';
 import 'package:memoapp/utils.dart';
 
-class WordView extends StatelessWidget
-{
+class WordView extends StatelessWidget {
   final AppState appState;
   final Word word;
 
   WordView({this.appState, this.word});
 
   @override
-  Widget build(BuildContext context)
-  {
+  Widget build(BuildContext context) {
     var firstLang = this.appState.user?.firstLang ?? 'ru';
     var text1 = firstByKey(word.text, firstLang, false) ?? '';
     var text2 = firstByKey(word.text, firstLang, true) ?? '';
@@ -81,8 +79,7 @@ class WordView extends StatelessWidget
     );
   }
 
-  void playSound()
-  {
+  void playSound() {
     var audioPlayer = new AudioPlayer();
     var firstLang = this.appState.user?.firstLang ?? 'ru';
     var sound = firstByKey(word.pronunciation, firstLang, false);
@@ -104,4 +101,5 @@ class WordView extends StatelessWidget
               word: word,
             )));
   }
+
 }
