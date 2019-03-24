@@ -47,8 +47,7 @@ class Word {
   // transcriptions in different languages
   Map<String, String> transcription;
 
-  // TODO set of relevant images
-  Resource image;
+  List<Resource> images;
 
   // top pronunciations in different languages
   Map<String, Resource> pronunciation;
@@ -58,7 +57,7 @@ class Word {
     text = map(d['text'], (t) => t as String);
     id = d['id'] ?? text;
     transcription = map(d['transcription'], (t) => t as String);
-    image = Resource.fromAny(d['image']);
+    images = (d['image'] as List<dynamic>).map((t) => Resource.fromAny(t)).toList();
     pronunciation = map(d['pronunciation'], (t) => Resource.fromAny(t));
   }
 }

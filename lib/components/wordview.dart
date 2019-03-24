@@ -40,7 +40,7 @@ class WordView extends StatelessWidget {
                     borderRadius: BorderRadius.circular(10),
                     border: new Border.all(color: Colors.grey, width: 2),
                     image: new DecorationImage(
-                      image: new CachedNetworkImageProvider(word.image.url),
+                      image: new CachedNetworkImageProvider(word.images[0].url),
                       fit: BoxFit.cover,
                     ),
                   ),
