@@ -22,9 +22,19 @@ class TermView extends StatelessWidget {
   Widget build(BuildContext context) {
     var firstLang = appState.user?.firstLang ?? 'ru';
     var text1 = term.text ?? '';
-    var text2 = firstOrElse(term.translations.where((t) => t.lang == firstLang).map((t) => t.text), '') ?? '';
+    var text2 = firstOrElse(
+            term.translations
+                .where((t) => t.lang == firstLang)
+                .map((t) => t.text),
+            '') ??
+        '';
     var trans = firstByKey(term.transcript, firstLang, true) ?? '';
-    int _current = 0;
+
+    var slider = CarouselSlider(
+        //height: 500.0,
+        enlargeCenterPage: true,
+        items: term.visual.items.map((t) => makeImage(t)).toList());
+
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
       child: Container(
@@ -37,31 +47,12 @@ class TermView extends StatelessWidget {
               new InkWell(
                   onTap: () {
                     if (tappable) {
-                      var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
+                      var route = MaterialPageRoute(
+                          builder: (_) => new TermDetail(term.uid));
                       Navigator.push(context, route);
                     }
                   },
-                  child: CarouselSlider(
-                      //height: 500.0,
-                      enlargeCenterPage: true,
-
-                      items: <Widget>[
-                        new Container(
-                          padding: new EdgeInsets.only(
-                              left: 16.0, bottom: 8.0, right: 16.0),
-                          decoration: new BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            border:
-                                new Border.all(color: Colors.grey, width: 2),
-                            image: new DecorationImage(
-                              image: new CachedNetworkImageProvider(
-                                  term.visual.items[0].url),
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                        ),
-                      ])),
-
+                  child: slider),
               Positioned(
                 left: 10,
                 top: 10,
@@ -102,6 +93,20 @@ class TermView extends StatelessWidget {
               ),
             ],
           )),
+    );
+  }
+
+  Widget makeImage(MediaInfo visual) {
+    return new Container(
+      padding: new EdgeInsets.only(left: 16.0, bottom: 8.0, right: 16.0),
+      decoration: new BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: new Border.all(color: Colors.grey, width: 2),
+        image: new DecorationImage(
+          image: new CachedNetworkImageProvider(visual.url),
+          fit: BoxFit.cover,
+        ),
+      ),
     );
   }
 
