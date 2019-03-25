@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
-import 'package:memoapp/appstate.dart';
-import 'package:memoapp/components/inputfielddecoration.dart';
-import 'package:memoapp/data.dart';
+import 'package:memoapp/AppState.dart';
+import 'package:memoapp/components/InputFieldDecoration.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/oauth_login.dart';
 
 // TODO loading indicator

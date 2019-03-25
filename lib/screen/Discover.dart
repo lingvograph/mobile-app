@@ -1,14 +1,14 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
-import 'package:memoapp/components/appbar.dart';
-import 'package:memoapp/components/loading.dart';
-import 'package:memoapp/components/wordview.dart';
-import 'package:memoapp/data.dart';
+import 'package:memoapp/components/AppBar.dart';
+import 'package:memoapp/components/Loading.dart';
+import 'package:memoapp/components/TermView.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/screen/contentmanagment.dart';
-import 'package:memoapp/data.dart';
+import 'package:memoapp/screen/ContentManager.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/screen/userprofile.dart';
+import 'package:memoapp/screen/UserProfile.dart';
 import 'package:memoapp/utils.dart';
 
 const timeout = 5000;
@@ -18,13 +18,13 @@ var audioPlayer = new AudioPlayer();
 // TODO cool transition between images
 
 // main screen with word
-class HomeScreen extends StatefulWidget {
+class DiscoverScreen extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => HomeState();
+  State<StatefulWidget> createState() => DiscoverState();
 }
 
-class HomeState extends State<HomeScreen> {
-  List<Word> words = new List();
+class DiscoverState extends State<DiscoverScreen> {
+  List<Term> words = new List();
   int total;
   ScrollController scrollController = new ScrollController();
 
@@ -129,7 +129,7 @@ class HomeState extends State<HomeScreen> {
         controller: scrollController,
         itemCount: words.length,
         itemBuilder: (BuildContext context, int index) {
-          return new WordView(
+          return new TermView(
             appState: appState,
             word: words[index],
           );

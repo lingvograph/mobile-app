@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
-import 'package:memoapp/appstate.dart';
-import 'package:memoapp/data.dart';
-import 'package:memoapp/screen/home.dart';
-import 'package:memoapp/screen/login.dart';
+import 'package:memoapp/AppState.dart';
+import 'package:memoapp/AppData.dart';
+import 'package:memoapp/screen/Discover.dart';
+import 'package:memoapp/screen/Login.dart';
 
 class RootScreen extends StatefulWidget {
   @override
@@ -20,7 +20,7 @@ class _RootState extends State<RootScreen> implements AuthStateListener {
   @override
   Widget build(BuildContext context) {
     if (state.isLoggedIn) {
-      return HomeScreen();
+      return DiscoverScreen();
     }
     return LoginScreen();
   }

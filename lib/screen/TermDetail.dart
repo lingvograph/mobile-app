@@ -1,18 +1,18 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memoapp/components/cardtextstyle.dart';
+import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/appstate.dart';
+import 'package:memoapp/AppState.dart';
 import 'package:memoapp/utils.dart';
-import 'package:memoapp/components/pronounciationlist.dart';
-import 'package:memoapp/components/wordusageexampleslist.dart';
+import 'package:memoapp/components/AudioList.dart';
+import 'package:memoapp/components/ExamplesList.dart';
 
-class DetailedWordView extends StatelessWidget {
+class TermDetail extends StatelessWidget {
   final AppState appState;
-  final Word word;
+  final Term word;
 
-  DetailedWordView({this.appState, this.word});
+  TermDetail({this.appState, this.word});
 
   @override
   Widget build(BuildContext context) {
@@ -54,21 +54,21 @@ class DetailedWordView extends StatelessWidget {
                     Positioned(
                       left: 10,
                       top: 10,
-                      child: new Text(text1, style: WordTextStyle),
+                      child: new Text(text1, style: termTextStyle),
                     ),
                     Positioned(
                       left: 10,
                       top: 50,
                       child: new Text(text2 + ' [' + trans + ']',
-                          style: TranscriptionTextStyle),
+                          style: transcriptStyle),
                     ),
                   ],
                 )),
           ),
-          new PronounciationList(
+          new AudioList(
             word: word,
           ),
-          new WordUsagesList(
+          new ExampleList(
             word: word,
           ),
         ],

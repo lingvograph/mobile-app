@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/appstate.dart';
-import 'package:memoapp/data.dart';
+import 'package:memoapp/AppState.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/routes.dart';
 
 void main() async {

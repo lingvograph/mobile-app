@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/components/localization.dart';
-import 'package:memoapp/data.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/localres.dart';
-import 'package:memoapp/appstate.dart';
+import 'package:memoapp/AppState.dart';
 
 class UserProfile extends StatefulWidget {
   @override

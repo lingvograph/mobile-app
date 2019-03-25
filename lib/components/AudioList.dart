@@ -2,17 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/model.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
-class PronounciationList extends StatefulWidget {
-  Word word;
+class AudioList extends StatefulWidget {
+  Term word;
 
   //предполагаю из него будем вытаскивать озвучки по ID
-  PronounciationList({@required this.word});
+  AudioList({@required this.word});
 
   @override
-  _ListState createState() => _ListState();
+  _AudioListState createState() => _AudioListState();
 }
 
-class _ListState extends State<PronounciationList> {
+class _AudioListState extends State<AudioList> {
   List<Widget> audios;
   List<Widget> usageExamples;
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-var TranscriptionTextStyle = new TextStyle(
+var transcriptStyle = new TextStyle(
   shadows: <Shadow>[
     Shadow(
       offset: Offset(0.6, 0.6),
@@ -17,7 +17,9 @@ var TranscriptionTextStyle = new TextStyle(
   fontSize: 20.0,
   color: Colors.white,
 );
-var WordTextStyle = new TextStyle(
+
+
+var termTextStyle = new TextStyle(
   shadows: <Shadow>[
     Shadow(
       offset: Offset(1.0, 1.0),

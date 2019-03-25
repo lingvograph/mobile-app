@@ -1,4 +1,4 @@
-import 'package:memoapp/appstate.dart';
+import 'package:memoapp/AppState.dart';
 import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/remotedata.dart';
 

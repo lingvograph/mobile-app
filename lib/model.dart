@@ -38,7 +38,7 @@ class User {
       };
 }
 
-class Word {
+class Term {
   String id;
 
   // text representation in different languages
@@ -52,7 +52,7 @@ class Word {
   // top pronunciations in different languages
   Map<String, Resource> pronunciation;
 
-  Word.fromJson(Map<String, dynamic> json) {
+  Term.fromJson(Map<String, dynamic> json) {
     var d = nest(json);
     text = map(d['text'], (t) => t as String);
     id = d['id'] ?? text;

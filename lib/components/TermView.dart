@@ -1,18 +1,18 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:memoapp/components/cardtextstyle.dart';
+import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/model.dart';
-import 'package:memoapp/appstate.dart';
-import 'package:memoapp/screen/carddetailview.dart';
+import 'package:memoapp/AppState.dart';
+import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-class WordView extends StatelessWidget {
+class TermView extends StatelessWidget {
   final AppState appState;
-  final Word word;
+  final Term word;
 
-  WordView({this.appState, this.word});
+  TermView({this.appState, this.word});
 
   @override
   Widget build(BuildContext context) {
@@ -58,13 +58,13 @@ class WordView extends StatelessWidget {
               Positioned(
                 left: 10,
                 top: 10,
-                child: new Text(text1, style: WordTextStyle),
+                child: new Text(text1, style: termTextStyle),
               ),
               Positioned(
                 left: 10,
                 top: 50,
                 child: new Text(text2 + ' [' + trans + ']',
-                    style: TranscriptionTextStyle),
+                    style: transcriptStyle),
               ),
               Positioned(
                 left: 10,
@@ -107,11 +107,11 @@ class WordView extends StatelessWidget {
     }
   }
 
-  void openThisCard(BuildContext ctxt, AppState state, Word word) {
+  void openThisCard(BuildContext ctxt, AppState state, Term word) {
     Navigator.push(
         ctxt,
         MaterialPageRoute(
-            builder: (context) => new DetailedWordView(
+            builder: (context) => new TermDetail(
                   appState: state,
                   word: word,
                 )));

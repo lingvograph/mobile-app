@@ -1,8 +1,7 @@
 import 'dart:async';
 
 import 'package:memoapp/api.dart';
-import 'package:memoapp/data.dart';
-import 'package:memoapp/fakedata.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/interfaces.dart';
 import 'package:memoapp/model.dart';
 
@@ -35,10 +34,8 @@ makeQuery(String firstLang, int offset, int limit) {
 }
 
 class RealLingvoService implements ILingvoService {
-  FakeLingvoService fakeService = new FakeLingvoService();
-
   @override
-  Future<ListResult<Word>> fetch(int offset, int limit) async {
+  Future<ListResult<Term>> fetch(int offset, int limit) async {
     var appState = appData.appState;
     var firstLang = appState.user.firstLang;
     var q = makeQuery(firstLang, offset, limit);
@@ -46,10 +43,10 @@ class RealLingvoService implements ILingvoService {
     var total = results['count'][0]['total'];
     var terms = results['terms'] as List<dynamic>;
     var items = terms.map((t) => decode(t)).toList();
-    return new ListResult<Word>(items, total);
+    return new ListResult<Term>(items, total);
   }
 
-  Word decode(dynamic result) {
+  Term decode(dynamic result) {
     var w = Map<String, dynamic>();
 
     var setProps = (dynamic t) {
@@ -85,6 +82,6 @@ class RealLingvoService implements ILingvoService {
       w['image'] = result['visual'];
     }
 
-    return Word.fromJson(w);
+    return Term.fromJson(w);
   }
 }
