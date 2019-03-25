@@ -1,6 +1,6 @@
 import 'package:memoapp/AppData.dart';
 
-var localeData = {
+final localeData = const {
   'en': {
     'passwordValidation': 'The Password must be at least 6 characters.',
   },
