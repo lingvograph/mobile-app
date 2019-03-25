@@ -10,16 +10,16 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 class TermView extends StatelessWidget {
   final AppState appState;
-  final Term word;
+  final Term term;
 
-  TermView({this.appState, this.word});
+  TermView({this.appState, this.term});
 
   @override
   Widget build(BuildContext context) {
     var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var text1 = firstByKey(word.text, firstLang, false) ?? '';
-    var text2 = firstByKey(word.text, firstLang, true) ?? '';
-    var trans = firstByKey(word.transcription, firstLang, true) ?? '';
+    var text1 = firstByKey(term.text, firstLang, false) ?? '';
+    var text2 = firstByKey(term.text, firstLang, true) ?? '';
+    var trans = firstByKey(term.transcription, firstLang, true) ?? '';
     int _current = 0;
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
@@ -32,7 +32,7 @@ class TermView extends StatelessWidget {
             children: <Widget>[
               new InkWell(
                   onTap: () {
-                    openThisCard(context, appState, word);
+                    openThisCard(context, appState, term);
                   },
                   child: CarouselSlider(
                       //height: 500.0,
@@ -48,7 +48,7 @@ class TermView extends StatelessWidget {
                                 new Border.all(color: Colors.grey, width: 2),
                             image: new DecorationImage(
                               image: new CachedNetworkImageProvider(
-                                  word.images[0].url),
+                                  term.images[0].url),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -101,19 +101,19 @@ class TermView extends StatelessWidget {
   void playSound() {
     var audioPlayer = new AudioPlayer();
     var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var sound = firstByKey(word.pronunciation, firstLang, false);
+    var sound = firstByKey(term.pronunciation, firstLang, false);
     if (sound != null) {
       audioPlayer.play(sound.url);
     }
   }
 
-  void openThisCard(BuildContext ctxt, AppState state, Term word) {
+  void openThisCard(BuildContext ctxt, AppState state, Term term) {
     Navigator.push(
         ctxt,
         MaterialPageRoute(
             builder: (context) => new TermDetail(
                   appState: state,
-                  word: word,
+                  term: term,
                 )));
   }
 }

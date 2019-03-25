@@ -10,16 +10,16 @@ import 'package:memoapp/components/ExamplesList.dart';
 
 class TermDetail extends StatelessWidget {
   final AppState appState;
-  final Term word;
+  final Term term;
 
-  TermDetail({this.appState, this.word});
+  TermDetail({this.appState, this.term});
 
   @override
   Widget build(BuildContext context) {
     var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var text1 = firstByKey(word.text, firstLang, false);
-    var text2 = firstByKey(word.text, firstLang, true);
-    var trans = firstByKey(word.transcription, firstLang, true);
+    var text1 = firstByKey(term.text, firstLang, false);
+    var text2 = firstByKey(term.text, firstLang, true);
+    var trans = firstByKey(term.transcription, firstLang, true);
 
     return new Scaffold(
       appBar: AppBar(
@@ -45,7 +45,7 @@ class TermDetail extends StatelessWidget {
                           border: new Border.all(color: Colors.grey, width: 2),
                           image: new DecorationImage(
                             image:
-                                new CachedNetworkImageProvider(word.images[0].url),
+                                new CachedNetworkImageProvider(term.images[0].url),
                             fit: BoxFit.cover,
                           ),
                         ),
@@ -66,10 +66,10 @@ class TermDetail extends StatelessWidget {
                 )),
           ),
           new AudioList(
-            word: word,
+            term: term,
           ),
           new ExampleList(
-            word: word,
+            term: term,
           ),
         ],
       ),

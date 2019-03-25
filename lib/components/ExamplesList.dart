@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/model.dart';
 
 class ExampleList extends StatefulWidget {
-  Term word;
+  Term term;
 
   //предполагаю из него будем вытаскивать озвучки по ID
-  ExampleList({@required this.word});
+  ExampleList({@required this.term});
 
   @override
   _ExampleListState createState() => _ExampleListState();

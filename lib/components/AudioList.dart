@@ -3,10 +3,10 @@ import 'package:memoapp/model.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class AudioList extends StatefulWidget {
-  Term word;
+  Term term;
 
   //предполагаю из него будем вытаскивать озвучки по ID
-  AudioList({@required this.word});
+  AudioList({@required this.term});
 
   @override
   _AudioListState createState() => _AudioListState();

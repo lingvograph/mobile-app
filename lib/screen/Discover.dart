@@ -17,7 +17,7 @@ var audioPlayer = new AudioPlayer();
 
 // TODO cool transition between images
 
-// main screen with word
+// main screen with terms
 class DiscoverScreen extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => DiscoverState();
@@ -131,7 +131,7 @@ class DiscoverState extends State<DiscoverScreen> {
         itemBuilder: (BuildContext context, int index) {
           return new TermView(
             appState: appState,
-            word: words[index],
+            term: words[index],
           );
         });
   }
