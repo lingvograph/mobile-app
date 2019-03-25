@@ -5,7 +5,7 @@ typedef FetchPageFn<T> = Future<ListResult<T>> Function(int offset, int limit);
 typedef ItemWidgetBuilder<T> = Widget Function(BuildContext context, T item);
 typedef SetStateFn = void Function(VoidCallback fn);
 
-class ScrollableListState<T> {
+class ScrollableState<T> {
   FetchPageFn<T> fetch;
   ItemWidgetBuilder itemBuilder;
   SetStateFn setState;
@@ -14,7 +14,7 @@ class ScrollableListState<T> {
   int total;
   ScrollController scrollController = new ScrollController();
 
-  ScrollableListState(this.fetch, this.itemBuilder, this.setState);
+  ScrollableState(this.fetch, this.itemBuilder, this.setState);
 
   void init() {
     fetchPage();

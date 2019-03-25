@@ -6,7 +6,7 @@ import 'package:memoapp/model.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/utils.dart';
 import 'package:memoapp/components/AudioList.dart';
-import 'package:memoapp/components/ExamplesList.dart';
+import 'package:memoapp/components/ExampleList.dart';
 
 class TermDetail extends StatelessWidget {
   final AppState appState;
