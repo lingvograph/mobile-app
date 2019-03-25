@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/components/localization.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/localres.dart';
-import 'package:memoapp/AppState.dart';
+import 'package:memoapp/locale.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -20,7 +18,7 @@ class _ProfileState extends State<UserProfile> {
   void openAchievements() {
     this.setState(() {
       currentProfileWindow = new UserAchievments();
-      print(getString(key: PasswordLengthNotifications));
+      print(SR.passwordValidation);
       print(appData.appState.apiToken);
     });
   }
