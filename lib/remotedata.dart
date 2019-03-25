@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/interfaces.dart';
-import 'package:memoapp/model.dart';
 
 // TODO filter known words
 makeQuery(String firstLang, int offset, int limit) {
@@ -16,14 +15,31 @@ makeQuery(String firstLang, int offset, int limit) {
         transcript@ru
         transcript@en
         translated_as {
+          uid
           text
           lang
+          transcript@ru
+          transcript@en
         }
         audio {
           url
+          source
+          content_type
+          created_at
+          created_by {
+            uid
+            name
+          }
         }
         visual {
           url
+          source
+          content_type
+          created_at
+          created_by {
+            uid
+            name
+          }
         }
       }
       count(func: has(Term)) $filter {
@@ -35,53 +51,14 @@ makeQuery(String firstLang, int offset, int limit) {
 
 class RealLingvoService implements ILingvoService {
   @override
-  Future<ListResult<Term>> fetch(int offset, int limit) async {
+  Future<ListResult<TermInfo>> fetch(int offset, int limit) async {
     var appState = appData.appState;
     var firstLang = appState.user.firstLang;
     var q = makeQuery(firstLang, offset, limit);
     var results = await query(q);
     var total = results['count'][0]['total'];
     var terms = results['terms'] as List<dynamic>;
-    var items = terms.map((t) => decode(t)).toList();
-    return new ListResult<Term>(items, total);
-  }
-
-  Term decode(dynamic result) {
-    var w = Map<String, dynamic>();
-
-    var setProps = (dynamic t) {
-      if (t.containsKey('uid')) {
-        w['id'] = t['uid'];
-      }
-
-      var lang = t['lang'];
-      w['text@$lang'] = t['text'];
-
-      ['ru', 'en'].forEach((lang) {
-        if (t.containsKey('transcript@$lang')) {
-          var k = 'transcription@$lang';
-          if (!w.containsKey(k)) {
-            w[k] = t['transcript@$lang'];
-          }
-        }
-      });
-
-      if (t.containsKey('audio')) {
-        var k = 'pronunciation@$lang';
-        if (!w.containsKey(k)) {
-          w[k] = t['audio'][0];
-        }
-      }
-    };
-
-    setProps(result);
-    if (result.containsKey('translated_as')) {
-      result['translated_as'].forEach(setProps);
-    }
-    if (result.containsKey('visual')) {
-      w['image'] = result['visual'];
-    }
-
-    return Term.fromJson(w);
+    var items = terms.map((t) => TermInfo.fromJson(t)).toList();
+    return new ListResult<TermInfo>(items, total);
   }
 }

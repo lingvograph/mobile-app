@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/model.dart';
+import 'package:memoapp/api.dart';
 
 class ExampleList extends StatefulWidget {
-  Term term;
+  TermInfo term;
 
   //предполагаю из него будем вытаскивать озвучки по ID
   ExampleList({@required this.term});

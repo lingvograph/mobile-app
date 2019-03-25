@@ -3,7 +3,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
-import 'package:memoapp/model.dart';
+import 'package:memoapp/utils.dart';
 
 // TODO move to config
 const BASE_URL = 'https://lingvograph.com';
@@ -132,9 +132,9 @@ Future<dynamic> getData(String methodPath) async {
   return results;
 }
 
-Future<User> fetchCurrentUser() async {
+Future<UserInfo> fetchCurrentUser() async {
   var results = await getData('/api/me');
-  return User.fromJson(results);
+  return UserInfo.fromJson(results);
 }
 
 /// Make a GraphQL query
@@ -146,22 +146,32 @@ Future<dynamic> query(String query) async {
 /// @param path a file path
 /// @param contentType mime type of a file
 /// @param body file content, bytes or file stream
-Future<FileInfo> upload(String path, String contentType, dynamic body) async {
+Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result = await postData('/api/file/$path', contentType, body);
-  return FileInfo.fromJson(result);
+  return MediaInfo.fromJson(result);
 }
 
-class FileInfo {
+class MediaInfo {
   String uid;
   String path;
   String url;
+  String source;
   String contentType;
+  UserInfo author;
+  DateTime createdAt;
 
-  FileInfo.fromJson(Map<String, dynamic> json) {
+  MediaInfo.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
-    path = json['path'];
+    path = getOrElse(json, 'path', '');
     url = json['url'];
-    contentType = json['content_type'];
+    source = getOrElse(json, 'source', '');
+    contentType = getOrElse(json, 'content_type', '');
+    createdAt = json.containsKey('created_at') ? DateTime.parse(json['created_at']) : null;
+    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by']) : UserInfo.fromJson({
+      'name': 'system',
+      'gender': 'robot',
+      'country': 'Russia',
+    });
   }
 }
 
@@ -211,7 +221,18 @@ List<T> mapList<T>(Map<String, dynamic> json, String key, T mapper(Map<String, d
   if (!json.containsKey(key)) {
     return new List<T>();
   }
-  return (json[key] as List<Map<String, dynamic>>).map(mapper).toList();
+  return (json[key] as List<dynamic>).map((t) => mapper(t)).toList();
+}
+
+class ListResult<T> {
+  List<T> items;
+  int total;
+
+  ListResult(this.items, this.total) {
+    if (this.total == 0) {
+      this.total = items.length;
+    }
+  }
 }
 
 class TermInfo {
@@ -221,12 +242,10 @@ class TermInfo {
   // transcriptions in different languages
   Map<String, String> transcript;
   List<TermInfo> translations;
-  ListResult<AudioInfo> audio;
+  ListResult<MediaInfo> audio;
+  ListResult<MediaInfo> visual;
 
-  TermInfo.fromJson(Map<String, dynamic> results) {
-    var total = results['count'][0]['total'];
-    var json = results['term'][0] as Map<String, dynamic>;
-
+  TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
@@ -239,42 +258,44 @@ class TermInfo {
     });
 
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
-    var audioItems = mapList(json, 'audio', (t) => AudioInfo.fromJson(t));
-    audio = new ListResult<AudioInfo>(audioItems, total);
+
+    var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
+    audio = new ListResult<MediaInfo>(audioItems, audioTotal);
+
+    var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
+    visual = new ListResult<MediaInfo>(visualItems, visualTotal);
   }
 }
 
 class UserInfo {
   String uid;
   String name;
+  String firstLang;
+  String gender;
+  String country;
 
   UserInfo.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
     name = json['name'];
+    firstLang = getOrElse(json, 'first_lang', 'ru');
+    gender = getOrElse(json, 'gender', '');
+    country = getOrElse(json, 'country', '');
   }
-}
 
-class AudioInfo {
-  String uid;
-  String url;
-  String source;
-  UserInfo author;
-  DateTime createdAt;
-
-  AudioInfo.fromJson(Map<String, dynamic> json) {
-    uid = json['uid'];
-    url = json['url'];
-    source = json['url'];
-    createdAt = DateTime.parse(json['created_at']);
-    author = UserInfo.fromJson(json['created_by']);
-  }
+  Map<String, dynamic> toJson() => {
+    'uid': name,
+    'name': name,
+    'first_lang': firstLang,
+    'gender': gender,
+    'country': country,
+  };
 }
 
 // TODO order by popularity
 Future<TermInfo> fetchAudioList(
     String termUid, int offset, limit) async {
   var q = """{
-      term(func: uid($termUid)) {
+      terms(func: uid($termUid)) {
         uid
         lang
         text
@@ -291,6 +312,19 @@ Future<TermInfo> fetchAudioList(
           uid
           url
           source
+          content_type
+          created_at
+          created_by {
+            uid
+            name
+            gender
+            country
+          }
+        }
+        visual (first: 10) {
+          url
+          source
+          content_type
           created_at
           created_by {
             uid
@@ -303,5 +337,7 @@ Future<TermInfo> fetchAudioList(
       }
     }""";
   var results = await query(q);
-  return TermInfo.fromJson(results);
+  var total = results['count'][0]['total'];
+  var term = results['terms'][0] as Map<String, dynamic>;
+  return TermInfo.fromJson(term, audioTotal: total);
 }

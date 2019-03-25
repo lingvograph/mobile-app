@@ -3,13 +3,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
-import 'package:memoapp/model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const PREFS_KEY = 'APP_STATE';
 
 class AppState implements AuthStateListener {
-  User _user;
+  UserInfo _user;
   String _apiToken;
 
   AppState() {
@@ -17,7 +16,7 @@ class AppState implements AuthStateListener {
   }
 
   AppState.fromJson(Map json) {
-    _user = User.fromJson(json["user"]);
+    _user = UserInfo.fromJson(json["user"]);
     _apiToken = json["api_token"];
     _observeAuthState();
   }
@@ -60,7 +59,7 @@ class AppState implements AuthStateListener {
     return _user;
   }
 
-  set user(User value) {
+  set user(UserInfo value) {
     _user = value;
     save();
   }

@@ -1,25 +1,29 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:memoapp/AppData.dart';
+import 'package:memoapp/api.dart';
 import 'package:memoapp/components/styles.dart';
-import 'package:memoapp/model.dart';
-import 'package:memoapp/AppState.dart';
 import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class TermView extends StatelessWidget {
-  final AppState appState;
-  final Term term;
+  final TermInfo term;
+  final bool tappable;
 
-  TermView({this.appState, this.term});
+  TermView(this.term, {this.tappable = true});
+
+  get appState {
+    return appData.appState;
+  }
 
   @override
   Widget build(BuildContext context) {
-    var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var text1 = firstByKey(term.text, firstLang, false) ?? '';
-    var text2 = firstByKey(term.text, firstLang, true) ?? '';
-    var trans = firstByKey(term.transcription, firstLang, true) ?? '';
+    var firstLang = appState.user?.firstLang ?? 'ru';
+    var text1 = term.text ?? '';
+    var text2 = firstOrElse(term.translations.where((t) => t.lang == firstLang).map((t) => t.text), '') ?? '';
+    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
     int _current = 0;
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
@@ -32,7 +36,10 @@ class TermView extends StatelessWidget {
             children: <Widget>[
               new InkWell(
                   onTap: () {
-                    openThisCard(context, appState, term);
+                    if (tappable) {
+                      var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
+                      Navigator.push(context, route);
+                    }
                   },
                   child: CarouselSlider(
                       //height: 500.0,
@@ -48,7 +55,7 @@ class TermView extends StatelessWidget {
                                 new Border.all(color: Colors.grey, width: 2),
                             image: new DecorationImage(
                               image: new CachedNetworkImageProvider(
-                                  term.images[0].url),
+                                  term.visual.items[0].url),
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -100,20 +107,11 @@ class TermView extends StatelessWidget {
 
   void playSound() {
     var audioPlayer = new AudioPlayer();
-    var firstLang = this.appState.user?.firstLang ?? 'ru';
-    var sound = firstByKey(term.pronunciation, firstLang, false);
-    if (sound != null) {
-      audioPlayer.play(sound.url);
+    if (term.audio.items.isNotEmpty) {
+      var sound = term.audio.items.first;
+      if (sound != null) {
+        audioPlayer.play(sound.url);
+      }
     }
-  }
-
-  void openThisCard(BuildContext ctxt, AppState state, Term term) {
-    Navigator.push(
-        ctxt,
-        MaterialPageRoute(
-            builder: (context) => new TermDetail(
-                  appState: state,
-                  term: term,
-                )));
   }
 }

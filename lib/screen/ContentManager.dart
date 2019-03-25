@@ -6,7 +6,6 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:intl/intl.dart';
 import 'package:memoapp/components/RecordAudioWidget.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/model.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/components/AppBar.dart';
 import 'package:memoapp/components/Loading.dart';

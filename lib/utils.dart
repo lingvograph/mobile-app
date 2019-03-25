@@ -1,5 +1,13 @@
 import 'dart:async';
 
+T getOrElse<T>(Map<String, dynamic> map, String key, T orElse) {
+  return map.containsKey(key) ? map[key] : orElse;
+}
+
+T firstOrElse<T>(Iterable<T> list, T orElse) {
+  return list.firstWhere((t) => true, orElse: () => orElse);
+}
+
 T firstByKey<T>(Map<String, T> map, String key, [bool eq = true]) {
   if (map.isEmpty) {
     return null;

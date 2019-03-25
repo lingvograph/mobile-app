@@ -1,13 +1,12 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:memoapp/api.dart';
 import 'package:memoapp/components/AppBar.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/model.dart';
 import 'package:memoapp/screen/ContentManager.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/model.dart';
 import 'package:memoapp/screen/UserProfile.dart';
 import 'package:memoapp/utils.dart';
 
@@ -24,7 +23,7 @@ class DiscoverScreen extends StatefulWidget {
 }
 
 class DiscoverState extends State<DiscoverScreen> {
-  List<Term> words = new List();
+  List<TermInfo> terms = new List();
   int total;
   ScrollController scrollController = new ScrollController();
 
@@ -41,7 +40,7 @@ class DiscoverState extends State<DiscoverScreen> {
     scrollController.addListener(() {
       var atBottom = scrollController.position.pixels ==
           scrollController.position.maxScrollExtent;
-      if (atBottom && words.length < total) {
+      if (atBottom && terms.length < total) {
         fetchPage();
       }
     });
@@ -56,7 +55,7 @@ class DiscoverState extends State<DiscoverScreen> {
   @override
   Widget build(BuildContext context) {
     // TODO goto login if appState has null user
-    if (words.length == 0) {
+    if (terms.length == 0) {
       return Loading();
     }
     return MaterialApp(
@@ -76,17 +75,21 @@ class DiscoverState extends State<DiscoverScreen> {
 
   /*create new method */
   fetchPage() async {
-    var result = await appData.lingvo.fetch(words.length, 5);
+    var result = await appData.lingvo.fetch(terms.length, 5);
     setState(() {
       total = result.total;
-      words.addAll(result.items);
+      terms.addAll(result.items);
     });
   }
 
   void playSound(int index) {
+    var term = terms[index];
+    if (term.audio.items.isEmpty) {
+      return;
+    }
+
     this.setState(() {
-      var firstLang = appState.user?.firstLang ?? 'ru';
-      var sound = firstByKey(words[index].pronunciation, firstLang, false);
+      var sound = term.audio.items.first;
       if (sound != null) {
         audioPlayer.play(sound.url);
       }
@@ -127,12 +130,9 @@ class DiscoverState extends State<DiscoverScreen> {
   Widget makeListView() {
     return new ListView.builder(
         controller: scrollController,
-        itemCount: words.length,
+        itemCount: terms.length,
         itemBuilder: (BuildContext context, int index) {
-          return new TermView(
-            appState: appState,
-            term: words[index],
-          );
+          return new TermView(terms[index]);
         });
   }
 }

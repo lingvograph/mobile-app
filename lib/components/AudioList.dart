@@ -1,31 +1,31 @@
+import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
-import 'package:memoapp/model.dart';
+import 'package:memoapp/api.dart';
+
+// TODO make it scrollable
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class AudioList extends StatefulWidget {
-  Term term;
+  TermInfo term;
 
   //предполагаю из него будем вытаскивать озвучки по ID
   AudioList({@required this.term});
 
   @override
-  _AudioListState createState() => _AudioListState();
+  _AudioListState createState() => _AudioListState(term);
 }
 
 class _AudioListState extends State<AudioList> {
-  List<Widget> audios;
-  List<Widget> usageExamples;
+  TermInfo term;
 
-  double width;
+  _AudioListState(this.term);
+
+  List<Widget> audios;
 
   @override
   Widget build(BuildContext context) {
-    audios = new List();
-    audios.add(new LoadedAudio());
-    audios.add(new LoadedAudio());
-    audios.add(new LoadedAudio());
-    audios.add(new LoadedAudio());
-    width = MediaQuery.of(context).size.width / 4;
+    var audios = term.audio.items.map((t) => new LoadedAudio(t)).toList();
+
     return new Center(
       child: Padding(
         padding: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
@@ -49,12 +49,11 @@ class _AudioListState extends State<AudioList> {
   }
 }
 
-class LoadedAudio extends StatefulWidget {
-  @override
-  _AudioState createState() => _AudioState();
-}
+class LoadedAudio extends StatelessWidget {
+  MediaInfo audio;
 
-class _AudioState extends State<LoadedAudio> {
+  LoadedAudio(this.audio);
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
@@ -72,7 +71,7 @@ class _AudioState extends State<LoadedAudio> {
                       Icons.play_arrow,
                       size: 25,
                     ),
-                    onPressed: null),
+                    onPressed: playSound),
                 Column(
                   children: <Widget>[
                     Padding(
@@ -84,11 +83,12 @@ class _AudioState extends State<LoadedAudio> {
                       children: <Widget>[
                         Text("Spelled user "),
                         Text(
-                          "XxX",
+                          audio.author.name,
                           style: TextStyle(color: Colors.blueAccent),
                         ),
+                        // TODO consider display icons
                         Text(
-                          " (woman, France)",
+                          " (${audio.author.gender}, ${audio.author.country})",
                           style: TextStyle(color: Colors.grey, fontSize: 13),
                         )
                       ],
@@ -135,5 +135,12 @@ class _AudioState extends State<LoadedAudio> {
             ),
           )),
     );
+  }
+
+  void playSound() {
+    var audioPlayer = new AudioPlayer();
+    if (audio != null) {
+      audioPlayer.play(audio.url);
+    }
   }
 }
