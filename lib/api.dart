@@ -207,6 +207,43 @@ Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
   return updateGraph(nquads);
 }
 
+List<T> mapList<T>(Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
+  if (!json.containsKey(key)) {
+    return new List<T>();
+  }
+  return (json[key] as List<Map<String, dynamic>>).map(mapper).toList();
+}
+
+class TermInfo {
+  String uid;
+  String lang;
+  String text;
+  // transcriptions in different languages
+  Map<String, String> transcript;
+  List<TermInfo> translations;
+  ListResult<AudioInfo> audio;
+
+  TermInfo.fromJson(Map<String, dynamic> results) {
+    var total = results['count'][0]['total'];
+    var json = results['term'][0] as Map<String, dynamic>;
+
+    uid = json['uid'];
+    lang = json['lang'];
+    text = json['text'];
+
+    transcript = new Map<String, String>();
+    ['ru', 'en'].forEach((lang) {
+      if (json.containsKey('transcript@$lang')) {
+        transcript[lang] = json['transcript@$lang'] as String;
+      }
+    });
+
+    translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
+    var audioItems = mapList(json, 'audio', (t) => AudioInfo.fromJson(t));
+    audio = new ListResult<AudioInfo>(audioItems, total);
+  }
+}
+
 class UserInfo {
   String uid;
   String name;
@@ -234,10 +271,22 @@ class AudioInfo {
 }
 
 // TODO order by popularity
-Future<ListResult<AudioInfo>> fetchAudioList(
+Future<TermInfo> fetchAudioList(
     String termUid, int offset, limit) async {
   var q = """{
       term(func: uid($termUid)) {
+        uid
+        lang
+        text
+        transcript@ru
+        transcript@en
+        translated_as {
+          uid
+          lang
+          text
+          transcript@ru
+          transcript@en
+        }
         audio (offset: $offset, first: $limit) {
           uid
           url
@@ -254,8 +303,5 @@ Future<ListResult<AudioInfo>> fetchAudioList(
       }
     }""";
   var results = await query(q);
-  var total = results['count'][0]['total'];
-  var objects = results['term'][0]['audio'] as List<dynamic>;
-  var items = objects.map((t) => AudioInfo.fromJson(t)).toList();
-  return new ListResult<AudioInfo>(items, total);
+  return TermInfo.fromJson(results);
 }

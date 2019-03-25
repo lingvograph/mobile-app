@@ -82,7 +82,7 @@ class RealLingvoService implements ILingvoService {
       result['translated_as'].forEach(setProps);
     }
     if (result.containsKey('visual')) {
-      w['image'] = result['visual'][0];
+      w['image'] = result['visual'];
     }
 
     return Word.fromJson(w);

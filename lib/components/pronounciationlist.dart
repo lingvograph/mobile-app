@@ -75,7 +75,9 @@ class _AudioState extends State<LoadedAudio> {
                     onPressed: null),
                 Column(
                   children: <Widget>[
-                    Padding(padding: EdgeInsets.only(top: 10),),
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
+                    ),
                     new Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -91,7 +93,8 @@ class _AudioState extends State<LoadedAudio> {
                         )
                       ],
                     ),
-                    new Row(crossAxisAlignment: CrossAxisAlignment.center,
+                    new Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
                         Text(
@@ -102,7 +105,8 @@ class _AudioState extends State<LoadedAudio> {
                           icon: Icon(
                             Icons.thumb_up,
                             size: 15,
-                          ),),
+                          ),
+                        ),
                         Text(
                           "good",
                           style: TextStyle(fontSize: 13),
@@ -111,7 +115,8 @@ class _AudioState extends State<LoadedAudio> {
                           icon: Icon(
                             Icons.thumb_down,
                             size: 15,
-                          ),),
+                          ),
+                        ),
                         Text(
                           "bad",
                           style: TextStyle(fontSize: 13),
@@ -120,8 +125,8 @@ class _AudioState extends State<LoadedAudio> {
                           icon: Icon(
                             Icons.favorite,
                             size: 15,
-                          ),),
-
+                          ),
+                        ),
                       ],
                     ),
                   ],

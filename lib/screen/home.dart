@@ -119,7 +119,7 @@ class HomeState extends State<HomeScreen> {
   List<Widget> makeTabViews() {
     return [
       makeListView(),
-      new ContentManager(),
+      Icon(Icons.add),
       new UserProfile(),
     ].toList();
   }

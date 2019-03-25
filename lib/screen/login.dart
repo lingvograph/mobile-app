@@ -2,14 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/components/inputfielddecoration.dart';
-import 'package:memoapp/components/localization.dart';
 import 'package:memoapp/data.dart';
-import 'package:memoapp/localres.dart';
-import 'package:memoapp/model.dart';
 import 'package:memoapp/oauth_login.dart';
 
-// TODO loading state
-// TODO login error
+// TODO loading indicator
 
 class LoginState {
   String username = "";
@@ -76,33 +72,6 @@ class _LoginState extends State<LoginForm> {
 
   loginFacebook() {
     oauthLogin(context, 'facebook');
-  }
-
-  String validateUsername(String value) {
-    // TODO validate username or email
-//    try {
-//      Validate.isEmail(value);
-//    } catch (e) {
-//      return 'The E-mail Address must be a valid email address.';
-//    }
-    return null;
-  }
-
-  String validatePassword(String value) {
-    if (value.length < 6) {
-      return 'The Password must be at least 6 characters.';
-    } else if (value.contains(" ")) {
-      return 'The Password must not contain spaces.';
-    } else if (value.contains(".") ||
-        value.contains("|") ||
-        value.contains("|") ||
-        value.contains(";") ||
-        value.contains(",") ||
-        value.contains("!") ||
-        value.contains("?")) {
-      return 'The Password must not contain \". , ; ! ?\" and so';
-    }
-    return null;
   }
 
   @override
