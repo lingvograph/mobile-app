@@ -48,7 +48,7 @@ class WordView extends StatelessWidget {
                                 new Border.all(color: Colors.grey, width: 2),
                             image: new DecorationImage(
                               image: new CachedNetworkImageProvider(
-                                  word.image.url),
+                                  word.images[0].url),
                               fit: BoxFit.cover,
                             ),
                           ),
