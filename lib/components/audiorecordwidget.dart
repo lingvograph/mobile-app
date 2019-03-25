@@ -55,11 +55,11 @@ class _RecordState extends State<RecordAudioWidget> {
       });
       _dbPeakSubscription =
           flutterSound.onRecorderDbPeakChanged.listen((value) {
-            print("got update -> $value");
-            setState(() {
-              this._dbLevel = value;
-            });
-          });
+        print("got update -> $value");
+        setState(() {
+          this._dbLevel = value;
+        });
+      });
 
       this.setState(() {
         this._isRecording = true;

@@ -58,6 +58,7 @@ class Word {
     text = map(d['text'], (t) => t as String);
     id = d['id'] ?? text;
     transcription = map(d['transcription'], (t) => t as String);
+
     image = Resource.fromAny(d['image']);
     pronunciation = map(d['pronunciation'], (t) => Resource.fromAny(t));
   }

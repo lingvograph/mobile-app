@@ -5,8 +5,8 @@ import 'package:memoapp/components/cardtextstyle.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/appstate.dart';
 import 'package:memoapp/utils.dart';
-import 'package:memoapp/pronounciationlist.dart';
-import 'package:memoapp/wordusageexampleslist.dart';
+import 'package:memoapp/components/pronounciationlist.dart';
+import 'package:memoapp/components/wordusageexampleslist.dart';
 
 class DetailedWordView extends StatelessWidget {
   final AppState appState;

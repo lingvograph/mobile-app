@@ -6,6 +6,8 @@ import 'package:memoapp/components/wordview.dart';
 import 'package:memoapp/data.dart';
 import 'package:memoapp/model.dart';
 import 'package:memoapp/screen/contentmanagment.dart';
+import 'package:memoapp/data.dart';
+import 'package:memoapp/model.dart';
 import 'package:memoapp/screen/userprofile.dart';
 import 'package:memoapp/utils.dart';
 
