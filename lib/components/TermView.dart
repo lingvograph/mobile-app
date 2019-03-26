@@ -8,11 +8,16 @@ import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
-class TermView extends StatelessWidget {
+class TermView extends StatefulWidget {
+  TermView(this.term, {this.tappable = true});
+
+  _TermState createState() => _TermState();
   final TermInfo term;
   final bool tappable;
+}
 
-  TermView(this.term, {this.tappable = true});
+class _TermState extends State<TermView> {
+  int _current = 0;
 
   get appState {
     return appData.appState;
@@ -21,25 +26,43 @@ class TermView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var firstLang = appState.user?.firstLang ?? 'ru';
-    var text1 = term.text ?? '';
+    var text1 = widget.term.text ?? '';
     var text2 = firstOrElse(
-            term.translations
+            widget.term.translations
                 .where((t) => t.lang == firstLang)
                 .map((t) => t.text),
             '') ??
         '';
-    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
+    var trans = firstByKey(widget.term.transcript, firstLang, true) ?? '';
 
     // TODO render placeholder if no images
-    var slider = term.visual.items.length == 1
-        ? makeImage(term.visual.items.first)
+    var slider = widget.term.visual.items.length == 1
+        ? makeImage(widget.term.visual.items.first)
         : CarouselSlider(
             //height: 500.0,
             viewportFraction: 1.0,
             aspectRatio: 2.0,
             enlargeCenterPage: true,
-            items: term.visual.items.map((t) => makeImage(t)).toList());
+            onPageChanged: (index) {
+              setState(() {
+                _current = index;
+              });
+            },
+            items: widget.term.visual.items.map((t) => makeImage(t)).toList());
 
+    List<Widget> _dots = new List();
+    for(int i=0;i<widget.term.visual.items.length;i++)
+    {
+      _dots.add(Container(
+        width: 8.0,
+        height: 8.0,
+        margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+        decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: _current == i ? Color.fromRGBO(0, 0, 0, 0.9) : Color.fromRGBO(0, 0, 0, 0.4)
+        ),
+      ));
+    }
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
       child: Container(
@@ -51,9 +74,9 @@ class TermView extends StatelessWidget {
             children: <Widget>[
               new InkWell(
                   onTap: () {
-                    if (tappable) {
+                    if (widget.tappable) {
                       var route = MaterialPageRoute(
-                          builder: (_) => new TermDetail(term.uid));
+                          builder: (_) => new TermDetail(widget.term.uid));
                       Navigator.push(context, route);
                     }
                   },
@@ -96,6 +119,10 @@ class TermView extends StatelessWidget {
                       ],
                     )),
               ),
+        Container(
+          alignment: Alignment(0, 1),
+          child: Row(children: _dots, mainAxisAlignment: MainAxisAlignment.center),
+        )
             ],
           )),
     );
@@ -117,8 +144,8 @@ class TermView extends StatelessWidget {
 
   void playSound() {
     var audioPlayer = new AudioPlayer();
-    if (term.audio.items.isNotEmpty) {
-      var sound = term.audio.items.first;
+    if (widget.term.audio.items.isNotEmpty) {
+      var sound = widget.term.audio.items.first;
       if (sound != null) {
         audioPlayer.play(sound.url);
       }
