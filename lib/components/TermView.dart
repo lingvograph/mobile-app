@@ -30,10 +30,13 @@ class TermView extends StatelessWidget {
         '';
     var trans = firstByKey(term.transcript, firstLang, true) ?? '';
 
-    var slider = CarouselSlider(
-        //height: 500.0,
-        enlargeCenterPage: true,
-        items: term.visual.items.map((t) => makeImage(t)).toList());
+    // TODO render placeholder if no images
+    var slider = term.visual.items.length == 1
+        ? makeImage(term.visual.items.first)
+        : CarouselSlider(
+            //height: 500.0,
+            enlargeCenterPage: true,
+            items: term.visual.items.map((t) => makeImage(t)).toList());
 
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
