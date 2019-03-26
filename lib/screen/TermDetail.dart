@@ -4,7 +4,6 @@ import 'package:memoapp/api.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';
-import 'package:memoapp/components/ExampleList.dart';
 
 class TermDetail extends StatefulWidget {
   String id;
@@ -57,10 +56,7 @@ class TermDetailState extends State<TermDetail> {
           ),
           new AudioList(
             term: term,
-          ),
-          new ExampleList(
-            term: term,
-          ),
+          )
         ],
       ),
     );
