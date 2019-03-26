@@ -35,6 +35,8 @@ class TermView extends StatelessWidget {
         ? makeImage(term.visual.items.first)
         : CarouselSlider(
             //height: 500.0,
+            viewportFraction: 1.0,
+            aspectRatio: 2.0,
             enlargeCenterPage: true,
             items: term.visual.items.map((t) => makeImage(t)).toList());
 
