@@ -167,7 +167,7 @@ class MediaInfo {
     source = getOrElse(json, 'source', '');
     contentType = getOrElse(json, 'content_type', '');
     createdAt = json.containsKey('created_at') ? DateTime.parse(json['created_at']) : null;
-    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by']) : UserInfo.fromJson({
+    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by'][0]) : UserInfo.fromJson({
       'name': 'system',
       'gender': 'robot',
       'country': 'Russia',
@@ -235,6 +235,17 @@ class ListResult<T> {
   }
 }
 
+Map<String, String> multilangText(Map<String, dynamic> json, String key) {
+  var result = new Map<String, String>();
+  // TODO just process @lang
+  ['ru', 'en'].forEach((lang) {
+    if (json.containsKey('$key@$lang')) {
+      result[lang] = json['$key@$lang'] as String;
+    }
+  });
+  return result;
+}
+
 class TermInfo {
   String uid;
   String lang;
@@ -244,19 +255,15 @@ class TermInfo {
   List<TermInfo> translations;
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
+  List<Tag> tags;
 
   TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
 
-    transcript = new Map<String, String>();
-    ['ru', 'en'].forEach((lang) {
-      if (json.containsKey('transcript@$lang')) {
-        transcript[lang] = json['transcript@$lang'] as String;
-      }
-    });
-
+    transcript = multilangText(json, 'transcript');
+    tags = mapList(json, 'tag', (t) => Tag.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
@@ -264,6 +271,17 @@ class TermInfo {
 
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
+  }
+}
+
+class Tag {
+  String uid;
+  // text in different languages
+  Map<String, String> text;
+
+  Tag.fromJson(Map<String, dynamic> json) {
+    uid = json['uid'];
+    text = multilangText(json, 'text');
   }
 }
 
@@ -301,12 +319,22 @@ Future<TermInfo> fetchAudioList(
         text
         transcript@ru
         transcript@en
+        tag {
+          uid
+          text@en
+          text@ru
+        }
         translated_as {
           uid
           lang
           text
           transcript@ru
           transcript@en
+          tag {
+            uid
+            text@en
+            text@ru
+          }
         }
         audio (offset: $offset, first: $limit) {
           uid

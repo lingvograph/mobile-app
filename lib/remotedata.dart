@@ -14,12 +14,22 @@ makeQuery(String firstLang, int offset, int limit) {
         lang
         transcript@ru
         transcript@en
+        tag {
+          uid
+          text@en
+          text@ru
+        }
         translated_as {
           uid
           text
           lang
           transcript@ru
           transcript@en
+          tag {
+            uid
+            text@en
+            text@ru
+          }
         }
         audio {
           url
