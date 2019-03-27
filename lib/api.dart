@@ -84,7 +84,9 @@ Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
   var resp = await http.post(makeApiURL('/api/login', withKey: false));
   if (!isOK(resp)) {
-    throw new StateError(getErrorMessage(resp));
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
   }
   var json = parseJSON(resp);
   return json['token'] as String;
@@ -107,7 +109,9 @@ Future<dynamic> postData(
     throw new StateError('bad auth');
   }
   if (!isOK(resp)) {
-    throw new StateError(getErrorMessage(resp));
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
   }
   var results = parseJSON(resp);
   return results;
@@ -126,7 +130,9 @@ Future<dynamic> getData(String methodPath) async {
     throw new StateError('bad auth');
   }
   if (!isOK(resp)) {
-    throw new StateError(getErrorMessage(resp));
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
   }
   var results = parseJSON(resp);
   return results;
@@ -256,6 +262,9 @@ class TermInfo {
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
   List<Tag> tags;
+  int views;
+  int likes;
+  int dislikes;
 
   TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
     uid = json['uid'];
@@ -265,6 +274,9 @@ class TermInfo {
     transcript = multilangText(json, 'transcript');
     tags = mapList(json, 'tag', (t) => Tag.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
+    views = json.containsKey('views') ? json['views'] : 0;
+    likes = json.containsKey('likes') ? json['likes'] : 0;
+    dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
     audio = new ListResult<MediaInfo>(audioItems, audioTotal);
@@ -324,17 +336,15 @@ Future<TermInfo> fetchAudioList(
           text@en
           text@ru
         }
+        views: count(see)
+        likes: count(like)
+        dislikes: count(like)
         translated_as {
           uid
           lang
           text
           transcript@ru
           transcript@en
-          tag {
-            uid
-            text@en
-            text@ru
-          }
         }
         audio (offset: $offset, first: $limit) {
           uid
