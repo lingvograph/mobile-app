@@ -165,6 +165,9 @@ class MediaInfo {
   String contentType;
   UserInfo author;
   DateTime createdAt;
+  int views;
+  int likes;
+  int dislikes;
 
   MediaInfo.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
@@ -172,6 +175,9 @@ class MediaInfo {
     url = json['url'];
     source = getOrElse(json, 'source', '');
     contentType = getOrElse(json, 'content_type', '');
+    views = json.containsKey('views') ? json['views'] : 0;
+    likes = json.containsKey('likes') ? json['likes'] : 0;
+    dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
     createdAt = json.containsKey('created_at') ? DateTime.parse(json['created_at']) : null;
     author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by'][0]) : UserInfo.fromJson({
       'name': 'system',
@@ -191,6 +197,13 @@ class NQuad {
     return '$subject <$predicate> $object .';
   }
 
+  static wrapId(String s) {
+    if (s.startsWith('0x')) {
+      return '<$s>';
+    }
+    return s;
+  }
+
   /// Make a N-Quad string. If subject or object is not defined returns null.
   static String format(String subject, String predicate, String object) {
     if (subject == null || subject.isEmpty) {
@@ -199,13 +212,13 @@ class NQuad {
     if (object == null || object.isEmpty) {
       return null;
     }
-    return '$subject <$predicate> $object .';
+    return '${wrapId(subject)} <$predicate> ${wrapId(object)} .';
   }
 }
 
 Future<dynamic> updateGraph(Iterable<dynamic> nquads) {
   var body = nquads.map((t) => t.toString()).join('\n');
-  return postData('/api/data/nquads', 'application/n-quads', body);
+  return postData('/api/nquads', 'application/n-quads', body);
 }
 
 class TermUpdate {
@@ -221,6 +234,25 @@ Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
     NQuad.format(termUid, 'visual', input.imageUid),
   ].where((t) => t != null && t.isNotEmpty).toList();
   return updateGraph(nquads);
+}
+
+// TODO consider to make like, dislike bidirectional edges using @reverse
+Future<dynamic> rel(String userId, String objectId, String predicate) {
+  var nquads = [
+    NQuad.format(userId, predicate, objectId),
+    NQuad.format(objectId, predicate, userId),
+  ].where((t) => t != null && t.isNotEmpty).toList();
+  return updateGraph(nquads);
+}
+
+// TODO delete previous dislike on like
+Future<dynamic> like(String userId, String objectId) {
+  return rel(userId, objectId, 'like');
+}
+
+// TODO delete previous like on dislike
+Future<dynamic> dislike(String userId, String objectId) {
+  return rel(userId, objectId, 'dislike');
 }
 
 List<T> mapList<T>(Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
@@ -262,9 +294,6 @@ class TermInfo {
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
   List<Tag> tags;
-  int views;
-  int likes;
-  int dislikes;
 
   TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
     uid = json['uid'];
@@ -274,9 +303,6 @@ class TermInfo {
     transcript = multilangText(json, 'transcript');
     tags = mapList(json, 'tag', (t) => Tag.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
-    views = json.containsKey('views') ? json['views'] : 0;
-    likes = json.containsKey('likes') ? json['likes'] : 0;
-    dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
     audio = new ListResult<MediaInfo>(audioItems, audioTotal);
@@ -336,9 +362,6 @@ Future<TermInfo> fetchAudioList(
           text@en
           text@ru
         }
-        views: count(see)
-        likes: count(like)
-        dislikes: count(like)
         translated_as {
           uid
           lang
@@ -358,6 +381,9 @@ Future<TermInfo> fetchAudioList(
             gender
             country
           }
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
         }
         visual (first: 10) {
           url
@@ -368,6 +394,9 @@ Future<TermInfo> fetchAudioList(
             uid
             name
           }
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
         }
       }
       count(func: uid($termUid)) {

@@ -4,7 +4,7 @@ import 'package:memoapp/AppData.dart';
 import 'package:memoapp/routes.dart';
 
 void main() async {
-  var state = await AppState.load();
+  var state = new AppState(); // await AppState.load();
   // TODO check API token
   appData.appState = state;
   return runApp(App(state));

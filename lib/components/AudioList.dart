@@ -1,5 +1,6 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api.dart';
 
 // TODO make it scrollable
@@ -54,9 +55,13 @@ class LoadedAudio extends StatelessWidget {
 
   LoadedAudio(this.audio);
 
+  get appState {
+    return appData.appState;
+  }
+
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
+    var userId = appState.user.uid;
     return Padding(
       padding: EdgeInsets.only(top: 4, left: 20, right: 20),
       child: Container(
@@ -106,9 +111,12 @@ class LoadedAudio extends StatelessWidget {
                             Icons.thumb_up,
                             size: 15,
                           ),
+                          onPressed: () {
+                            like(userId, audio.uid);
+                          },
                         ),
                         Text(
-                          "good",
+                          audio.likes.toString(),
                           style: TextStyle(fontSize: 13),
                         ),
                         IconButton(
@@ -116,16 +124,13 @@ class LoadedAudio extends StatelessWidget {
                             Icons.thumb_down,
                             size: 15,
                           ),
+                          onPressed: (){
+                            dislike(userId, audio.uid);
+                          },
                         ),
                         Text(
-                          "bad",
+                          audio.dislikes.toString(),
                           style: TextStyle(fontSize: 13),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.favorite,
-                            size: 15,
-                          ),
                         ),
                       ],
                     ),
