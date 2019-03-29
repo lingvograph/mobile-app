@@ -51,17 +51,21 @@ class _TermState extends State<TermView> {
             items: widget.term.visual.items.map((t) => makeImage(t)).toList());
 
     List<Widget> _dots = new List();
-    for(int i=0;i<widget.term.visual.items.length;i++)
+    if(widget.term.visual.items.length > 1)
     {
-      _dots.add(Container(
-        width: 8.0,
-        height: 8.0,
-        margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
-        decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: _current == i ? Color.fromRGBO(0, 0, 0, 0.9) : Color.fromRGBO(0, 0, 0, 0.4)
-        ),
-      ));
+      for (int i = 0; i < widget.term.visual.items.length; i++)
+      {
+        _dots.add(Container(
+          width: 8.0,
+          height: 8.0,
+          margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
+          decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: _current == i ? Color.fromRGBO(0, 0, 0, 0.9) : Color
+                  .fromRGBO(0, 0, 0, 0.6)
+          ),
+        ));
+      }
     }
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
