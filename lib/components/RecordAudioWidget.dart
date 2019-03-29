@@ -40,6 +40,10 @@ class _RecordState extends State<RecordAudioWidget> {
   void startRecorder() async {
     try {
       String path = await flutterSound.startRecorder(null);
+
+      /*
+      /storage/emulated/0/default.mp4 вот такой путь у записи
+      */
       print('startRecorder: $path');
 
       _recorderSubscription = flutterSound.onRecorderStateChanged.listen((e) {
@@ -92,6 +96,7 @@ class _RecordState extends State<RecordAudioWidget> {
 
   void startPlayer() async {
     String path = await flutterSound.startPlayer(null);
+    
     await flutterSound.setVolume(1.0);
     print('startPlayer: $path');
 

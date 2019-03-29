@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/components/AppBar.dart';
 import 'package:memoapp/components/Loading.dart';
+import 'package:memoapp/components/RecordAudioWidget.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/screen/ContentManager.dart';
@@ -119,10 +120,12 @@ class DiscoverState extends State<DiscoverScreen> {
     ].toList();
   }
 
+  /*Ладно, на русском коментирую
+  * Тут подключаю виджет(на самом деле экран) записи аудио*/
   List<Widget> makeTabViews() {
     return [
       makeListView(),
-      Icon(Icons.add),
+      RecordAudioWidget(),
       new UserProfile(),
     ].toList();
   }

@@ -84,7 +84,9 @@ Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
   var resp = await http.post(makeApiURL('/api/login', withKey: false));
   if (!isOK(resp)) {
-    throw new StateError(getErrorMessage(resp));
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
   }
   var json = parseJSON(resp);
   return json['token'] as String;
@@ -107,7 +109,9 @@ Future<dynamic> postData(
     throw new StateError('bad auth');
   }
   if (!isOK(resp)) {
-    throw new StateError(getErrorMessage(resp));
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
   }
   var results = parseJSON(resp);
   return results;
@@ -126,7 +130,9 @@ Future<dynamic> getData(String methodPath) async {
     throw new StateError('bad auth');
   }
   if (!isOK(resp)) {
-    throw new StateError(getErrorMessage(resp));
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
   }
   var results = parseJSON(resp);
   return results;
@@ -159,6 +165,9 @@ class MediaInfo {
   String contentType;
   UserInfo author;
   DateTime createdAt;
+  int views;
+  int likes;
+  int dislikes;
 
   MediaInfo.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
@@ -166,8 +175,11 @@ class MediaInfo {
     url = json['url'];
     source = getOrElse(json, 'source', '');
     contentType = getOrElse(json, 'content_type', '');
+    views = json.containsKey('views') ? json['views'] : 0;
+    likes = json.containsKey('likes') ? json['likes'] : 0;
+    dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
     createdAt = json.containsKey('created_at') ? DateTime.parse(json['created_at']) : null;
-    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by']) : UserInfo.fromJson({
+    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by'][0]) : UserInfo.fromJson({
       'name': 'system',
       'gender': 'robot',
       'country': 'Russia',
@@ -185,6 +197,13 @@ class NQuad {
     return '$subject <$predicate> $object .';
   }
 
+  static wrapId(String s) {
+    if (s.startsWith('0x')) {
+      return '<$s>';
+    }
+    return s;
+  }
+
   /// Make a N-Quad string. If subject or object is not defined returns null.
   static String format(String subject, String predicate, String object) {
     if (subject == null || subject.isEmpty) {
@@ -193,13 +212,13 @@ class NQuad {
     if (object == null || object.isEmpty) {
       return null;
     }
-    return '$subject <$predicate> $object .';
+    return '${wrapId(subject)} <$predicate> ${wrapId(object)} .';
   }
 }
 
 Future<dynamic> updateGraph(Iterable<dynamic> nquads) {
   var body = nquads.map((t) => t.toString()).join('\n');
-  return postData('/api/data/nquads', 'application/n-quads', body);
+  return postData('/api/nquads', 'application/n-quads', body);
 }
 
 class TermUpdate {
@@ -215,6 +234,25 @@ Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
     NQuad.format(termUid, 'visual', input.imageUid),
   ].where((t) => t != null && t.isNotEmpty).toList();
   return updateGraph(nquads);
+}
+
+// TODO consider to make like, dislike bidirectional edges using @reverse
+Future<dynamic> rel(String userId, String objectId, String predicate) {
+  var nquads = [
+    NQuad.format(userId, predicate, objectId),
+    NQuad.format(objectId, predicate, userId),
+  ].where((t) => t != null && t.isNotEmpty).toList();
+  return updateGraph(nquads);
+}
+
+// TODO delete previous dislike on like
+Future<dynamic> like(String userId, String objectId) {
+  return rel(userId, objectId, 'like');
+}
+
+// TODO delete previous like on dislike
+Future<dynamic> dislike(String userId, String objectId) {
+  return rel(userId, objectId, 'dislike');
 }
 
 List<T> mapList<T>(Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
@@ -235,6 +273,17 @@ class ListResult<T> {
   }
 }
 
+Map<String, String> multilangText(Map<String, dynamic> json, String key) {
+  var result = new Map<String, String>();
+  // TODO just process @lang
+  ['ru', 'en'].forEach((lang) {
+    if (json.containsKey('$key@$lang')) {
+      result[lang] = json['$key@$lang'] as String;
+    }
+  });
+  return result;
+}
+
 class TermInfo {
   String uid;
   String lang;
@@ -244,19 +293,15 @@ class TermInfo {
   List<TermInfo> translations;
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
+  List<Tag> tags;
 
   TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
 
-    transcript = new Map<String, String>();
-    ['ru', 'en'].forEach((lang) {
-      if (json.containsKey('transcript@$lang')) {
-        transcript[lang] = json['transcript@$lang'] as String;
-      }
-    });
-
+    transcript = multilangText(json, 'transcript');
+    tags = mapList(json, 'tag', (t) => Tag.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
@@ -264,6 +309,17 @@ class TermInfo {
 
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
+  }
+}
+
+class Tag {
+  String uid;
+  // text in different languages
+  Map<String, String> text;
+
+  Tag.fromJson(Map<String, dynamic> json) {
+    uid = json['uid'];
+    text = multilangText(json, 'text');
   }
 }
 
@@ -301,6 +357,11 @@ Future<TermInfo> fetchAudioList(
         text
         transcript@ru
         transcript@en
+        tag {
+          uid
+          text@en
+          text@ru
+        }
         translated_as {
           uid
           lang
@@ -320,6 +381,9 @@ Future<TermInfo> fetchAudioList(
             gender
             country
           }
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
         }
         visual (first: 10) {
           url
@@ -330,6 +394,9 @@ Future<TermInfo> fetchAudioList(
             uid
             name
           }
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
         }
       }
       count(func: uid($termUid)) {
