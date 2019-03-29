@@ -51,19 +51,17 @@ class _TermState extends State<TermView> {
             items: widget.term.visual.items.map((t) => makeImage(t)).toList());
 
     List<Widget> _dots = new List();
-    if(widget.term.visual.items.length > 1)
-    {
-      for (int i = 0; i < widget.term.visual.items.length; i++)
-      {
+    if (widget.term.visual.items.length > 1) {
+      for (int i = 0; i < widget.term.visual.items.length; i++) {
         _dots.add(Container(
           width: 8.0,
           height: 8.0,
           margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: _current == i ? Color.fromRGBO(0, 0, 0, 0.9) : Color
-                  .fromRGBO(0, 0, 0, 0.6)
-          ),
+              color: _current == i
+                  ? Color.fromRGBO(0, 0, 0, 0.9)
+                  : Color.fromRGBO(0, 0, 0, 0.6)),
         ));
       }
     }
@@ -123,10 +121,37 @@ class _TermState extends State<TermView> {
                       ],
                     )),
               ),
-        Container(
-          alignment: Alignment(0, 1),
-          child: Row(children: _dots, mainAxisAlignment: MainAxisAlignment.center),
-        )
+              /*TODO add stack to icons to make shadow*/
+              Positioned(
+                  left: 200,
+                  top: 150,
+                  child: Row(
+                    children: <Widget>[
+                      Icon(Icons.remove_red_eye, color: Colors.grey[200],),
+                      Text(
+                        widget.term.audio.items[0].views.toString(),
+                        style: termTextStyleInfo,
+                      ),
+                      Padding(padding: EdgeInsets.only(left: 20),),
+                      Icon(Icons.thumb_up, color: Colors.grey[200],),
+                      Text(
+                        widget.term.audio.items[0].likes.toString(),
+                        style: termTextStyleInfo,
+                      ),
+                      Padding(padding: EdgeInsets.only(left: 20),),
+                      Icon(Icons.thumb_down, color: Colors.grey[200],),
+                      Text(
+                        widget.term.audio.items[0].dislikes.toString(),
+                        style: termTextStyleInfo,
+                      ),
+                    ],
+                  )),
+              Container(
+                alignment: Alignment(0, 1),
+                child: Row(
+                    children: _dots,
+                    mainAxisAlignment: MainAxisAlignment.center),
+              )
             ],
           )),
     );

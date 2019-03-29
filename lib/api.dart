@@ -296,6 +296,7 @@ class TermInfo {
   List<Tag> tags;
 
   TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
+    print(json.toString());
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
