@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api.dart';
+import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
@@ -43,6 +44,7 @@ class _TermState extends State<TermView> {
             viewportFraction: 1.0,
             aspectRatio: 2.0,
             enlargeCenterPage: true,
+            scrollDirection: Axis.horizontal, // good param to play with
             onPageChanged: (index) {
               setState(() {
                 _current = index;
@@ -104,7 +106,7 @@ class _TermState extends State<TermView> {
                     child: Stack(
                       children: <Widget>[
                         Positioned(
-                            left: 3,
+                            left: 2,
                             top: 1,
                             child: Icon(
                               Icons.play_circle_outline,
@@ -114,32 +116,38 @@ class _TermState extends State<TermView> {
                         Positioned(
                           child: Icon(
                             Icons.play_circle_outline,
-                            color: Colors.white,
+                            color: Colors.grey[200],
                             size: 60,
                           ),
                         )
                       ],
                     )),
               ),
-              /*TODO add stack to icons to make shadow*/
+
               Positioned(
                   left: 200,
                   top: 150,
                   child: Row(
                     children: <Widget>[
-                      Icon(Icons.remove_red_eye, color: Colors.grey[200],),
+                      IconWithShadow(child:Icons.remove_red_eye , left: 1, top: 1),
+
                       Text(
                         widget.term.audio.items[0].views.toString(),
                         style: termTextStyleInfo,
                       ),
-                      Padding(padding: EdgeInsets.only(left: 20),),
-                      Icon(Icons.thumb_up, color: Colors.grey[200],),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20),
+                      ),
+                      IconWithShadow(child:Icons.thumb_up , left: 1, top: 1),
                       Text(
                         widget.term.audio.items[0].likes.toString(),
                         style: termTextStyleInfo,
                       ),
-                      Padding(padding: EdgeInsets.only(left: 20),),
-                      Icon(Icons.thumb_down, color: Colors.grey[200],),
+                      Padding(
+                        padding: EdgeInsets.only(left: 20),
+                      ),
+                      IconWithShadow(child:Icons.thumb_down , left: 1, top: 1),
+
                       Text(
                         widget.term.audio.items[0].dislikes.toString(),
                         style: termTextStyleInfo,
