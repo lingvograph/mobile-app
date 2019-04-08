@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:memoapp/api.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class RecordAudioWidget extends StatefulWidget {
@@ -99,7 +100,11 @@ class _RecordState extends State<RecordAudioWidget> {
     
     await flutterSound.setVolume(1.0);
     print('startPlayer: $path');
+    File f = new File(path);
+    List<int> bytes = f.readAsBytesSync();
 
+    print("file: "+bytes.toString());
+    uploadAudio("$path", bytes);
     try {
       _playerSubscription = flutterSound.onPlayerStateChanged.listen((e) {
         if (e != null) {

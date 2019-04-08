@@ -91,6 +91,15 @@ Future<String> login(String username, String password) async {
   var json = parseJSON(resp);
   return json['token'] as String;
 }
+dynamic handleResponse(Response resp) {
+  if (resp.statusCode == 401) {
+    authState.notify(false);
+    throw new StateError('bad auth');
+  }
+  var respText = utf8.decode(resp.bodyBytes);
+  var results = jsonDecode(respText);
+  return results;
+}
 
 /// a generic POST API call
 /// @param path relative path to API method
@@ -116,7 +125,27 @@ Future<dynamic> postData(
   var results = parseJSON(resp);
   return results;
 }
+//TODO extract repeated code to function
+Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) async {
+  var headers = {
+    'Authorization': authState.authorizationHeader,
+    'Content-Type': contentType,
+  };
+  var url = makeApiURL(methodPath);
+  var resp = await put(url, headers: headers, body: jsonEncode(body));
 
+  if (resp.statusCode == 401) {
+    authState.notify(false);
+    throw new StateError('bad auth');
+  }
+  if (!isOK(resp)) {
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
+  }
+  var results = parseJSON(resp);
+  return results;
+}
 /// a generic GET API call
 /// @param path relative path to API method
 Future<dynamic> getData(String methodPath) async {
@@ -154,6 +183,10 @@ Future<dynamic> query(String query) async {
 /// @param body file content, bytes or file stream
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result = await postData('/api/file/$path', contentType, body);
+  return MediaInfo.fromJson(result);
+}
+Future<dynamic> uploadAudio(String path, List<int> body) async {
+  var result = await postData('/api/file/$path', "audio", body);
   return MediaInfo.fromJson(result);
 }
 
