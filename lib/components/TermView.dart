@@ -44,7 +44,8 @@ class _TermState extends State<TermView> {
             viewportFraction: 1.0,
             aspectRatio: 2.0,
             enlargeCenterPage: true,
-            scrollDirection: Axis.horizontal, // good param to play with
+            scrollDirection: Axis.horizontal,
+            // good param to play with
             onPageChanged: (index) {
               setState(() {
                 _current = index;
@@ -79,6 +80,7 @@ class _TermState extends State<TermView> {
               new InkWell(
                   onTap: () {
                     if (widget.tappable) {
+                      debugPrint(widget.term.uid.toString());
                       var route = MaterialPageRoute(
                           builder: (_) => new TermDetail(widget.term.uid));
                       Navigator.push(context, route);
@@ -123,37 +125,49 @@ class _TermState extends State<TermView> {
                       ],
                     )),
               ),
-
               Positioned(
                   left: 200,
                   top: 150,
-                  child: Row(
-                    children: <Widget>[
-                      IconWithShadow(child:Icons.remove_red_eye , left: 1, top: 1),
+                  child: widget.tappable
+                      ? Row(
+                          children: <Widget>[
+                            IconWithShadow(
+                                child: Icons.remove_red_eye, left: 1, top: 1),
+                            Text(
+                              widget.term.audio.items[0].views.toString(),
+                              style: termTextStyleInfo,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 20),
+                            ),
+                            InkWell(
+                                child: IconWithShadow(
+                                    child: Icons.thumb_up, left: 1, top: 1),
+                                onTap: () {
+                                  debugPrint("tap UP");
+                                  apiPut("/api/data/term/"+widget.term.uid,"application/json", {"likes":widget.term.audio.items[0].likes+1});
 
-                      Text(
-                        widget.term.audio.items[0].views.toString(),
-                        style: termTextStyleInfo,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 20),
-                      ),
-                      IconWithShadow(child:Icons.thumb_up , left: 1, top: 1),
-                      Text(
-                        widget.term.audio.items[0].likes.toString(),
-                        style: termTextStyleInfo,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(left: 20),
-                      ),
-                      IconWithShadow(child:Icons.thumb_down , left: 1, top: 1),
-
-                      Text(
-                        widget.term.audio.items[0].dislikes.toString(),
-                        style: termTextStyleInfo,
-                      ),
-                    ],
-                  )),
+                                }),
+                            Text(
+                              widget.term.audio.items[0].likes.toString(),
+                              style: termTextStyleInfo,
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(left: 20),
+                            ),
+                            InkWell(
+                                child: IconWithShadow(
+                                    child: Icons.thumb_down, left: 1, top: 1),
+                                onTap: () {
+                                  debugPrint("DSDSSD");
+                                }),
+                            Text(
+                              widget.term.audio.items[0].dislikes.toString(),
+                              style: termTextStyleInfo,
+                            ),
+                          ],
+                        )
+                      : Text("")),
               Container(
                 alignment: Alignment(0, 1),
                 child: Row(

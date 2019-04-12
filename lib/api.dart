@@ -132,6 +132,8 @@ Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) asyn
     'Content-Type': contentType,
   };
   var url = makeApiURL(methodPath);
+  print(url.toString());
+
   var resp = await put(url, headers: headers, body: jsonEncode(body));
 
   if (resp.statusCode == 401) {
@@ -147,7 +149,7 @@ Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) asyn
   return results;
 }
 /// a generic GET API call
-/// @param path relative path to API method
+/// @param path relative path to  API method
 Future<dynamic> getData(String methodPath) async {
   var headers = {
     'Authorization': authState.authorizationHeader,
