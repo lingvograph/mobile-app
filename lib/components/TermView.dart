@@ -80,7 +80,7 @@ class _TermState extends State<TermView> {
               new InkWell(
                   onTap: () {
                     if (widget.tappable) {
-                      debugPrint(widget.term.uid.toString());
+                      //debugPrint(widget.term.uid.toString());
                       var route = MaterialPageRoute(
                           builder: (_) => new TermDetail(widget.term.uid));
                       Navigator.push(context, route);
@@ -145,7 +145,9 @@ class _TermState extends State<TermView> {
                                     child: Icons.thumb_up, left: 1, top: 1),
                                 onTap: () {
                                   debugPrint("tap UP");
-                                  apiPut("/api/data/term/"+widget.term.uid,"application/json", {"likes":widget.term.audio.items[0].likes+1});
+                                  debugPrint(widget.term.audio.items[0].uid);
+                                  like(appData.appState.user.uid, widget.term.audio.items[0].uid);
+                                  //apiPut("/api/data/term/"+widget.term.uid,"application/json", {"audio":{"uid":widget.term.audio.items[0].uid,"likes":widget.term.audio.items[0].likes+1}});
 
                                 }),
                             Text(
@@ -159,7 +161,7 @@ class _TermState extends State<TermView> {
                                 child: IconWithShadow(
                                     child: Icons.thumb_down, left: 1, top: 1),
                                 onTap: () {
-                                  debugPrint("DSDSSD");
+                                  dislike(appData.appState.user.uid, widget.term.audio.items[0].uid);
                                 }),
                             Text(
                               widget.term.audio.items[0].dislikes.toString(),

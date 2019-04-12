@@ -135,7 +135,6 @@ Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) asyn
   print(url.toString());
 
   var resp = await put(url, headers: headers, body: jsonEncode(body));
-
   if (resp.statusCode == 401) {
     authState.notify(false);
     throw new StateError('bad auth');
@@ -146,6 +145,7 @@ Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) asyn
     throw new StateError(msg);
   }
   var results = parseJSON(resp);
+  print(results.toString());
   return results;
 }
 /// a generic GET API call
@@ -386,26 +386,31 @@ class UserInfo {
 // TODO order by popularity
 Future<TermInfo> fetchAudioList(
     String termUid, int offset, limit) async {
-  var q = """{
-      terms(func: uid($termUid)) {
+  var q = """
+  {
+      terms(func: uid($termUid)) 
+      {
         uid
         lang
         text
         transcript@ru
         transcript@en
-        tag {
+        tag 
+        {
           uid
           text@en
           text@ru
         }
-        translated_as {
+        translated_as 
+        {
           uid
           lang
           text
           transcript@ru
           transcript@en
         }
-        audio (offset: $offset, first: $limit) {
+        audio (offset: $offset, first: $limit) 
+        {
           uid
           url
           source
@@ -421,12 +426,14 @@ Future<TermInfo> fetchAudioList(
           likes: count(like)
           dislikes: count(dislike)
         }
-        visual (first: 10) {
+        visual (first: 10) 
+        {
           url
           source
           content_type
           created_at
-          created_by {
+          created_by 
+          {
             uid
             name
           }
@@ -435,10 +442,11 @@ Future<TermInfo> fetchAudioList(
           dislikes: count(dislike)
         }
       }
-      count(func: uid($termUid)) {
+      count(func: uid($termUid)) 
+      {
         total: count(audio)
       }
-    }""";
+   }""";
   var results = await query(q);
   var total = results['count'][0]['total'];
   var term = results['terms'][0] as Map<String, dynamic>;
