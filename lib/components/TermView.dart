@@ -81,6 +81,7 @@ class _TermState extends State<TermView> {
                   onTap: () {
                     if (widget.tappable) {
                       //debugPrint(widget.term.uid.toString());
+                      view(appData.appState.user.uid, widget.term.audio.items[0].uid);
                       var route = MaterialPageRoute(
                           builder: (_) => new TermDetail(widget.term.uid));
                       Navigator.push(context, route);

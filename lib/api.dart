@@ -281,6 +281,10 @@ Future<dynamic> rel(String userId, String objectId, String predicate) {
 }
 
 // TODO delete previous dislike on like
+Future<dynamic> view(String userId, String objectId) {
+  return rel(userId, objectId, 'see');
+}
+
 Future<dynamic> like(String userId, String objectId) {
   return rel(userId, objectId, 'like');
 }
