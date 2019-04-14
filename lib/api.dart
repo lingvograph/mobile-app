@@ -456,3 +456,75 @@ Future<TermInfo> fetchAudioList(
   var term = results['terms'][0] as Map<String, dynamic>;
   return TermInfo.fromJson(term, audioTotal: total);
 }
+
+//Just for test is is supposed to return ALL hits at current search request
+Future<ListResult<TermInfo>> SearchTerms(String txt) async {
+  var filter = '@filter(eq(text, "$txt"))';
+
+  var q = """{
+      terms(func: has(Term)) $filter 
+      {
+        uid
+        text
+        lang
+        transcript@ru
+        transcript@en
+        tag 
+        {
+          uid
+          text@en
+          text@ru
+        }
+        translated_as 
+        {
+          uid
+          text
+          lang
+          transcript@ru
+          transcript@en
+          tag 
+          {
+            uid
+            text@en
+            text@ru
+          }
+        }
+        audio 
+        {
+          uid
+          url
+          source
+          content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
+          created_at
+          created_by {
+            uid
+            name
+          }
+        }
+        visual 
+        {
+          url
+          source
+          content_type
+          created_at
+          created_by 
+          {
+            uid
+            name
+          }
+        }
+      }
+      count(func: has(Term)) $filter 
+      {
+        total: count(uid)
+      }
+    }""";
+  var results = await query(q);
+  var total = results['count'][0]['total'];
+  var terms = results['terms'] as List<dynamic>;
+  var items = terms.map((t) => TermInfo.fromJson(t)).toList();
+  return new ListResult<TermInfo>(items, total);
+}
