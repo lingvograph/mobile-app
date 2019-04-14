@@ -140,3 +140,4 @@ class DiscoverState extends State<DiscoverScreen> {
         });
   }
 }
+
