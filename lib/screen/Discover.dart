@@ -15,6 +15,13 @@ const timeout = 5000;
 
 var audioPlayer = new AudioPlayer();
 
+
+class PassableValue {
+  PassableValue(this.val);
+  int val;
+  @override
+  String toString() => val.toString();
+}
 // TODO cool transition between images
 
 // main screen with terms
@@ -26,6 +33,9 @@ class DiscoverScreen extends StatefulWidget {
 class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> terms = new List();
   int total;
+  /* 1 - can load when scrolling
+  * 2 - stop loading, e.g. search*/
+  PassableValue modeOfLoading = new PassableValue(1);
   ScrollController scrollController = new ScrollController();
 
   get appState {
@@ -41,7 +51,7 @@ class DiscoverState extends State<DiscoverScreen> {
     scrollController.addListener(() {
       var atBottom = scrollController.position.pixels ==
           scrollController.position.maxScrollExtent;
-      if (atBottom && terms.length < total) {
+      if (atBottom && terms.length < total && modeOfLoading.val == 1) {
         fetchPage();
       }
     });
@@ -63,7 +73,7 @@ class DiscoverState extends State<DiscoverScreen> {
       home: DefaultTabController(
           length: 3,
           child: Scaffold(
-            appBar: buildAppBar(context, terms),
+            appBar: buildAppBar(context, terms, modeOfLoading),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
             ),
