@@ -56,15 +56,26 @@ class _TermState extends State<TermView> {
     List<Widget> _dots = new List();
     if (widget.term.visual.items.length > 1) {
       for (int i = 0; i < widget.term.visual.items.length; i++) {
+        double size = 8.0;
+        if(i==widget.term.visual.items.length-1 || i==0)
+          {
+            size = 5;
+          }
+        if(i==_current)
+        {
+          size = 8;
+        }
         _dots.add(Container(
-          width: 8.0,
-          height: 8.0,
+
+          width: size,
+          height: size,
           margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
           decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: _current == i
                   ? Color.fromRGBO(0, 0, 0, 0.9)
                   : Color.fromRGBO(0, 0, 0, 0.6)),
+
         ));
       }
     }
