@@ -6,10 +6,7 @@ import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/RecordAudioWidget.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/screen/ContentManager.dart';
-import 'package:memoapp/AppData.dart';
 import 'package:memoapp/screen/UserProfile.dart';
-import 'package:memoapp/utils.dart';
 
 const timeout = 5000;
 
