@@ -104,7 +104,8 @@ class _RecordState extends State<RecordAudioWidget> {
     List<int> bytes = f.readAsBytesSync();
 
     print("file: "+bytes.toString());
-    uploadAudio("$path", bytes);
+    // TODO fix contentType
+    upload("$path", 'audio', bytes);
     try {
       _playerSubscription = flutterSound.onPlayerStateChanged.listen((e) {
         if (e != null) {

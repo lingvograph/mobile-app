@@ -187,10 +187,6 @@ Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result = await postData('/api/file/$path', contentType, body);
   return MediaInfo.fromJson(result);
 }
-Future<dynamic> uploadAudio(String path, List<int> body) async {
-  var result = await postData('/api/file/$path', "audio", body);
-  return MediaInfo.fromJson(result);
-}
 
 class MediaInfo {
   String uid;
