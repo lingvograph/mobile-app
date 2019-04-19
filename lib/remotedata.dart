@@ -1,15 +1,16 @@
 import 'dart:async';
 
 import 'package:memoapp/api.dart';
+import 'package:memoapp/api.dart' as api;
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/interfaces.dart';
 
-// TODO inline RealLingvoService
 class RealLingvoService implements ILingvoService {
   @override
-  Future<ListResult<TermInfo>> fetch(int offset, int limit) async {
+  Future<ListResult<TermInfo>> fetchTerms(int offset, int limit,
+      {TermFilter filter = null}) async {
     var appState = appData.appState;
     var firstLang = appState.user.firstLang;
-    return fetchTerms(firstLang, offset, limit);
+    return api.fetchTerms(firstLang, offset, limit);
   }
 }

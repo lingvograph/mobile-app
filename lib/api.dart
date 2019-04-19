@@ -351,21 +351,24 @@ class Pagination {
 
 enum TermQueryKind { termList, audioList, visualList }
 
+class TermFilter {
+  String searchString;
+  List<Tag> tags;
+
+  TermFilter(String searchString, {this.tags}) {
+    this.searchString = (searchString ?? '').trim();
+  }
+}
+
 class TermQuery {
   TermQueryKind kind = TermQueryKind.termList;
   String firstLang;
   String termUid; // for single term request
-  String searchString;
+  TermFilter filter;
   Pagination range;
 
   TermQuery(
-      {this.kind,
-      this.firstLang,
-      this.termUid,
-      String searchString,
-      this.range}) {
-    this.searchString = (searchString ?? '').trim();
-  }
+      {this.kind, this.firstLang, this.termUid, this.filter, this.range}) {}
 
   // TODO filter known words
   // TODO order audio, visual by popularity
@@ -383,16 +386,18 @@ class TermQuery {
     final termRange = isTermList ? ', ${range.toString()}' : '';
 
     // TODO use regexp to find by substring
-    final searchFilter = isTermList && searchString.isNotEmpty
-        ? ' and anyoftext(text, "$searchString")'
-        : '';
+    final searchFilter =
+        isTermList && filter != null && filter.searchString.isNotEmpty
+            ? ' and anyoftext(text, "${filter.searchString}")'
+            : '';
 
-    final filter = isTermList
+    // TODO add filter by tags
+    final termFilter = isTermList
         ? '@filter(has(Term) and not eq(lang, "$firstLang")$searchFilter)'
         : '';
 
     final q = """{
-      terms(func: $matchFn$termRange) $filter {
+      terms(func: $matchFn$termRange) $termFilter {
         uid
         text
         lang
@@ -443,7 +448,7 @@ class TermQuery {
           }
         }
       }
-      count(func: has(Term)) $filter {
+      count(func: has(Term)) $termFilter {
         total: count(${countBy()})
       }
     }""";
@@ -463,13 +468,13 @@ class TermQuery {
 }
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
-    {String searchString = ''}) async {
+    {TermFilter filter = null}) async {
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: TermQueryKind.termList,
       firstLang: firstLang,
       range: range,
-      searchString: searchString);
+      filter: filter);
   var qs = q.makeQuery();
   var results = await query(qs);
   var total = results['count'][0]['total'];

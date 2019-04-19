@@ -23,16 +23,15 @@ class _searchBtnState extends State<SearchBtn> {
   void fetch() async
   {
     widget.lm.val = 1;
-    var result = await appData.lingvo.fetch(widget.terms.length, 5);
+    var result = await appData.lingvo.fetchTerms(widget.terms.length, 5);
     //print(result.toString());
     widget.terms.addAll(result.items);
   }
   void showResults() async
   {
     // TODO refactor search UI, showResults should be a part of feed screen
-    var appState = appData.appState;
-    var firstLang = appState.user.firstLang;
-    var result = await fetchTerms(firstLang, 0, 100, searchString: searchText);
+    var filter = new TermFilter(searchText);
+    var result = await appData.lingvo.fetchTerms(0, 100, filter: filter);
     //total = result.total;
     if(result.items.length>0)
     {
