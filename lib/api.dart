@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
+import 'package:memoapp/api_utils.dart';
 import 'package:memoapp/utils.dart';
 
 // TODO move to config
@@ -45,40 +45,6 @@ String makeApiURL(String path, {bool withKey = true}) {
   return BASE_URL + path + (withKey ? '?key=$API_KEY' : '');
 }
 
-dynamic parseJSON(Response resp) {
-  var respText = utf8.decode(resp.bodyBytes);
-  return jsonDecode(respText);
-}
-
-bool isOK(Response resp) {
-  return resp.statusCode >= 200 && resp.statusCode < 300;
-}
-
-bool isJSON(Response resp) {
-  if (resp.headers.containsKey('content-type')) {
-    var s = resp.headers['content-type'];
-    return s != null && s.startsWith('application/json');
-  }
-  return false;
-}
-
-String getErrorMessage(Response resp) {
-  if (isJSON(resp)) {
-    var json = parseJSON(resp) as Map<String, dynamic>;
-    if (json.containsKey('error')) {
-      var error = json['error'] as String;
-      return error;
-    }
-    if (json.containsKey('error_message')) {
-      var error = json['error_message'] as String;
-      return error;
-    }
-    return utf8.decode(resp.bodyBytes);
-  } else {
-    return utf8.decode(resp.bodyBytes);
-  }
-}
-
 // TODO handle login error
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
@@ -91,28 +57,31 @@ Future<String> login(String username, String password) async {
   var json = parseJSON(resp);
   return json['token'] as String;
 }
-dynamic handleResponse(Response resp) {
-  if (resp.statusCode == 401) {
-    authState.notify(false);
-    throw new StateError('bad auth');
-  }
-  var respText = utf8.decode(resp.bodyBytes);
-  var results = jsonDecode(respText);
-  return results;
-}
+
+enum HttpVerb { post, put }
 
 /// a generic POST API call
 /// @param path relative path to API method
-/// @param contentType mime type of a body
 /// @param body content to be posted
-Future<dynamic> postData(
-    String methodPath, String contentType, dynamic body) async {
+/// @param contentType mime type of a body
+/// @param verb HTTP verb
+Future<dynamic> postData(String methodPath, dynamic body,
+    {String contentType = 'application/json',
+    HttpVerb verb = HttpVerb.post}) async {
   var headers = {
     'Authorization': authState.authorizationHeader,
     'Content-Type': contentType,
   };
   var url = makeApiURL(methodPath);
-  var resp = await post(url, headers: headers, body: body);
+  Response resp;
+  switch (verb) {
+    case HttpVerb.post:
+      resp = await post(url, headers: headers, body: body);
+      break;
+    case HttpVerb.put:
+      resp = await put(url, headers: headers, body: body);
+      break;
+  }
   if (resp.statusCode == 401) {
     authState.notify(false);
     throw new StateError('bad auth');
@@ -125,29 +94,7 @@ Future<dynamic> postData(
   var results = parseJSON(resp);
   return results;
 }
-//TODO extract repeated code to function
-Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) async {
-  var headers = {
-    'Authorization': authState.authorizationHeader,
-    'Content-Type': contentType,
-  };
-  var url = makeApiURL(methodPath);
-  print(url.toString());
 
-  var resp = await put(url, headers: headers, body: jsonEncode(body));
-  if (resp.statusCode == 401) {
-    authState.notify(false);
-    throw new StateError('bad auth');
-  }
-  if (!isOK(resp)) {
-    var msg = getErrorMessage(resp);
-    print('api error: $msg');
-    throw new StateError(msg);
-  }
-  var results = parseJSON(resp);
-  print(results.toString());
-  return results;
-}
 /// a generic GET API call
 /// @param path relative path to API method
 Future<dynamic> getData(String methodPath) async {
@@ -176,7 +123,7 @@ Future<UserInfo> fetchCurrentUser() async {
 
 /// Make a GraphQL query
 Future<dynamic> query(String query) async {
-  return postData('/api/query', 'application/graphql', query);
+  return postData('/api/query', query, contentType: 'application/graphql');
 }
 
 /// Upload a file
@@ -184,7 +131,8 @@ Future<dynamic> query(String query) async {
 /// @param contentType mime type of a file
 /// @param body file content, bytes or file stream
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
-  var result = await postData('/api/file/$path', contentType, body);
+  var result =
+      await postData('/api/file/$path', body, contentType: contentType);
   return MediaInfo.fromJson(result);
 }
 
@@ -209,12 +157,16 @@ class MediaInfo {
     views = json.containsKey('views') ? json['views'] : 0;
     likes = json.containsKey('likes') ? json['likes'] : 0;
     dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
-    createdAt = json.containsKey('created_at') ? DateTime.parse(json['created_at']) : null;
-    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by'][0]) : UserInfo.fromJson({
-      'name': 'system',
-      'gender': 'robot',
-      'country': 'Russia',
-    });
+    createdAt = json.containsKey('created_at')
+        ? DateTime.parse(json['created_at'])
+        : null;
+    author = json.containsKey('created_by')
+        ? UserInfo.fromJson(json['created_by'][0])
+        : UserInfo.fromJson({
+            'name': 'system',
+            'gender': 'robot',
+            'country': 'Russia',
+          });
   }
 }
 
@@ -249,7 +201,7 @@ class NQuad {
 
 Future<dynamic> updateGraph(Iterable<dynamic> nquads) {
   var body = nquads.map((t) => t.toString()).join('\n');
-  return postData('/api/nquads', 'application/n-quads', body);
+  return postData('/api/nquads', body, contentType: 'application/n-quads');
 }
 
 class TermUpdate {
@@ -290,7 +242,8 @@ Future<dynamic> dislike(String userId, String objectId) {
   return rel(userId, objectId, 'dislike');
 }
 
-List<T> mapList<T>(Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
+List<T> mapList<T>(
+    Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
   if (!json.containsKey(key)) {
     return new List<T>();
   }
@@ -330,7 +283,8 @@ class TermInfo {
   ListResult<MediaInfo> visual;
   List<Tag> tags;
 
-  TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
+  TermInfo.fromJson(Map<String, dynamic> json,
+      {int audioTotal = 0, int visualTotal = 0}) {
     print(json.toString());
     uid = json['uid'];
     lang = json['lang'];
@@ -375,17 +329,16 @@ class UserInfo {
   }
 
   Map<String, dynamic> toJson() => {
-    'uid': name,
-    'name': name,
-    'first_lang': firstLang,
-    'gender': gender,
-    'country': country,
-  };
+        'uid': name,
+        'name': name,
+        'first_lang': firstLang,
+        'gender': gender,
+        'country': country,
+      };
 }
 
 // TODO order by popularity
-Future<TermInfo> fetchAudioList(
-    String termUid, int offset, limit) async {
+Future<TermInfo> fetchAudioList(String termUid, int offset, limit) async {
   var q = """
   {
       terms(func: uid($termUid)) 
