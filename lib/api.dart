@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
+import 'package:memoapp/api_utils.dart';
 import 'package:memoapp/utils.dart';
 
 // TODO move to config
@@ -45,40 +45,6 @@ String makeApiURL(String path, {bool withKey = true}) {
   return BASE_URL + path + (withKey ? '?key=$API_KEY' : '');
 }
 
-dynamic parseJSON(Response resp) {
-  var respText = utf8.decode(resp.bodyBytes);
-  return jsonDecode(respText);
-}
-
-bool isOK(Response resp) {
-  return resp.statusCode >= 200 && resp.statusCode < 300;
-}
-
-bool isJSON(Response resp) {
-  if (resp.headers.containsKey('content-type')) {
-    var s = resp.headers['content-type'];
-    return s != null && s.startsWith('application/json');
-  }
-  return false;
-}
-
-String getErrorMessage(Response resp) {
-  if (isJSON(resp)) {
-    var json = parseJSON(resp) as Map<String, dynamic>;
-    if (json.containsKey('error')) {
-      var error = json['error'] as String;
-      return error;
-    }
-    if (json.containsKey('error_message')) {
-      var error = json['error_message'] as String;
-      return error;
-    }
-    return utf8.decode(resp.bodyBytes);
-  } else {
-    return utf8.decode(resp.bodyBytes);
-  }
-}
-
 // TODO handle login error
 Future<String> login(String username, String password) async {
   var http = BasicAuthClient(username, password);
@@ -91,28 +57,31 @@ Future<String> login(String username, String password) async {
   var json = parseJSON(resp);
   return json['token'] as String;
 }
-dynamic handleResponse(Response resp) {
-  if (resp.statusCode == 401) {
-    authState.notify(false);
-    throw new StateError('bad auth');
-  }
-  var respText = utf8.decode(resp.bodyBytes);
-  var results = jsonDecode(respText);
-  return results;
-}
+
+enum HttpVerb { post, put }
 
 /// a generic POST API call
 /// @param path relative path to API method
-/// @param contentType mime type of a body
 /// @param body content to be posted
-Future<dynamic> postData(
-    String methodPath, String contentType, dynamic body) async {
+/// @param contentType mime type of a body
+/// @param verb HTTP verb
+Future<dynamic> postData(String methodPath, dynamic body,
+    {String contentType = 'application/json',
+    HttpVerb verb = HttpVerb.post}) async {
   var headers = {
     'Authorization': authState.authorizationHeader,
     'Content-Type': contentType,
   };
   var url = makeApiURL(methodPath);
-  var resp = await post(url, headers: headers, body: body);
+  Response resp;
+  switch (verb) {
+    case HttpVerb.post:
+      resp = await post(url, headers: headers, body: body);
+      break;
+    case HttpVerb.put:
+      resp = await put(url, headers: headers, body: body);
+      break;
+  }
   if (resp.statusCode == 401) {
     authState.notify(false);
     throw new StateError('bad auth');
@@ -125,29 +94,7 @@ Future<dynamic> postData(
   var results = parseJSON(resp);
   return results;
 }
-//TODO extract repeated code to function
-Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) async {
-  var headers = {
-    'Authorization': authState.authorizationHeader,
-    'Content-Type': contentType,
-  };
-  var url = makeApiURL(methodPath);
-  print(url.toString());
 
-  var resp = await put(url, headers: headers, body: jsonEncode(body));
-  if (resp.statusCode == 401) {
-    authState.notify(false);
-    throw new StateError('bad auth');
-  }
-  if (!isOK(resp)) {
-    var msg = getErrorMessage(resp);
-    print('api error: $msg');
-    throw new StateError(msg);
-  }
-  var results = parseJSON(resp);
-  print(results.toString());
-  return results;
-}
 /// a generic GET API call
 /// @param path relative path to API method
 Future<dynamic> getData(String methodPath) async {
@@ -176,7 +123,7 @@ Future<UserInfo> fetchCurrentUser() async {
 
 /// Make a GraphQL query
 Future<dynamic> query(String query) async {
-  return postData('/api/query', 'application/graphql', query);
+  return postData('/api/query', query, contentType: 'application/graphql');
 }
 
 /// Upload a file
@@ -184,11 +131,8 @@ Future<dynamic> query(String query) async {
 /// @param contentType mime type of a file
 /// @param body file content, bytes or file stream
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
-  var result = await postData('/api/file/$path', contentType, body);
-  return MediaInfo.fromJson(result);
-}
-Future<dynamic> uploadAudio(String path, List<int> body) async {
-  var result = await postData('/api/file/$path', "audio", body);
+  var result =
+      await postData('/api/file/$path', body, contentType: contentType);
   return MediaInfo.fromJson(result);
 }
 
@@ -213,12 +157,16 @@ class MediaInfo {
     views = json.containsKey('views') ? json['views'] : 0;
     likes = json.containsKey('likes') ? json['likes'] : 0;
     dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
-    createdAt = json.containsKey('created_at') ? DateTime.parse(json['created_at']) : null;
-    author = json.containsKey('created_by') ? UserInfo.fromJson(json['created_by'][0]) : UserInfo.fromJson({
-      'name': 'system',
-      'gender': 'robot',
-      'country': 'Russia',
-    });
+    createdAt = json.containsKey('created_at')
+        ? DateTime.parse(json['created_at'])
+        : null;
+    author = json.containsKey('created_by')
+        ? UserInfo.fromJson(json['created_by'][0])
+        : UserInfo.fromJson({
+            'name': 'system',
+            'gender': 'robot',
+            'country': 'Russia',
+          });
   }
 }
 
@@ -253,7 +201,7 @@ class NQuad {
 
 Future<dynamic> updateGraph(Iterable<dynamic> nquads) {
   var body = nquads.map((t) => t.toString()).join('\n');
-  return postData('/api/nquads', 'application/n-quads', body);
+  return postData('/api/nquads', body, contentType: 'application/n-quads');
 }
 
 class TermUpdate {
@@ -294,7 +242,8 @@ Future<dynamic> dislike(String userId, String objectId) {
   return rel(userId, objectId, 'dislike');
 }
 
-List<T> mapList<T>(Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
+List<T> mapList<T>(
+    Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
   if (!json.containsKey(key)) {
     return new List<T>();
   }
@@ -334,7 +283,8 @@ class TermInfo {
   ListResult<MediaInfo> visual;
   List<Tag> tags;
 
-  TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
+  TermInfo.fromJson(Map<String, dynamic> json,
+      {int audioTotal = 0, int visualTotal = 0}) {
     print(json.toString());
     uid = json['uid'];
     lang = json['lang'];
@@ -379,118 +329,98 @@ class UserInfo {
   }
 
   Map<String, dynamic> toJson() => {
-    'uid': name,
-    'name': name,
-    'first_lang': firstLang,
-    'gender': gender,
-    'country': country,
-  };
+        'uid': name,
+        'name': name,
+        'first_lang': firstLang,
+        'gender': gender,
+        'country': country,
+      };
 }
 
-// TODO order by popularity
-Future<TermInfo> fetchAudioList(
-    String termUid, int offset, limit) async {
-  var q = """
-  {
-      terms(func: uid($termUid)) 
-      {
-        uid
-        lang
-        text
-        transcript@ru
-        transcript@en
-        tag 
-        {
-          uid
-          text@en
-          text@ru
-        }
-        translated_as 
-        {
-          uid
-          lang
-          text
-          transcript@ru
-          transcript@en
-        }
-        audio (offset: $offset, first: $limit) 
-        {
-          uid
-          url
-          source
-          content_type
-          created_at
-          created_by {
-            uid
-            name
-            gender
-            country
-          }
-          views: count(see)
-          likes: count(like)
-          dislikes: count(dislike)
-        }
-        visual (first: 10) 
-        {
-          url
-          source
-          content_type
-          created_at
-          created_by 
-          {
-            uid
-            name
-          }
-          views: count(see)
-          likes: count(like)
-          dislikes: count(dislike)
-        }
-      }
-      count(func: uid($termUid)) 
-      {
-        total: count(audio)
-      }
-   }""";
-  var results = await query(q);
-  var total = results['count'][0]['total'];
-  var term = results['terms'][0] as Map<String, dynamic>;
-  return TermInfo.fromJson(term, audioTotal: total);
+class Pagination {
+  int offset;
+  int limit;
+
+  Pagination(this.offset, this.limit);
+
+  @override
+  String toString() {
+    return 'offset: $offset, first: $limit';
+  }
 }
 
-//Just for test is is supposed to return ALL hits at current search request
-Future<ListResult<TermInfo>> SearchTerms(String txt) async {
-  var filter = '@filter(eq(text, "$txt"))';
+enum TermQueryKind { termList, audioList, visualList }
 
-  var q = """{
-      terms(func: has(Term)) $filter 
-      {
+class TermFilter {
+  String searchString;
+  List<Tag> tags;
+
+  TermFilter(String searchString, {this.tags}) {
+    this.searchString = (searchString ?? '').trim();
+  }
+}
+
+class TermQuery {
+  TermQueryKind kind = TermQueryKind.termList;
+  String firstLang;
+  String termUid; // for single term request
+  TermFilter filter;
+  Pagination range;
+
+  TermQuery(
+      {this.kind, this.firstLang, this.termUid, this.filter, this.range}) {}
+
+  // TODO filter known words
+  // TODO order audio, visual by popularity
+  makeQuery() {
+    final matchFn =
+        termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : 'has(Term)';
+    final isTermList = kind == TermQueryKind.termList;
+
+    final audioRange = kind == TermQueryKind.audioList
+        ? '(${range.toString()})'
+        : '(first: 1)';
+    final visualRange = kind == TermQueryKind.visualList
+        ? '(${range.toString()})'
+        : '(first: 10)';
+    final termRange = isTermList ? ', ${range.toString()}' : '';
+
+    // TODO use regexp to find by substring
+    final searchFilter =
+        isTermList && filter != null && filter.searchString.isNotEmpty
+            ? ' and anyoftext(text, "${filter.searchString}")'
+            : '';
+
+    // TODO add filter by tags
+    final termFilter = isTermList
+        ? '@filter(has(Term) and not eq(lang, "$firstLang")$searchFilter)'
+        : '';
+
+    final q = """{
+      terms(func: $matchFn$termRange) $termFilter {
         uid
         text
         lang
         transcript@ru
         transcript@en
-        tag 
-        {
+        tag {
           uid
           text@en
           text@ru
         }
-        translated_as 
-        {
+        translated_as {
           uid
           text
           lang
           transcript@ru
           transcript@en
-          tag 
-          {
+          tag {
             uid
             text@en
             text@ru
           }
         }
-        audio 
-        {
+        audio $audioRange {
           uid
           url
           source
@@ -504,27 +434,62 @@ Future<ListResult<TermInfo>> SearchTerms(String txt) async {
             name
           }
         }
-        visual 
-        {
+        visual $visualRange {
           url
           source
           content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
           created_at
-          created_by 
-          {
+          created_by {
             uid
             name
           }
         }
       }
-      count(func: has(Term)) $filter 
-      {
-        total: count(uid)
+      count(func: has(Term)) $termFilter {
+        total: count(${countBy()})
       }
     }""";
-  var results = await query(q);
+    return q;
+  }
+
+  countBy() {
+    switch (kind) {
+      case TermQueryKind.termList:
+        return 'uid';
+      case TermQueryKind.audioList:
+        return 'audio';
+      case TermQueryKind.visualList:
+        return 'visual';
+    }
+  }
+}
+
+Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
+    {TermFilter filter = null}) async {
+  final range = new Pagination(offset, limit);
+  final q = new TermQuery(
+      kind: TermQueryKind.termList,
+      firstLang: firstLang,
+      range: range,
+      filter: filter);
+  var qs = q.makeQuery();
+  var results = await query(qs);
   var total = results['count'][0]['total'];
   var terms = results['terms'] as List<dynamic>;
   var items = terms.map((t) => TermInfo.fromJson(t)).toList();
   return new ListResult<TermInfo>(items, total);
+}
+
+Future<TermInfo> fetchAudioList(String termUid, int offset, int limit) async {
+  final range = new Pagination(offset, limit);
+  final q = new TermQuery(
+      kind: TermQueryKind.audioList, termUid: termUid, range: range);
+  final qs = q.makeQuery();
+  final results = await query(qs);
+  final total = results['count'][0]['total'];
+  final term = results['terms'][0] as Map<String, dynamic>;
+  return TermInfo.fromJson(term, audioTotal: total);
 }

@@ -88,7 +88,7 @@ class DiscoverState extends State<DiscoverScreen> {
 
   /*create new method */
   fetchPage() async {
-    var result = await appData.lingvo.fetch(terms.length, 5);
+    var result = await appData.lingvo.fetchTerms(terms.length, 5);
     //print(result.toString());
     setState(() {
       total = result.total;
