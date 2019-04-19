@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 class IconWithShadow extends StatefulWidget {
   IconData child;
   double left= 1,top= 1;
-  IconWithShadow({@required this.child, this.left, this.top});
+  double size = 50;
+  Color color = Colors.grey[200];
+  IconWithShadow({@required this.child, this.left, this.top, this.size, this.color});
 
   @override
   _DecorationState createState() => _DecorationState();
@@ -21,12 +23,14 @@ class _DecorationState extends State<IconWithShadow> {
           child: Icon(
             widget.child,
             color: Colors.black,
+            size: widget.size,
           ),
         ),
         Positioned(
           child: Icon(
             widget.child,
-            color: Colors.grey[200],
+            color: widget.color,
+            size: widget.size,
           ),
         ),
 

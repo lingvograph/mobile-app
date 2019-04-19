@@ -349,6 +349,7 @@ class TermInfo {
 
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
+
   }
 }
 
