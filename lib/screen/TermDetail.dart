@@ -51,7 +51,7 @@ class TermDetailState extends State<TermDetail> {
       body: ListView(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(top: 10, left: 15, right: 15),
+            padding: EdgeInsets.only(top: 10),
             child: TermView(term, tappable: false),
           ),
           new AudioList(

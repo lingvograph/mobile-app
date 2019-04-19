@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/components/AppBar.dart';
 import 'package:memoapp/components/Loading.dart';
+import 'package:memoapp/components/RecordAudioWidget.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/screen/ContentManager.dart';
@@ -14,6 +15,13 @@ const timeout = 5000;
 
 var audioPlayer = new AudioPlayer();
 
+
+class PassableValue {
+  PassableValue(this.val);
+  int val;
+  @override
+  String toString() => val.toString();
+}
 // TODO cool transition between images
 
 // main screen with terms
@@ -25,6 +33,9 @@ class DiscoverScreen extends StatefulWidget {
 class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> terms = new List();
   int total;
+  /* 1 - can load when scrolling
+  * 2 - stop loading, e.g. search*/
+  PassableValue modeOfLoading = new PassableValue(1);
   ScrollController scrollController = new ScrollController();
 
   get appState {
@@ -40,7 +51,7 @@ class DiscoverState extends State<DiscoverScreen> {
     scrollController.addListener(() {
       var atBottom = scrollController.position.pixels ==
           scrollController.position.maxScrollExtent;
-      if (atBottom && terms.length < total) {
+      if (atBottom && terms.length < total && modeOfLoading.val == 1) {
         fetchPage();
       }
     });
@@ -62,7 +73,7 @@ class DiscoverState extends State<DiscoverScreen> {
       home: DefaultTabController(
           length: 3,
           child: Scaffold(
-            appBar: buildAppBar(context),
+            appBar: buildAppBar(context, terms, modeOfLoading),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
             ),
@@ -76,6 +87,7 @@ class DiscoverState extends State<DiscoverScreen> {
   /*create new method */
   fetchPage() async {
     var result = await appData.lingvo.fetch(terms.length, 5);
+    //print(result.toString());
     setState(() {
       total = result.total;
       terms.addAll(result.items);
@@ -119,10 +131,12 @@ class DiscoverState extends State<DiscoverScreen> {
     ].toList();
   }
 
+  /*Ладно, на русском коментирую
+  * Тут подключаю виджет(на самом деле экран) записи аудио*/
   List<Widget> makeTabViews() {
     return [
       makeListView(),
-      Icon(Icons.add),
+      RecordAudioWidget(),
       new UserProfile(),
     ].toList();
   }
@@ -136,3 +150,4 @@ class DiscoverState extends State<DiscoverScreen> {
         });
   }
 }
+

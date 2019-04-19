@@ -8,51 +8,63 @@ import 'package:memoapp/interfaces.dart';
 makeQuery(String firstLang, int offset, int limit) {
   var filter = '@filter(not eq(lang, "$firstLang"))';
   var q = """{
-      terms(func: has(Term), offset: $offset, first: $limit) $filter {
+      terms(func: has(Term), offset: $offset, first: $limit) $filter 
+      {
         uid
         text
         lang
         transcript@ru
         transcript@en
-        tag {
+        tag 
+        {
           uid
           text@en
           text@ru
         }
-        translated_as {
+        translated_as 
+        {
           uid
           text
           lang
           transcript@ru
           transcript@en
-          tag {
+          tag 
+          {
             uid
             text@en
             text@ru
           }
         }
-        audio {
+        audio 
+        {
+          uid
           url
           source
           content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
           created_at
           created_by {
             uid
             name
           }
         }
-        visual {
+        visual 
+        {
           url
           source
           content_type
           created_at
-          created_by {
+          created_by 
+          {
             uid
             name
           }
         }
       }
-      count(func: has(Term)) $filter {
+      count(func: has(Term)) $filter 
+      {
         total: count(uid)
       }
     }""";

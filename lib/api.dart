@@ -91,6 +91,15 @@ Future<String> login(String username, String password) async {
   var json = parseJSON(resp);
   return json['token'] as String;
 }
+dynamic handleResponse(Response resp) {
+  if (resp.statusCode == 401) {
+    authState.notify(false);
+    throw new StateError('bad auth');
+  }
+  var respText = utf8.decode(resp.bodyBytes);
+  var results = jsonDecode(respText);
+  return results;
+}
 
 /// a generic POST API call
 /// @param path relative path to API method
@@ -116,7 +125,29 @@ Future<dynamic> postData(
   var results = parseJSON(resp);
   return results;
 }
+//TODO extract repeated code to function
+Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) async {
+  var headers = {
+    'Authorization': authState.authorizationHeader,
+    'Content-Type': contentType,
+  };
+  var url = makeApiURL(methodPath);
+  print(url.toString());
 
+  var resp = await put(url, headers: headers, body: jsonEncode(body));
+  if (resp.statusCode == 401) {
+    authState.notify(false);
+    throw new StateError('bad auth');
+  }
+  if (!isOK(resp)) {
+    var msg = getErrorMessage(resp);
+    print('api error: $msg');
+    throw new StateError(msg);
+  }
+  var results = parseJSON(resp);
+  print(results.toString());
+  return results;
+}
 /// a generic GET API call
 /// @param path relative path to API method
 Future<dynamic> getData(String methodPath) async {
@@ -154,6 +185,10 @@ Future<dynamic> query(String query) async {
 /// @param body file content, bytes or file stream
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result = await postData('/api/file/$path', contentType, body);
+  return MediaInfo.fromJson(result);
+}
+Future<dynamic> uploadAudio(String path, List<int> body) async {
+  var result = await postData('/api/file/$path', "audio", body);
   return MediaInfo.fromJson(result);
 }
 
@@ -246,6 +281,10 @@ Future<dynamic> rel(String userId, String objectId, String predicate) {
 }
 
 // TODO delete previous dislike on like
+Future<dynamic> view(String userId, String objectId) {
+  return rel(userId, objectId, 'see');
+}
+
 Future<dynamic> like(String userId, String objectId) {
   return rel(userId, objectId, 'like');
 }
@@ -296,6 +335,7 @@ class TermInfo {
   List<Tag> tags;
 
   TermInfo.fromJson(Map<String, dynamic> json, {int audioTotal = 0, int visualTotal = 0}) {
+    print(json.toString());
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
@@ -350,26 +390,31 @@ class UserInfo {
 // TODO order by popularity
 Future<TermInfo> fetchAudioList(
     String termUid, int offset, limit) async {
-  var q = """{
-      terms(func: uid($termUid)) {
+  var q = """
+  {
+      terms(func: uid($termUid)) 
+      {
         uid
         lang
         text
         transcript@ru
         transcript@en
-        tag {
+        tag 
+        {
           uid
           text@en
           text@ru
         }
-        translated_as {
+        translated_as 
+        {
           uid
           lang
           text
           transcript@ru
           transcript@en
         }
-        audio (offset: $offset, first: $limit) {
+        audio (offset: $offset, first: $limit) 
+        {
           uid
           url
           source
@@ -385,12 +430,14 @@ Future<TermInfo> fetchAudioList(
           likes: count(like)
           dislikes: count(dislike)
         }
-        visual (first: 10) {
+        visual (first: 10) 
+        {
           url
           source
           content_type
           created_at
-          created_by {
+          created_by 
+          {
             uid
             name
           }
@@ -399,12 +446,85 @@ Future<TermInfo> fetchAudioList(
           dislikes: count(dislike)
         }
       }
-      count(func: uid($termUid)) {
+      count(func: uid($termUid)) 
+      {
         total: count(audio)
       }
-    }""";
+   }""";
   var results = await query(q);
   var total = results['count'][0]['total'];
   var term = results['terms'][0] as Map<String, dynamic>;
   return TermInfo.fromJson(term, audioTotal: total);
+}
+
+//Just for test is is supposed to return ALL hits at current search request
+Future<ListResult<TermInfo>> SearchTerms(String txt) async {
+  var filter = '@filter(eq(text, "$txt"))';
+
+  var q = """{
+      terms(func: has(Term)) $filter 
+      {
+        uid
+        text
+        lang
+        transcript@ru
+        transcript@en
+        tag 
+        {
+          uid
+          text@en
+          text@ru
+        }
+        translated_as 
+        {
+          uid
+          text
+          lang
+          transcript@ru
+          transcript@en
+          tag 
+          {
+            uid
+            text@en
+            text@ru
+          }
+        }
+        audio 
+        {
+          uid
+          url
+          source
+          content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
+          created_at
+          created_by {
+            uid
+            name
+          }
+        }
+        visual 
+        {
+          url
+          source
+          content_type
+          created_at
+          created_by 
+          {
+            uid
+            name
+          }
+        }
+      }
+      count(func: has(Term)) $filter 
+      {
+        total: count(uid)
+      }
+    }""";
+  var results = await query(q);
+  var total = results['count'][0]['total'];
+  var terms = results['terms'] as List<dynamic>;
+  var items = terms.map((t) => TermInfo.fromJson(t)).toList();
+  return new ListResult<TermInfo>(items, total);
 }
