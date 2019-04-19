@@ -36,11 +36,10 @@ class _TermState extends State<TermView> {
             '') ??
         '';
     var trans = firstByKey(widget.term.transcript, firstLang, true) ?? '';
-    List<Widget> _dots;
     // TODO render placeholder if no images
     var slider = generateSlider();
 
-    _dots = initDots(_dots);
+    var dots = initDots();
     var termText1 = Positioned(
       left: 10,
       top: 10,
@@ -130,7 +129,7 @@ class _TermState extends State<TermView> {
     );
     var dotsIndicators = Container(
       alignment: Alignment(0, 1),
-      child: Row(children: _dots, mainAxisAlignment: MainAxisAlignment.center),
+      child: Row(children: dots, mainAxisAlignment: MainAxisAlignment.center),
     );
     var tagsView = AnimatedContainer(
       alignment: Alignment(0, 0),
@@ -193,8 +192,8 @@ class _TermState extends State<TermView> {
     }
   }
 
-  List<Widget> initDots(List<Widget> _dots) {
-    _dots = new List();
+  List<Widget> initDots() {
+    var dots = new List();
     if (widget.term.visual.items.length > 1) {
       for (int i = 0; i < widget.term.visual.items.length; i++) {
         double size = 8.0;
@@ -204,7 +203,7 @@ class _TermState extends State<TermView> {
         if (i == _current) {
           size = 8;
         }
-        _dots.add(Container(
+        dots.add(Container(
           width: size,
           height: size,
           margin: EdgeInsets.symmetric(vertical: 10.0, horizontal: 2.0),
@@ -216,7 +215,7 @@ class _TermState extends State<TermView> {
         ));
       }
     }
-    return _dots;
+    return dots;
   }
 
   Widget generateSlider() {
