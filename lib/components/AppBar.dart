@@ -29,7 +29,7 @@ class _searchBtnState extends State<SearchBtn>
   void fetch()
   async
   {
-    var result = await appData.lingvo.fetch(widget.terms.length, 5);
+    var result = await appData.lingvo.fetchTerms(widget.terms.length, 5);
     //print(result.toString());
     widget.st.setState(()
     {
@@ -42,7 +42,8 @@ class _searchBtnState extends State<SearchBtn>
   void showResults()
   async
   {
-    var result = await SearchTerms(searchText);
+    var filter = new TermFilter(searchText);
+    var result = await appData.lingvo.fetchTerms(0, 100, filter: filter);
     //total = result.total;
 
     if (result.items.length > 0)
