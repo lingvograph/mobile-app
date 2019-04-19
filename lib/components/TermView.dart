@@ -193,7 +193,7 @@ class _TermState extends State<TermView> {
   }
 
   List<Widget> initDots() {
-    var dots = new List();
+    var dots = new List<Widget>();
     if (widget.term.visual.items.length > 1) {
       for (int i = 0; i < widget.term.visual.items.length; i++) {
         double size = 8.0;
