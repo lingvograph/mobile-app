@@ -12,13 +12,6 @@ const timeout = 5000;
 
 var audioPlayer = new AudioPlayer();
 
-
-class PassableValue {
-  PassableValue(this.val);
-  int val;
-  @override
-  String toString() => val.toString();
-}
 // TODO cool transition between images
 
 // main screen with terms
@@ -30,10 +23,8 @@ class DiscoverScreen extends StatefulWidget {
 class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> terms = new List();
   int total;
-  /* 1 - can load when scrolling
-  * 2 - stop loading, e.g. search*/
-  PassableValue modeOfLoading = new PassableValue(1);
   ScrollController scrollController = new ScrollController();
+  String searchString = '';
 
   get appState {
     return appData.appState;
@@ -48,7 +39,7 @@ class DiscoverState extends State<DiscoverScreen> {
     scrollController.addListener(() {
       var atBottom = scrollController.position.pixels ==
           scrollController.position.maxScrollExtent;
-      if (atBottom && terms.length < total && modeOfLoading.val == 1) {
+      if (atBottom && terms.length < total) {
         fetchPage();
       }
     });
@@ -72,7 +63,7 @@ class DiscoverState extends State<DiscoverScreen> {
           child: Scaffold(
             /*Тут я, наверно, не очень хорошо делаю, передавая всё что есть в шапку,
              но по другому не знаю как заставить это работать, потому что нужно делать setstate менно от State*/
-            appBar: buildAppBar(this, context, terms, modeOfLoading),
+            appBar: buildAppBar(context, doSearch),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
             ),
@@ -83,9 +74,18 @@ class DiscoverState extends State<DiscoverScreen> {
     );
   }
 
+  doSearch(String text) {
+    setState(() {
+      searchString = text;
+      terms.clear();
+      fetchPage();
+    });
+  }
+
   /*create new method */
   fetchPage() async {
-    var result = await appData.lingvo.fetchTerms(terms.length, 5);
+    var filter = new TermFilter(searchString);
+    var result = await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
     //print(result.toString());
     setState(() {
       total = result.total;
@@ -149,4 +149,3 @@ class DiscoverState extends State<DiscoverScreen> {
         });
   }
 }
-

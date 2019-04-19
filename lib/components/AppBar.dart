@@ -1,55 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/AppData.dart';
-import 'package:memoapp/api.dart';
 import 'package:memoapp/components/InputFieldDecoration.dart';
-import 'package:memoapp/screen/Discover.dart';
+
+typedef SearchCallback = void Function(String searchString);
 
 class SearchBtn extends StatefulWidget {
-  //TermInfo term;
-  List<TermInfo> terms;
-  PassableValue lm;
-  State st;
+  SearchCallback onSearch;
 
-  SearchBtn({this.st, this.terms, this.lm});
+  SearchBtn(this.onSearch);
 
   @override
-  _searchBtnState createState() => _searchBtnState();
+  SearchBtnState createState() => SearchBtnState();
 }
 
-class _searchBtnState extends State<SearchBtn> {
+class SearchBtnState extends State<SearchBtn> {
   bool mode = true;
   double width = 0;
   Color c = Colors.black;
   String searchText = "";
-  int loadmode;
 
-  void fetch() async {
-    var result = await appData.lingvo.fetchTerms(widget.terms.length, 5);
-    //print(result.toString());
-    widget.st.setState(() {
-      widget.lm.val = 1;
-      widget.terms.addAll(result.items);
-    });
-  }
-
-  void showResults() async {
-    var filter = new TermFilter(searchText);
-    var result = await appData.lingvo.fetchTerms(0, 100, filter: filter);
-    //total = result.total;
-
-    if (result.items.length > 0) {
-      widget.st.setState(() {
-        widget.terms.clear();
-        widget.terms.addAll(result.items);
-        widget.lm.val = 2;
-      });
-    }
+  get onSearch {
+    return widget.onSearch;
   }
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
-    loadmode = widget.lm.val;
     return Row(
       children: <Widget>[
         AnimatedContainer(
@@ -79,11 +53,8 @@ class _searchBtnState extends State<SearchBtn> {
                           color: Colors.grey[800],
                         ),
                         onPressed: () {
-                          widget.st.setState(() {
-                            showResults();
-                            FocusScope.of(context)
-                                .requestFocus(new FocusNode());
-                          });
+                          onSearch(searchText);
+                          FocusScope.of(context).requestFocus(new FocusNode());
                         },
                         tooltip: 'Search',
                       )),
@@ -118,8 +89,7 @@ class _searchBtnState extends State<SearchBtn> {
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
-                  widget.terms.clear();
-                  fetch();
+                  onSearch('');
                 }
               });
             },
@@ -141,8 +111,7 @@ class _searchBtnState extends State<SearchBtn> {
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
-                  widget.terms.clear();
-                  fetch();
+                  onSearch('');
                 }
               });
             },
@@ -158,16 +127,11 @@ class _searchBtnState extends State<SearchBtn> {
   }
 }
 
-buildAppBar(
-    State st, BuildContext context, List<TermInfo> terms, PassableValue mode) {
+buildAppBar(BuildContext context, SearchCallback search) {
   return AppBar(
     title: Text('Learn'),
     actions: <Widget>[
-      SearchBtn(
-        st: st,
-        terms: terms,
-        lm: mode,
-      ),
+      SearchBtn(search),
     ],
   );
 }
