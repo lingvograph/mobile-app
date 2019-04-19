@@ -73,7 +73,7 @@ class DiscoverState extends State<DiscoverScreen> {
       home: DefaultTabController(
           length: 3,
           child: Scaffold(
-            appBar: buildAppBar(context, terms, modeOfLoading),
+            appBar: buildAppBar(this, context, terms, modeOfLoading),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
             ),
