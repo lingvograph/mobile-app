@@ -337,109 +337,85 @@ class UserInfo {
       };
 }
 
-// TODO order by popularity
-Future<TermInfo> fetchAudioList(String termUid, int offset, limit) async {
-  var q = """
-  {
-      terms(func: uid($termUid)) 
-      {
-        uid
-        lang
-        text
-        transcript@ru
-        transcript@en
-        tag 
-        {
-          uid
-          text@en
-          text@ru
-        }
-        translated_as 
-        {
-          uid
-          lang
-          text
-          transcript@ru
-          transcript@en
-        }
-        audio (offset: $offset, first: $limit) 
-        {
-          uid
-          url
-          source
-          content_type
-          created_at
-          created_by {
-            uid
-            name
-            gender
-            country
-          }
-          views: count(see)
-          likes: count(like)
-          dislikes: count(dislike)
-        }
-        visual (first: 10) 
-        {
-          url
-          source
-          content_type
-          created_at
-          created_by 
-          {
-            uid
-            name
-          }
-          views: count(see)
-          likes: count(like)
-          dislikes: count(dislike)
-        }
-      }
-      count(func: uid($termUid)) 
-      {
-        total: count(audio)
-      }
-   }""";
-  var results = await query(q);
-  var total = results['count'][0]['total'];
-  var term = results['terms'][0] as Map<String, dynamic>;
-  return TermInfo.fromJson(term, audioTotal: total);
+class Pagination {
+  int offset;
+  int limit;
+
+  Pagination(this.offset, this.limit);
+
+  @override
+  String toString() {
+    return 'offset: $offset, first: $limit';
+  }
 }
 
-//Just for test is is supposed to return ALL hits at current search request
-Future<ListResult<TermInfo>> SearchTerms(String txt) async {
-  var filter = '@filter(eq(text, "$txt"))';
+enum TermQueryKind { termList, audioList, visualList }
 
-  var q = """{
-      terms(func: has(Term)) $filter 
-      {
+class TermQuery {
+  TermQueryKind kind = TermQueryKind.termList;
+  String firstLang;
+  String termUid; // for single term request
+  String searchString;
+  Pagination range;
+
+  TermQuery(
+      {this.kind,
+      this.firstLang,
+      this.termUid,
+      String searchString,
+      this.range}) {
+    this.searchString = (searchString ?? '').trim();
+  }
+
+  // TODO filter known words
+  // TODO order audio, visual by popularity
+  makeQuery() {
+    final matchFn =
+        termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : 'has(Term)';
+    final isTermList = kind == TermQueryKind.termList;
+
+    final audioRange = kind == TermQueryKind.audioList
+        ? '(${range.toString()})'
+        : '(first: 1)';
+    final visualRange = kind == TermQueryKind.visualList
+        ? '(${range.toString()})'
+        : '(first: 10)';
+    final termRange = isTermList ? ', ${range.toString()}' : '';
+
+    // TODO use regexp to find by substring
+    final searchFilter = isTermList && searchString.isNotEmpty
+        ? ' and anyoftext(text, "$searchString")'
+        : '';
+
+    final filter = isTermList
+        ? '@filter(has(Term) and not eq(lang, "$firstLang")$searchFilter)'
+        : '';
+
+    final q = """{
+      terms(func: $matchFn$termRange) $filter {
         uid
         text
         lang
         transcript@ru
         transcript@en
-        tag 
-        {
+        tag {
           uid
           text@en
           text@ru
         }
-        translated_as 
-        {
+        translated_as {
           uid
           text
           lang
           transcript@ru
           transcript@en
-          tag 
-          {
+          tag {
             uid
             text@en
             text@ru
           }
         }
-        audio 
-        {
+        audio $audioRange {
           uid
           url
           source
@@ -453,27 +429,62 @@ Future<ListResult<TermInfo>> SearchTerms(String txt) async {
             name
           }
         }
-        visual 
-        {
+        visual $visualRange {
           url
           source
           content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
           created_at
-          created_by 
-          {
+          created_by {
             uid
             name
           }
         }
       }
-      count(func: has(Term)) $filter 
-      {
-        total: count(uid)
+      count(func: has(Term)) $filter {
+        total: count(${countBy()})
       }
     }""";
-  var results = await query(q);
+    return q;
+  }
+
+  countBy() {
+    switch (kind) {
+      case TermQueryKind.termList:
+        return 'uid';
+      case TermQueryKind.audioList:
+        return 'audio';
+      case TermQueryKind.visualList:
+        return 'visual';
+    }
+  }
+}
+
+Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
+    {String searchString = ''}) async {
+  final range = new Pagination(offset, limit);
+  final q = new TermQuery(
+      kind: TermQueryKind.termList,
+      firstLang: firstLang,
+      range: range,
+      searchString: searchString);
+  var qs = q.makeQuery();
+  var results = await query(qs);
   var total = results['count'][0]['total'];
   var terms = results['terms'] as List<dynamic>;
   var items = terms.map((t) => TermInfo.fromJson(t)).toList();
   return new ListResult<TermInfo>(items, total);
+}
+
+Future<TermInfo> fetchAudioList(String termUid, int offset, int limit) async {
+  final range = new Pagination(offset, limit);
+  final q = new TermQuery(
+      kind: TermQueryKind.audioList, termUid: termUid, range: range);
+  final qs = q.makeQuery();
+  final results = await query(qs);
+  final total = results['count'][0]['total'];
+  final term = results['terms'][0] as Map<String, dynamic>;
+  return TermInfo.fromJson(term, audioTotal: total);
 }

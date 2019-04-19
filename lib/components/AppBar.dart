@@ -29,7 +29,10 @@ class _searchBtnState extends State<SearchBtn> {
   }
   void showResults() async
   {
-    var result = await SearchTerms(searchText);
+    // TODO refactor search UI, showResults should be a part of feed screen
+    var appState = appData.appState;
+    var firstLang = appState.user.firstLang;
+    var result = await fetchTerms(firstLang, 0, 100, searchString: searchText);
     //total = result.total;
     if(result.items.length>0)
     {
@@ -40,7 +43,6 @@ class _searchBtnState extends State<SearchBtn> {
   }
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Row(
       children: <Widget>[
         AnimatedContainer(
