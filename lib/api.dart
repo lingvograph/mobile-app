@@ -149,7 +149,7 @@ Future<dynamic> apiPut(String methodPath, String contentType, dynamic body) asyn
   return results;
 }
 /// a generic GET API call
-/// @param path relative path to  API method
+/// @param path relative path to API method
 Future<dynamic> getData(String methodPath) async {
   var headers = {
     'Authorization': authState.authorizationHeader,
@@ -349,7 +349,6 @@ class TermInfo {
 
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
-
   }
 }
 
