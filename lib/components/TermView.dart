@@ -36,25 +36,165 @@ class _TermState extends State<TermView> {
             '') ??
         '';
     var trans = firstByKey(widget.term.transcript, firstLang, true) ?? '';
-
+    List<Widget> _dots;
     // TODO render placeholder if no images
-    var slider = widget.term.visual.items.length == 1
-        ? makeImage(widget.term.visual.items.first)
-        : CarouselSlider(
-            //height: 500.0,
-            viewportFraction: 1.0,
-            aspectRatio: 2.0,
-            enlargeCenterPage: true,
-            scrollDirection: Axis.horizontal,
-            // good param to play with
-            onPageChanged: (index) {
-              setState(() {
-                _current = index;
-              });
-            },
-            items: widget.term.visual.items.map((t) => makeImage(t)).toList());
+    var slider = generateSlider();
 
-    List<Widget> _dots = new List();
+    _dots = initDots(_dots);
+    var termText1 = Positioned(
+      left: 10,
+      top: 10,
+      child: new Text(text1, style: termTextStyle),
+    );
+    var termTranscript = Positioned(
+      left: 10,
+      top: 50,
+      child: new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
+    );
+    var iconPlayAudio = Positioned(
+      left: 10,
+      top: 100,
+      child: InkWell(
+          onTap: () {
+            playSound();
+          },
+          child: IconWithShadow(
+            child: Icons.play_circle_outline,
+            size: 58,
+            color: Colors.grey[200],
+          )),
+    );
+    var termInfo = Row(
+      children: <Widget>[
+        IconWithShadow(
+            color: Colors.grey[200],
+            child: Icons.remove_red_eye,
+            left: 1,
+            top: 1),
+        Text(
+          widget.term.audio.items[0].views.toString(),
+          style: termTextStyleInfo,
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
+        ),
+        InkWell(
+            child: IconWithShadow(
+                color: Colors.grey[200],
+                child: Icons.thumb_up,
+                left: 1,
+                top: 1),
+            onTap: () {
+              debugPrint(widget.term.audio.items[0].uid);
+              like(appData.appState.user.uid, widget.term.audio.items[0].uid);
+              //apiPut("/api/data/term/"+widget.term.uid,"application/json", {"audio":{"uid":widget.term.audio.items[0].uid,"likes":widget.term.audio.items[0].likes+1}});
+            }),
+        Text(
+          widget.term.audio.items[0].likes.toString(),
+          style: termTextStyleInfo,
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 20),
+        ),
+        InkWell(
+            child: IconWithShadow(
+                color: Colors.grey[200],
+                child: Icons.thumb_down,
+                left: 1,
+                top: 1),
+            onTap: () {
+              dislike(
+                  appData.appState.user.uid, widget.term.audio.items[0].uid);
+            }),
+        Text(
+          widget.term.audio.items[0].dislikes.toString(),
+          style: termTextStyleInfo,
+        ),
+      ],
+    );
+    var termInfoField = Positioned(
+        left: 200, top: 150, child: widget.tappable ? termInfo : Text(""));
+    var showTagsIcon = Positioned(
+      top: 160,
+      left: 10,
+      child: InkWell(
+        child: IconWithShadow(
+          child: Icons.more_horiz,
+          top: 1,
+          left: 1,
+          size: 50,
+          color: Colors.blue,
+        ),
+        onTap: expandTags,
+      ),
+    );
+    var dotsIndicators = Container(
+      alignment: Alignment(0, 1),
+      child: Row(children: _dots, mainAxisAlignment: MainAxisAlignment.center),
+    );
+    var tagsView = AnimatedContainer(
+      alignment: Alignment(0, 0),
+      child:
+          Wrap(children: widget.term.tags.map((t) => tagFromTerm(t)).toList()),
+      duration: Duration(microseconds: 2000),
+      height: h,
+      width: 200,
+      decoration: BoxDecoration(
+          color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
+    );
+    return Padding(
+      padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+      child: Column(children: <Widget>[
+        Container(
+            constraints: new BoxConstraints.expand(
+              height: 200.0,
+            ),
+            child: Stack(
+              // TODO improve position of subtitles
+              children: <Widget>[
+                new InkWell(onTap: imageOnTap, child: slider),
+                termText1,
+                termTranscript,
+                iconPlayAudio,
+                termInfoField,
+                showTagsIcon,
+                dotsIndicators
+              ],
+            )),
+        tagsView
+      ]),
+    );
+  }
+
+  Container tagFromTerm(Tag t) {
+    return Container(
+        padding: EdgeInsets.all(3),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
+        child: Text(
+          "#" + t.text[appData.appState.user.firstLang] + " ",
+          style: TextStyle(color: Colors.blue),
+        ));
+  }
+
+  void expandTags() {
+    setState(() {
+      h = h == 30 ? 0 : 30;
+    });
+  }
+
+  void imageOnTap() {
+    if (widget.tappable) {
+      //debugPrint(widget.term.uid.toString());
+      view(appData.appState.user.uid, widget.term.audio.items[0].uid);
+      var route =
+          MaterialPageRoute(builder: (_) => new TermDetail(widget.term.uid));
+      Navigator.push(context, route);
+    }
+  }
+
+  List<Widget> initDots(List<Widget> _dots) {
+    _dots = new List();
     if (widget.term.visual.items.length > 1) {
       for (int i = 0; i < widget.term.visual.items.length; i++) {
         double size = 8.0;
@@ -76,167 +216,25 @@ class _TermState extends State<TermView> {
         ));
       }
     }
-    return Padding(
-      padding: EdgeInsets.only(left: 10, right: 10, top: 20),
-      child: Column(children: <Widget>[
-        Container(
-            constraints: new BoxConstraints.expand(
-              height: 200.0,
-            ),
-            child: Stack(
-              // TODO improve position of subtitles
-              children: <Widget>[
-                new InkWell(
-                    onTap: () {
-                      if (widget.tappable) {
-                        //debugPrint(widget.term.uid.toString());
-                        view(appData.appState.user.uid,
-                            widget.term.audio.items[0].uid);
-                        var route = MaterialPageRoute(
-                            builder: (_) => new TermDetail(widget.term.uid));
-                        Navigator.push(context, route);
-                      }
-                    },
-                    child: slider),
-                Positioned(
-                  left: 10,
-                  top: 10,
-                  child: new Text(text1, style: termTextStyle),
-                ),
-                Positioned(
-                  left: 10,
-                  top: 50,
-                  child: new Text(text2 + ' [' + trans + ']',
-                      style: transcriptStyle),
-                ),
-                Positioned(
-                  left: 10,
-                  top: 100,
-                  child: InkWell(
-                      onTap: () {
-                        playSound();
-                      },
-                      child: Stack(
-                        children: <Widget>[
-                          Positioned(
-                              left: 2,
-                              top: 1,
-                              child: Icon(
-                                Icons.play_circle_outline,
-                                color: Colors.black,
-                                size: 58,
-                              )),
-                          Positioned(
-                            child: Icon(
-                              Icons.play_circle_outline,
-                              color: Colors.grey[200],
-                              size: 60,
-                            ),
-                          )
-                        ],
-                      )),
-                ),
-                Positioned(
-                    left: 200,
-                    top: 150,
-                    child: widget.tappable
-                        ? Row(
-                            children: <Widget>[
-                              IconWithShadow(
-                                  color: Colors.grey[200],
-                                  child: Icons.remove_red_eye,
-                                  left: 1,
-                                  top: 1),
-                              Text(
-                                widget.term.audio.items[0].views.toString(),
-                                style: termTextStyleInfo,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 20),
-                              ),
-                              InkWell(
-                                  child: IconWithShadow(
-                                      color: Colors.grey[200],
-                                      child: Icons.thumb_up,
-                                      left: 1,
-                                      top: 1),
-                                  onTap: () {
-                                    debugPrint(widget.term.audio.items[0].uid);
-                                    like(appData.appState.user.uid,
-                                        widget.term.audio.items[0].uid);
-                                    //apiPut("/api/data/term/"+widget.term.uid,"application/json", {"audio":{"uid":widget.term.audio.items[0].uid,"likes":widget.term.audio.items[0].likes+1}});
-                                  }),
-                              Text(
-                                widget.term.audio.items[0].likes.toString(),
-                                style: termTextStyleInfo,
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 20),
-                              ),
-                              InkWell(
-                                  child: IconWithShadow(
-                                      color: Colors.grey[200],
-                                      child: Icons.thumb_down,
-                                      left: 1,
-                                      top: 1),
-                                  onTap: () {
-                                    dislike(appData.appState.user.uid,
-                                        widget.term.audio.items[0].uid);
-                                  }),
-                              Text(
-                                widget.term.audio.items[0].dislikes.toString(),
-                                style: termTextStyleInfo,
-                              ),
-                            ],
-                          )
-                        : Text("")),
-                Positioned(
-                  top: 160,
-                  left: 10,
-                  child: InkWell(
-                    child: IconWithShadow(
-                      child: Icons.more_horiz,
-                      top: 1,
-                      left: 1,
-                      size: 50,
-                      color: Colors.blue,
-                    ),
-                    onTap: ()
-                    {
-                      setState(() {
-                        h = h==30?0:30;
-                      });
-                    },
-                  ),
-                ),
-                Container(
-                  alignment: Alignment(0, 1),
-                  child: Row(
-                      children: _dots,
-                      mainAxisAlignment: MainAxisAlignment.center),
-                )
-              ],
-            )),
-        AnimatedContainer(
-          alignment: Alignment(0, 0),
-          child: Wrap(
-              children: widget.term.tags
-                  .map((t) => Container(
-                padding: EdgeInsets.all(3),
-                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
-                          child: Text(
-                        "#" + t.text[appData.appState.user.firstLang] + " ",
-                        style: TextStyle(color: Colors.blue),
-                      )))
-                  .toList()),
-          duration: Duration(microseconds: 2000),
-          height: h,
-          width: 200,
-          decoration: BoxDecoration(
-              color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
-        )
-      ]),
-    );
+    return _dots;
+  }
+
+  Widget generateSlider() {
+    return widget.term.visual.items.length == 1
+        ? makeImage(widget.term.visual.items.first)
+        : CarouselSlider(
+            //height: 500.0,
+            viewportFraction: 1.0,
+            aspectRatio: 2.0,
+            enlargeCenterPage: true,
+            scrollDirection: Axis.horizontal,
+            // good param to play with
+            onPageChanged: (index) {
+              setState(() {
+                _current = index;
+              });
+            },
+            items: widget.term.visual.items.map((t) => makeImage(t)).toList());
   }
 
   Widget makeImage(MediaInfo visual) {

@@ -73,6 +73,8 @@ class DiscoverState extends State<DiscoverScreen> {
       home: DefaultTabController(
           length: 3,
           child: Scaffold(
+            /*Тут я, наверно, не очень хорошо делаю, передавая всё что есть в шапку,
+             но по другому не знаю как заставить это работать, потому что нужно делать setstate менно от State*/
             appBar: buildAppBar(this, context, terms, modeOfLoading),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
