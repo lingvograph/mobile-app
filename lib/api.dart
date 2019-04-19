@@ -144,9 +144,23 @@ class MediaInfo {
   String contentType;
   UserInfo author;
   DateTime createdAt;
-  int views;
-  int likes;
-  int dislikes;
+  int views = 0;
+  int likes = 0;
+  int dislikes = 0;
+
+  MediaInfo(
+      {this.uid,
+      this.path,
+      this.url,
+      this.source,
+      this.contentType,
+      this.author,
+      this.createdAt,
+      this.views = 0,
+      this.likes = 0,
+      this.dislikes = 0});
+
+  static MediaInfo empty = new MediaInfo();
 
   MediaInfo.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];

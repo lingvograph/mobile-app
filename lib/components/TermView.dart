@@ -2,6 +2,7 @@ import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
+import 'package:memoapp/AppState.dart';
 import 'package:memoapp/api.dart';
 import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
@@ -21,21 +22,25 @@ class _TermState extends State<TermView> {
   int _current = 0;
   double h = 30;
 
-  get appState {
+  AppState get appState {
     return appData.appState;
+  }
+
+  TermInfo get term {
+    return widget.term;
   }
 
   @override
   Widget build(BuildContext context) {
     var firstLang = appState.user?.firstLang ?? 'ru';
-    var text1 = widget.term.text ?? '';
+    var text1 = term.text ?? '';
     var text2 = firstOrElse(
-            widget.term.translations
+            term.translations
                 .where((t) => t.lang == firstLang)
                 .map((t) => t.text),
             '') ??
         '';
-    var trans = firstByKey(widget.term.transcript, firstLang, true) ?? '';
+    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
     // TODO render placeholder if no images
     var slider = generateSlider();
 
@@ -63,6 +68,7 @@ class _TermState extends State<TermView> {
             color: Colors.grey[200],
           )),
     );
+    var firstAudio = firstOrElse(term.audio.items, MediaInfo.empty);
     var termInfo = Row(
       children: <Widget>[
         IconWithShadow(
@@ -71,7 +77,7 @@ class _TermState extends State<TermView> {
             left: 1,
             top: 1),
         Text(
-          widget.term.audio.items[0].views.toString(),
+          firstAudio.views.toString(),
           style: termTextStyleInfo,
         ),
         Padding(
@@ -84,12 +90,11 @@ class _TermState extends State<TermView> {
                 left: 1,
                 top: 1),
             onTap: () {
-              debugPrint(widget.term.audio.items[0].uid);
-              like(appData.appState.user.uid, widget.term.audio.items[0].uid);
-              //apiPut("/api/data/term/"+widget.term.uid,"application/json", {"audio":{"uid":widget.term.audio.items[0].uid,"likes":widget.term.audio.items[0].likes+1}});
+              debugPrint(firstAudio.uid);
+              like(appState.user.uid, firstAudio.uid);
             }),
         Text(
-          widget.term.audio.items[0].likes.toString(),
+          firstAudio.likes.toString(),
           style: termTextStyleInfo,
         ),
         Padding(
@@ -102,11 +107,10 @@ class _TermState extends State<TermView> {
                 left: 1,
                 top: 1),
             onTap: () {
-              dislike(
-                  appData.appState.user.uid, widget.term.audio.items[0].uid);
+              dislike(appState.user.uid, firstAudio.uid);
             }),
         Text(
-          widget.term.audio.items[0].dislikes.toString(),
+          firstAudio.dislikes.toString(),
           style: termTextStyleInfo,
         ),
       ],
@@ -133,8 +137,7 @@ class _TermState extends State<TermView> {
     );
     var tagsView = AnimatedContainer(
       alignment: Alignment(0, 0),
-      child:
-          Wrap(children: widget.term.tags.map((t) => tagFromTerm(t)).toList()),
+      child: Wrap(children: term.tags.map((t) => tagFromTerm(t)).toList()),
       duration: Duration(microseconds: 2000),
       height: h,
       width: 200,
@@ -171,7 +174,7 @@ class _TermState extends State<TermView> {
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
         child: Text(
-          "#" + t.text[appData.appState.user.firstLang] + " ",
+          "#" + t.text[appState.user.firstLang] + " ",
           style: TextStyle(color: Colors.blue),
         ));
   }
@@ -184,20 +187,19 @@ class _TermState extends State<TermView> {
 
   void imageOnTap() {
     if (widget.tappable) {
-      //debugPrint(widget.term.uid.toString());
-      view(appData.appState.user.uid, widget.term.audio.items[0].uid);
-      var route =
-          MaterialPageRoute(builder: (_) => new TermDetail(widget.term.uid));
+      // TODO view visual, not audio
+      view(appState.user.uid, term.audio.items[0].uid);
+      var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
       Navigator.push(context, route);
     }
   }
 
   List<Widget> initDots() {
     var dots = new List<Widget>();
-    if (widget.term.visual.items.length > 1) {
-      for (int i = 0; i < widget.term.visual.items.length; i++) {
+    if (term.visual.items.length > 1) {
+      for (int i = 0; i < term.visual.items.length; i++) {
         double size = 8.0;
-        if (i == widget.term.visual.items.length - 1 || i == 0) {
+        if (i == term.visual.items.length - 1 || i == 0) {
           size = 5;
         }
         if (i == _current) {
@@ -219,8 +221,8 @@ class _TermState extends State<TermView> {
   }
 
   Widget generateSlider() {
-    return widget.term.visual.items.length == 1
-        ? makeImage(widget.term.visual.items.first)
+    return term.visual.items.length == 1
+        ? makeImage(term.visual.items.first)
         : CarouselSlider(
             //height: 500.0,
             viewportFraction: 1.0,
@@ -233,7 +235,7 @@ class _TermState extends State<TermView> {
                 _current = index;
               });
             },
-            items: widget.term.visual.items.map((t) => makeImage(t)).toList());
+            items: term.visual.items.map((t) => makeImage(t)).toList());
   }
 
   Widget makeImage(MediaInfo visual) {
@@ -252,11 +254,9 @@ class _TermState extends State<TermView> {
 
   void playSound() {
     var audioPlayer = new AudioPlayer();
-    if (widget.term.audio.items.isNotEmpty) {
-      var sound = widget.term.audio.items.first;
-      if (sound != null) {
-        audioPlayer.play(sound.url);
-      }
+    var sound = firstOrElse(term.audio.items, null);
+    if (sound != null) {
+      audioPlayer.play(sound.url);
     }
   }
 }
