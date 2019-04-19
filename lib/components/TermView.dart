@@ -201,7 +201,12 @@ class _TermState extends State<TermView> {
                       size: 50,
                       color: Colors.blue,
                     ),
-                    onTap: () {},
+                    onTap: ()
+                    {
+                      setState(() {
+                        h = h==30?0:30;
+                      });
+                    },
                   ),
                 ),
                 Container(
@@ -216,16 +221,19 @@ class _TermState extends State<TermView> {
           alignment: Alignment(0, 0),
           child: Wrap(
               children: widget.term.tags
-                  .map((t) => Text(
+                  .map((t) => Container(
+                padding: EdgeInsets.all(3),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
+                          child: Text(
                         "#" + t.text[appData.appState.user.firstLang] + " ",
                         style: TextStyle(color: Colors.blue),
-                      ))
+                      )))
                   .toList()),
-          duration: Duration(microseconds: 500),
+          duration: Duration(microseconds: 2000),
           height: h,
           width: 200,
           decoration: BoxDecoration(
-              color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
+              color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
         )
       ]),
     );
