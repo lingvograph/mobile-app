@@ -1,5 +1,13 @@
 import 'package:memoapp/api/model.dart';
 
+bool isWord(String s) {
+  if (s == null || s.isEmpty) {
+    return false;
+  }
+  final exp = new RegExp(r"^\w+$");
+  return exp.hasMatch(s);
+}
+
 enum TermQueryKind { termList, audioList, visualList }
 
 class TermFilter {
@@ -25,7 +33,7 @@ class TermQuery {
   // TODO order audio, visual by popularity
   makeQuery() {
     final matchFn =
-    termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : 'has(Term)';
+        termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : 'has(Term)';
     final isTermList = kind == TermQueryKind.termList;
 
     final audioRange = kind == TermQueryKind.audioList
@@ -36,11 +44,8 @@ class TermQuery {
         : '(first: 10)';
     final termRange = isTermList ? ', ${range.toString()}' : '';
 
-    // TODO use regexp to find by substring
-    final searchFilter =
-    isTermList && filter != null && filter.searchString.isNotEmpty
-        ? ' and anyoftext(text, "${filter.searchString}")'
-        : '';
+    final searchExpr = makeSearchFilter();
+    final searchFilter = searchExpr.isNotEmpty ? ' and $searchExpr' : '';
 
     // TODO add filter by tags
     final termFilter = isTermList
@@ -99,14 +104,34 @@ class TermQuery {
           }
         }
       }
-      count(func: has(Term)) $termFilter {
+      count(func: $matchFn) $termFilter {
         total: count(${countBy()})
       }
     }""";
     return q;
   }
 
-  countBy() {
+  String makeSearchFilter() {
+    if (kind != TermQueryKind.termList) {
+      return '';
+    }
+
+    final str = (filter?.searchString ?? '').trim();
+    if (str.isEmpty) {
+      return '';
+    }
+
+    // too small word fails with 'regular expression is too wide-ranging and can't be executed efficiently'
+    final regexp = isWord(str) && str.length >= 3 ? 'regexp(text, /$str.*/i)' : '';
+    final anyoftext = 'anyoftext(text, "$str")';
+    final exprs = [anyoftext, regexp].where((s) => s.isNotEmpty).toList();
+    if (exprs.length > 1) {
+      return '(${exprs.join(' or ')})';
+    }
+    return exprs[0];
+  }
+
+  String countBy() {
     switch (kind) {
       case TermQueryKind.termList:
         return 'uid';
