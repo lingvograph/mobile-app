@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/model.dart';
 
 typedef FetchPageFn<T> = Future<ListResult<T>> Function(int offset, int limit);
 typedef ItemWidgetBuilder<T> = Widget Function(BuildContext context, T item);

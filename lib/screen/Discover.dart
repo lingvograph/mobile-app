@@ -1,6 +1,7 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
-import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/termquery.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/AppBar.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/RecordAudioWidget.dart';

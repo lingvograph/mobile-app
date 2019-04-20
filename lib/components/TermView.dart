@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/screen/TermDetail.dart';
