@@ -275,17 +275,6 @@ class ListResult<T> {
   }
 }
 
-Map<String, String> multilangText(Map<String, dynamic> json, String key) {
-  var result = new Map<String, String>();
-  // TODO just process @lang
-  ['ru', 'en'].forEach((lang) {
-    if (json.containsKey('$key@$lang')) {
-      result[lang] = json['$key@$lang'] as String;
-    }
-  });
-  return result;
-}
-
 class TermInfo {
   String uid;
   String lang;

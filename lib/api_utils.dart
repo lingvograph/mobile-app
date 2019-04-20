@@ -34,3 +34,13 @@ String getErrorMessage(Response resp) {
     return utf8.decode(resp.bodyBytes);
   }
 }
+
+Map<String, String> multilangText(Map<String, dynamic> json, String key) {
+  final prefix = '$key@';
+  final result = new Map<String, String>();
+  json.keys.where((k) => k.startsWith(prefix)).forEach((k) {
+    final lang = k.substring(k.indexOf('@') + 1);
+    result[lang] = json[k] as String;
+  });
+  return result;
+}
