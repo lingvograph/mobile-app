@@ -19,7 +19,7 @@ class TermView extends StatefulWidget {
 
 class _TermState extends State<TermView> {
   int _current = 0;
-  double h = 30;
+  double h = 0;
 
   get appState {
     return appData.appState;
@@ -85,8 +85,7 @@ class _TermState extends State<TermView> {
                 left: 1,
                 top: 1),
             onTap: () {
-              debugPrint(widget.term.audio.items[0].uid);
-              like(appData.appState.user.uid, widget.term.audio.items[0].uid);
+              likeTerm();
               //apiPut("/api/data/term/"+widget.term.uid,"application/json", {"audio":{"uid":widget.term.audio.items[0].uid,"likes":widget.term.audio.items[0].likes+1}});
             }),
         Text(
@@ -102,10 +101,7 @@ class _TermState extends State<TermView> {
                 child: Icons.thumb_down,
                 left: 1,
                 top: 1),
-            onTap: () {
-              dislike(
-                  appData.appState.user.uid, widget.term.audio.items[0].uid);
-            }),
+            onTap: dislikeTerm),
         Text(
           widget.term.audio.items[0].dislikes.toString(),
           style: termTextStyleInfo,
@@ -166,15 +162,28 @@ class _TermState extends State<TermView> {
     );
   }
 
-  Container tagFromTerm(Tag t) {
-    return Container(
-        padding: EdgeInsets.all(3),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
-        child: Text(
-          "#" + t.text[appData.appState.user.firstLang] + " ",
-          style: TextStyle(color: Colors.blue),
-        ));
+  void dislikeTerm() {
+    dislike(appData.appState.user.uid, widget.term.audio.items[0].uid);
+  }
+
+  void likeTerm() {
+    like(appData.appState.user.uid, widget.term.audio.items[0].uid);
+  }
+
+  Widget tagFromTerm(Tag t) {
+    return InkWell(
+      child: Container(
+          padding: EdgeInsets.all(3),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
+          child: Text(
+            "#" + t.text[appData.appState.user.firstLang] + " ",
+            style: TextStyle(color: Colors.blue),
+          )),
+      onTap: () {
+        print("TAP");
+      },
+    );
   }
 
   void expandTags() {
