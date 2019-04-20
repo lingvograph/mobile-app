@@ -42,7 +42,7 @@ class _TermState extends State<TermView> {
         '';
     var trans = firstByKey(term.transcript, firstLang, true) ?? '';
     // TODO render placeholder if no images
-    var slider = generateSlider();
+    var slider = makeSlider();
 
     var dots = initDots();
     var termText1 = Positioned(
@@ -220,9 +220,15 @@ class _TermState extends State<TermView> {
     return dots;
   }
 
-  Widget generateSlider() {
-    return term.visual.items.length == 1
-        ? makeImage(term.visual.items.first)
+  Widget makeSlider() {
+    var images = term.visual.items;
+    if (images.isEmpty) {
+      images = new List<MediaInfo>();
+      final placeholderURL = 'https://imgplaceholder.com/420x320/ff7f7f/333333/fa-image';
+      images.add(new MediaInfo(url: placeholderURL));
+    }
+    return images.length == 1
+        ? makeImage(images.first)
         : CarouselSlider(
             //height: 500.0,
             viewportFraction: 1.0,
@@ -235,7 +241,7 @@ class _TermState extends State<TermView> {
                 _current = index;
               });
             },
-            items: term.visual.items.map((t) => makeImage(t)).toList());
+            items: images.map((t) => makeImage(t)).toList());
   }
 
   Widget makeImage(MediaInfo visual) {
