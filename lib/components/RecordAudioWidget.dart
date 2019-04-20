@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:memoapp/api.dart';
+import 'package:memoapp/api/api.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class RecordAudioWidget extends StatefulWidget {

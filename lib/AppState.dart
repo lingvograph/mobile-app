@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:memoapp/api.dart';
+import 'package:memoapp/api/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 const PREFS_KEY = 'APP_STATE';

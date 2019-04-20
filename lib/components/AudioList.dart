@@ -1,7 +1,7 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/api.dart';
+import 'package:memoapp/api/api.dart';
 
 // TODO make it scrollable
 

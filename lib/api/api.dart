@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
-import 'package:memoapp/api_utils.dart';
+import 'package:memoapp/api/api_utils.dart';
 import 'package:memoapp/utils.dart';
 
 // TODO move to config
