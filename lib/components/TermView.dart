@@ -41,7 +41,6 @@ class _TermState extends State<TermView> {
             '') ??
         '';
     var trans = firstByKey(term.transcript, firstLang, true) ?? '';
-    // TODO render placeholder if no images
     var slider = makeSlider();
 
     var dots = initDots();
