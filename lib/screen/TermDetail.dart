@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/api.dart';
+import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';

@@ -1,66 +1,29 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/AppData.dart';
-import 'package:memoapp/api.dart';
 import 'package:memoapp/components/InputFieldDecoration.dart';
-import 'package:memoapp/screen/Discover.dart';
 
-class SearchBtn extends StatefulWidget
-{
-  //TermInfo term;
-  List<TermInfo> terms;
-  PassableValue lm;
-  State st;
+typedef SearchCallback = void Function(String searchString);
 
-  SearchBtn({this.st, this.terms, this.lm});
+class SearchBtn extends StatefulWidget {
+  SearchCallback onSearch;
+
+  SearchBtn(this.onSearch);
 
   @override
-  _searchBtnState createState()
-  => _searchBtnState();
+  SearchBtnState createState() => SearchBtnState();
 }
 
-class _searchBtnState extends State<SearchBtn>
-{
+class SearchBtnState extends State<SearchBtn> {
   bool mode = true;
   double width = 0;
   Color c = Colors.black;
   String searchText = "";
-  int loadmode;
 
-  void fetch()
-  async
-  {
-    var result = await appData.lingvo.fetch(widget.terms.length, 5);
-    //print(result.toString());
-    widget.st.setState(()
-    {
-      widget.lm.val = 1;
-      widget.terms.addAll(result.items);
-    });
-
-  }
-
-  void showResults()
-  async
-  {
-    var result = await SearchTerms(searchText);
-    //total = result.total;
-
-    if (result.items.length > 0)
-    {
-      widget.st.setState(()
-      {
-        widget.terms.clear();
-        widget.terms.addAll(result.items);
-        widget.lm.val = 2;
-      });
-    }
+  get onSearch {
+    return widget.onSearch;
   }
 
   @override
-  Widget build(BuildContext context)
-  {
-    // TODO: implement build
-    loadmode = widget.lm.val;
+  Widget build(BuildContext context) {
     return Row(
       children: <Widget>[
         AnimatedContainer(
@@ -70,15 +33,13 @@ class _searchBtnState extends State<SearchBtn>
                 new TextField(
                   //decoration: const InputDecoration(labelText: 'Name'),
                   keyboardType: TextInputType.text,
-                  onChanged: (text)
-                  {
+                  onChanged: (text) {
                     //debugPrint(text);
                     searchText = text;
                   },
                 ),
                 AnimatedCrossFade(
-                  firstChild:
-                  Container(
+                  firstChild: Container(
                       alignment: Alignment(1, 0),
                       child: Icon(
                         Icons.search,
@@ -91,18 +52,13 @@ class _searchBtnState extends State<SearchBtn>
                           Icons.search,
                           color: Colors.grey[800],
                         ),
-                        onPressed: ()
-                        {
-                          widget.st.setState(()
-                          {
-                            showResults();
-                            FocusScope.of(context).requestFocus(
-                                new FocusNode());
-                          });
+                        onPressed: () {
+                          onSearch(searchText);
+                          FocusScope.of(context).requestFocus(new FocusNode());
                         },
                         tooltip: 'Search',
                       )),
-                  duration: Duration(microseconds: 1000),
+                  duration: Duration(milliseconds: 400),
                   secondCurve: Curves.elasticIn,
                   crossFadeState: mode
                       ? CrossFadeState.showFirst
@@ -122,23 +78,18 @@ class _searchBtnState extends State<SearchBtn>
               color: c,
             ),
             tooltip: 'Search',
-            onPressed: ()
-            {
-              setState(()
-              {
+            onPressed: () {
+              setState(() {
                 //c = Colors.red;
-                if (mode)
-                {
+                if (mode) {
                   width = 200;
                   c = Colors.red;
                   mode = !mode;
-                } else if (!mode)
-                {
+                } else if (!mode) {
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
-                  widget.terms.clear();
-                  fetch();
+                  onSearch('');
                 }
               });
             },
@@ -149,29 +100,24 @@ class _searchBtnState extends State<SearchBtn>
               color: c,
             ),
             tooltip: 'Search',
-            onPressed: ()
-            {
-              setState(()
-              {
+            onPressed: () {
+              setState(() {
                 //c = Colors.red;
-                if (mode)
-                {
+                if (mode) {
                   width = 200;
                   c = Colors.red;
                   mode = !mode;
-                } else if (!mode)
-                {
+                } else if (!mode) {
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
-                  widget.terms.clear();
-                  fetch();
+                  onSearch('');
                 }
               });
             },
           ),
           crossFadeState:
-          mode ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+              mode ? CrossFadeState.showFirst : CrossFadeState.showSecond,
           duration: Duration(milliseconds: 300),
           firstCurve: Curves.elasticInOut,
           secondCurve: Curves.elasticInOut,
@@ -181,13 +127,11 @@ class _searchBtnState extends State<SearchBtn>
   }
 }
 
-buildAppBar(State st, BuildContext context, List<TermInfo> terms,
-    PassableValue mode)
-{
+buildAppBar(BuildContext context, SearchCallback search) {
   return AppBar(
     title: Text('Learn'),
     actions: <Widget>[
-      SearchBtn(st: st, terms: terms, lm: mode,),
+      SearchBtn(search),
     ],
   );
 }

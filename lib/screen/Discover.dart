@@ -1,27 +1,18 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
-import 'package:memoapp/api.dart';
+import 'package:memoapp/api/termquery.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/AppBar.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/RecordAudioWidget.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/AppData.dart';
-import 'package:memoapp/screen/ContentManager.dart';
-import 'package:memoapp/AppData.dart';
 import 'package:memoapp/screen/UserProfile.dart';
-import 'package:memoapp/utils.dart';
 
 const timeout = 5000;
 
 var audioPlayer = new AudioPlayer();
 
-
-class PassableValue {
-  PassableValue(this.val);
-  int val;
-  @override
-  String toString() => val.toString();
-}
 // TODO cool transition between images
 
 // main screen with terms
@@ -33,10 +24,8 @@ class DiscoverScreen extends StatefulWidget {
 class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> terms = new List();
   int total;
-  /* 1 - can load when scrolling
-  * 2 - stop loading, e.g. search*/
-  PassableValue modeOfLoading = new PassableValue(1);
   ScrollController scrollController = new ScrollController();
+  String searchString = '';
 
   get appState {
     return appData.appState;
@@ -51,7 +40,7 @@ class DiscoverState extends State<DiscoverScreen> {
     scrollController.addListener(() {
       var atBottom = scrollController.position.pixels ==
           scrollController.position.maxScrollExtent;
-      if (atBottom && terms.length < total && modeOfLoading.val == 1) {
+      if (atBottom && terms.length < total) {
         fetchPage();
       }
     });
@@ -73,9 +62,8 @@ class DiscoverState extends State<DiscoverScreen> {
       home: DefaultTabController(
           length: 3,
           child: Scaffold(
-            /*Тут я, наверно, не очень хорошо делаю, передавая всё что есть в шапку,
-             но по другому не знаю как заставить это работать, потому что нужно делать setstate менно от State*/
-            appBar: buildAppBar(this, context, terms, modeOfLoading),
+            
+            appBar: buildAppBar(context, doSearch),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
             ),
@@ -86,13 +74,26 @@ class DiscoverState extends State<DiscoverScreen> {
     );
   }
 
+  doSearch(String text) {
+    setState(() {
+      searchString = text;
+      terms.clear();
+      fetchPage();
+    });
+  }
+
   /*create new method */
   fetchPage() async {
-    var result = await appData.lingvo.fetch(terms.length, 5);
+    var filter = new TermFilter(searchString);
+    var result = await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
     //print(result.toString());
     setState(() {
       total = result.total;
       terms.addAll(result.items);
+      if(total == 0)
+        {
+          //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
+        }
     });
   }
 
@@ -133,8 +134,7 @@ class DiscoverState extends State<DiscoverScreen> {
     ].toList();
   }
 
-  /*Ладно, на русском коментирую
-  * Тут подключаю виджет(на самом деле экран) записи аудио*/
+
   List<Widget> makeTabViews() {
     return [
       makeListView(),
@@ -152,4 +152,3 @@ class DiscoverState extends State<DiscoverScreen> {
         });
   }
 }
-

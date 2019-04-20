@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:memoapp/api.dart';
+import 'package:memoapp/api/model.dart';
 
 class ExampleList extends StatefulWidget {
   TermInfo term;
