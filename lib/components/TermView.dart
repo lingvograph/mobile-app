@@ -12,7 +12,9 @@ import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
 class TermView extends StatefulWidget {
-  TermView(this.term, {this.tappable = true});
+  SearchCallback onSearch;
+
+  TermView(this.term, {this.tappable = true, this.onSearch});
 
   _TermState createState() => _TermState();
   final TermInfo term;
@@ -21,7 +23,8 @@ class TermView extends StatefulWidget {
 
 class _TermState extends State<TermView> {
   int _current = 0;
-  double h = 30;
+  double tagsBarHeight = 0;
+  double maxTagHeight = 30;
 
   AppState get appState {
     return appData.appState;
@@ -48,12 +51,17 @@ class _TermState extends State<TermView> {
     var termText1 = Positioned(
       left: 10,
       top: 10,
-      child: Container(child:  new Text(text1, style: termTextStyle), width: 300,),
+      child: Container(
+        child: new Text(text1, style: termTextStyle),
+        width: 300,
+      ),
     );
     var termTranscript = Positioned(
       left: 10,
       top: 50,
-      child: trans.isEmpty?Text(""):new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
+      child: trans.isEmpty
+          ? Text("")
+          : new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
     );
     var iconPlayAudio = Positioned(
       left: 10,
@@ -138,8 +146,8 @@ class _TermState extends State<TermView> {
     var tagsView = AnimatedContainer(
       alignment: Alignment(0, 0),
       child: Wrap(children: term.tags.map((t) => tagFromTerm(t)).toList()),
-      duration: Duration(microseconds: 2000),
-      height: h,
+      duration: Duration(milliseconds: 300),
+      height: tagsBarHeight,
       width: 200,
       decoration: BoxDecoration(
           color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
@@ -168,20 +176,24 @@ class _TermState extends State<TermView> {
     );
   }
 
-  Container tagFromTerm(Tag t) {
-    return Container(
+  Widget tagFromTerm(Tag t) {
+    return InkWell(child: Container(
         padding: EdgeInsets.all(3),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
         child: Text(
           "#" + t.text[appState.user.firstLang] + " ",
           style: TextStyle(color: Colors.blue),
-        ));
+        )),
+    onTap: ()
+      {
+        widget.onSearch(t.text[appState.user.firstLang]);
+      },);
   }
 
   void expandTags() {
     setState(() {
-      h = h == 30 ? 0 : 30;
+      tagsBarHeight = tagsBarHeight == maxTagHeight ? 0 : maxTagHeight;
     });
   }
 
@@ -224,7 +236,8 @@ class _TermState extends State<TermView> {
     var images = term.visual.items;
     if (images.isEmpty) {
       images = new List<MediaInfo>();
-      final placeholderURL = 'https://imgplaceholder.com/420x320/ff7f7f/333333/fa-image';
+      final placeholderURL =
+          'https://imgplaceholder.com/420x320/ff7f7f/333333/fa-image';
       images.add(new MediaInfo(url: placeholderURL));
     }
     return images.length == 1

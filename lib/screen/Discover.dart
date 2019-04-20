@@ -90,8 +90,12 @@ class DiscoverState extends State<DiscoverScreen> {
     setState(() {
       total = result.total;
       terms.addAll(result.items);
+      print(total.toString());
       if(total == 0)
         {
+          searchString = "";
+          terms.clear();
+          fetchPage();
           //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
         }
     });

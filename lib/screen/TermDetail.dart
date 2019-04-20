@@ -6,6 +6,9 @@ import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';
 
+
+typedef SearchCallback = void Function(String searchString);
+
 class TermDetail extends StatefulWidget {
   String id;
 
