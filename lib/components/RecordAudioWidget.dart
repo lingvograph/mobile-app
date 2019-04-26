@@ -5,7 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
+import 'package:uuid/uuid.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class RecordAudioWidget extends StatefulWidget {
@@ -75,8 +77,8 @@ class _RecordState extends State<RecordAudioWidget> {
 
   void stopRecorder() async {
     try {
-      String result = await flutterSound.stopRecorder();
-      print('stopRecorder: $result');
+      String path = await flutterSound.stopRecorder();
+      print('stopRecorder: $path');
 
       if (_recorderSubscription != null) {
         _recorderSubscription.cancel();
@@ -99,13 +101,10 @@ class _RecordState extends State<RecordAudioWidget> {
     String path = await flutterSound.startPlayer(null);
     
     await flutterSound.setVolume(1.0);
-    print('startPlayer: $path');
-    File f = new File(path);
-    List<int> bytes = f.readAsBytesSync();
 
-    print("file: "+bytes.toString());
-    // TODO fix contentType
-    upload("$path", 'audio', bytes);
+    // TODO upload should be initiated by save button
+    uploadAudio(path);
+
     try {
       _playerSubscription = flutterSound.onPlayerStateChanged.listen((e) {
         if (e != null) {
@@ -159,6 +158,19 @@ class _RecordState extends State<RecordAudioWidget> {
 
     String result = await flutterSound.seekToPlayer(secs);
     print('seekToPlayer: $result');
+  }
+
+  void uploadAudio(String path) {
+    print('uploadFile: $path');
+    File f = new File(path);
+    List<int> bytes = f.readAsBytesSync();
+
+    // TODO link to current term
+    var uuid = new Uuid();
+    final user = appData.appState.user;
+    final remotePath = "user/${user.uid}/audio/${uuid.v4()}.mp3";
+
+    upload("$remotePath", 'audio/mpeg', bytes);
   }
 
   @override
