@@ -1,5 +1,6 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/termquery.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/AppBar.dart';
@@ -82,6 +83,34 @@ class DiscoverState extends State<DiscoverScreen> {
     });
   }
 
+  findByTag(String text) async
+  {
+      print(text);
+      setState(() {
+        searchString = text;
+
+        fetchTermTags();
+      });
+  }
+  fetchTermTags() async {
+    var filter = new TermFilter.byTag(searchedTag: searchString);
+    var result = await fetchTags('ru', terms.length, 5,filter: filter);
+    //print(result.toString());
+    setState(() {
+      terms.clear();
+      total = result.total;
+      terms.addAll(result.items);
+      print('TOTAL: '+total.toString());
+      if(total == 0)
+      {
+        print("NOTHING FOUNG BY TAG $searchString");
+        searchString = "";
+        terms.clear();
+        fetchPage();
+        //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
+      }
+    });
+  }
   /*create new method */
   fetchPage() async {
     var filter = new TermFilter(searchString);
@@ -152,7 +181,7 @@ class DiscoverState extends State<DiscoverScreen> {
         controller: scrollController,
         itemCount: terms.length,
         itemBuilder: (BuildContext context, int index) {
-          return new TermView(terms[index]);
+          return new TermView(term: terms[index], onSearch: findByTag,);
         });
   }
 }

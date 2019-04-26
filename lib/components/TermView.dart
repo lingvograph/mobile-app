@@ -11,10 +11,13 @@ import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 
+/*Ультимативный typedef*/
+typedef SearchCallback = void Function(String searchString);
+
 class TermView extends StatefulWidget {
   SearchCallback onSearch;
 
-  TermView(this.term, {this.tappable = true, this.onSearch});
+  TermView({this.term, this.tappable = true, this.onSearch});
 
   _TermState createState() => _TermState();
   final TermInfo term;
@@ -150,7 +153,12 @@ class _TermState extends State<TermView> {
       height: tagsBarHeight,
       width: 200,
       decoration: BoxDecoration(
-          color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+                color: Colors.black54, offset: Offset(1, 1), blurRadius: 5)
+          ]),
     );
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
@@ -177,18 +185,19 @@ class _TermState extends State<TermView> {
   }
 
   Widget tagFromTerm(Tag t) {
-    return InkWell(child: Container(
-        padding: EdgeInsets.all(3),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
-        child: Text(
-          "#" + t.text[appState.user.firstLang] + " ",
-          style: TextStyle(color: Colors.blue),
-        )),
-    onTap: ()
-      {
+    return InkWell(
+      child: Container(
+          padding: EdgeInsets.all(3),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
+          child: Text(
+            "#" + t.text[appState.user.firstLang] + " ",
+            style: TextStyle(color: Colors.blue),
+          )),
+      onTap: () {
         widget.onSearch(t.text[appState.user.firstLang]);
-      },);
+      },
+    );
   }
 
   void expandTags() {

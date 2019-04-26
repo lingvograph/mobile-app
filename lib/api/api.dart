@@ -179,9 +179,25 @@ Future<dynamic> like(String userId, String objectId) {
 Future<dynamic> dislike(String userId, String objectId) {
   return rel(userId, objectId, 'dislike');
 }
+Future<ListResult<TermInfo>> fetchTags(String firstLang, int offset, int limit,
+    {TermFilter filter = null}) async {
+  final range = new Pagination(offset, limit);
+  final q = new TermQuery(
+      kind: TermQueryKind.tagsList,
+      firstLang: firstLang,
+      range: range,
+      filter: filter);
+  var qs = q.makeQuery();
+  var results = await query(qs);
+  var total = results['count'][0]['total'];
+  var terms = results['terms'] as List<dynamic>;
+  var items = terms.map((t) => TermInfo.fromJson(t)).toList();
+  return new ListResult<TermInfo>(items, total);
+}
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
     {TermFilter filter = null}) async {
+  
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: TermQueryKind.termList,

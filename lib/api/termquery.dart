@@ -1,3 +1,4 @@
+import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/model.dart';
 
 bool isWord(String s) {
@@ -8,14 +9,18 @@ bool isWord(String s) {
   return exp.hasMatch(s);
 }
 
-enum TermQueryKind { termList, audioList, visualList }
+enum TermQueryKind { termList, audioList, visualList, tagsList}
 
 class TermFilter {
   String searchString;
   List<Tag> tags;
-
+  String searchedTag;
   TermFilter(String searchString, {this.tags}) {
     this.searchString = (searchString ?? '').trim();
+  }
+  TermFilter.byTag({this.searchedTag})
+  {
+    this.searchString = searchedTag;
   }
 }
 
@@ -35,6 +40,7 @@ class TermQuery {
     final matchFn =
         termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : 'has(Term)';
     final isTermList = kind == TermQueryKind.termList;
+    //final isTagList = kind == TermQueryKind.tagsList;
 
     final audioRange = kind == TermQueryKind.audioList
         ? '(${range.toString()})'
@@ -52,6 +58,9 @@ class TermQuery {
         ? '@filter(has(Term) and not eq(lang, "$firstLang")$searchFilter)'
         : '';
 
+    /*final tagFilter = isTagList
+        ? '@filter( $searchExpr)'
+        : '';*/
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
         uid
@@ -108,11 +117,12 @@ class TermQuery {
         total: count(${countBy()})
       }
     }""";
+    print(q.toString());
     return q;
   }
 
   String makeSearchFilter() {
-    if (kind != TermQueryKind.termList) {
+    if (kind != TermQueryKind.termList ) {
       return '';
     }
 
@@ -120,7 +130,11 @@ class TermQuery {
     if (str.isEmpty) {
       return '';
     }
-
+    /*if(kind == TermQueryKind.tagsList)
+    {
+      print('Make filter with '+str);
+      return 'eq(text@ru, "$str")';
+    }*/
     // too small word fails with 'regular expression is too wide-ranging and can't be executed efficiently'
     final regexp = isWord(str) && str.length >= 3 ? 'regexp(text, /$str.*/i)' : '';
     final anyoftext = 'anyoftext(text, "$str")';
@@ -139,6 +153,8 @@ class TermQuery {
         return 'audio';
       case TermQueryKind.visualList:
         return 'visual';
+      case TermQueryKind.tagsList:
+        return 'uid';
     }
   }
 }

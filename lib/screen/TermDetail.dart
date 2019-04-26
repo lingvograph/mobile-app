@@ -56,7 +56,7 @@ class TermDetailState extends State<TermDetail> {
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(top: 10),
-            child: TermView(term, tappable: false),
+            child: TermView(term: term, tappable: false,),
           ),
           new AudioList(
             term: term,
