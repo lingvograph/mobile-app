@@ -55,9 +55,7 @@ class TermDetailState extends State<TermDetail> {
             padding: EdgeInsets.only(top: 10),
             child: TermView(term, tappable: false),
           ),
-          new AudioList(
-            term: term,
-          )
+          new AudioList(term, fetchData)
         ],
       ),
     );
