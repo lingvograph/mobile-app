@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
@@ -73,6 +74,11 @@ Future<dynamic> postData(String methodPath, dynamic body,
     'Authorization': authState.authorizationHeader,
     'Content-Type': contentType,
   };
+
+  if (body is Map) {
+    body = jsonEncode(body);
+  }
+
   var url = makeApiURL(methodPath);
   Response resp;
   switch (verb) {
@@ -157,7 +163,6 @@ Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
   return updateGraph(nquads);
 }
 
-// TODO consider to make like, dislike bidirectional edges using @reverse
 Future<dynamic> rel(String userId, String objectId, String predicate) {
   var nquads = [
     NQuad.format(userId, predicate, objectId),
@@ -166,18 +171,31 @@ Future<dynamic> rel(String userId, String objectId, String predicate) {
   return updateGraph(nquads);
 }
 
-// TODO delete previous dislike on like
 Future<dynamic> view(String userId, String objectId) {
   return rel(userId, objectId, 'see');
 }
 
-Future<dynamic> like(String userId, String objectId) {
-  return rel(userId, objectId, 'like');
+Future<dynamic> likebase(
+    String userId, String objectId, String predicate, String reverse) {
+  final Map<String, String> body = {
+    'set': [
+      NQuad.format(userId, predicate, objectId),
+      NQuad.format(objectId, predicate, userId),
+    ].join('\n'),
+    'delete': [
+      NQuad.format(userId, reverse, objectId),
+      NQuad.format(objectId, reverse, userId),
+    ].join('\n'),
+  };
+  return postData('/api/nquads', body);
 }
 
-// TODO delete previous like on dislike
+Future<dynamic> like(String userId, String objectId) {
+  return likebase(userId, objectId, 'like', 'dislike');
+}
+
 Future<dynamic> dislike(String userId, String objectId) {
-  return rel(userId, objectId, 'dislike');
+  return likebase(userId, objectId, 'dislike', 'like');
 }
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
