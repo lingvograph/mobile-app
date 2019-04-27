@@ -26,3 +26,18 @@ setTimeout(void callback(), [int milliseconds = 5]) {
   var duration = ms * milliseconds;
   return new Timer(duration, callback);
 }
+
+// dart supports only one-to-six digit second fraction
+DateTime parseTime(String s) {
+  final p = new RegExp(r'\.(\d+)Z');
+  final m = p.firstMatch(s);
+  if (m != null) {
+    final i = m.start;
+    var f = m.group(1);
+    if (f.length > 6) {
+      f = f.substring(0, 6);
+    }
+    s = s.substring(0, i) + '.${f}Z';
+  }
+  return DateTime.parse(s);
+}

@@ -17,7 +17,7 @@ typedef SearchCallback = void Function(String searchString);
 class TermView extends StatefulWidget {
   SearchCallback onSearch;
 
-  TermView({this.term, this.tappable = true, this.onSearch});
+  TermView({this.term, this.tappable = true, this.onSearch = null});
 
   _TermState createState() => _TermState();
   final TermInfo term;
@@ -167,6 +167,7 @@ class _TermState extends State<TermView> {
             constraints: new BoxConstraints.expand(
               height: 200.0,
             ),
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey, blurRadius: 5)]),
             child: Stack(
               // TODO improve position of subtitles
               children: <Widget>[

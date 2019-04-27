@@ -95,7 +95,7 @@ class MediaInfo {
     likes = json.containsKey('likes') ? json['likes'] : 0;
     dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
     createdAt = json.containsKey('created_at')
-        ? DateTime.parse(json['created_at'])
+        ? parseTime(json['created_at'])
         : null;
     author = json.containsKey('created_by')
         ? UserInfo.fromJson(json['created_by'][0])

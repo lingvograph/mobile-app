@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:http/http.dart';
 import 'package:http_auth/http_auth.dart';
@@ -73,6 +74,11 @@ Future<dynamic> postData(String methodPath, dynamic body,
     'Authorization': authState.authorizationHeader,
     'Content-Type': contentType,
   };
+
+  if (body is Map) {
+    body = jsonEncode(body);
+  }
+
   var url = makeApiURL(methodPath);
   Response resp;
   switch (verb) {
@@ -171,28 +177,27 @@ Future<dynamic> view(String userId, String objectId) {
   return rel(userId, objectId, 'see');
 }
 
-Future<dynamic> like(String userId, String objectId) {
-  return rel(userId, objectId, 'like');
+Future<dynamic> likebase(
+    String userId, String objectId, String predicate, String reverse) {
+  final Map<String, String> body = {
+    'set': [
+      NQuad.format(userId, predicate, objectId),
+      NQuad.format(objectId, predicate, userId),
+    ].join('\n'),
+    'delete': [
+      NQuad.format(userId, reverse, objectId),
+      NQuad.format(objectId, reverse, userId),
+    ].join('\n'),
+  };
+  return postData('/api/nquads', body);
 }
 
-// TODO delete previous like on dislike
-Future<dynamic> dislike(String userId, String objectId) {
-  return rel(userId, objectId, 'dislike');
+Future<dynamic> like(String userId, String objectId) {
+  return likebase(userId, objectId, 'like', 'dislike');
 }
-Future<ListResult<TermInfo>> fetchTags(String firstLang, int offset, int limit,
-    {TermFilter filter = null}) async {
-  final range = new Pagination(offset, limit);
-  final q = new TermQuery(
-      kind: TermQueryKind.tagsList,
-      firstLang: firstLang,
-      range: range,
-      filter: filter);
-  var qs = q.makeQuery();
-  var results = await query(qs);
-  var total = results['count'][0]['total'];
-  var terms = results['terms'] as List<dynamic>;
-  var items = terms.map((t) => TermInfo.fromJson(t)).toList();
-  return new ListResult<TermInfo>(items, total);
+
+Future<dynamic> dislike(String userId, String objectId) {
+  return likebase(userId, objectId, 'dislike', 'like');
 }
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,

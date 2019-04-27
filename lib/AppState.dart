@@ -56,7 +56,7 @@ class AppState implements AuthStateListener {
     } catch (e) {}
   }
 
-  get user {
+  UserInfo get user {
     return _user;
   }
 
@@ -65,7 +65,7 @@ class AppState implements AuthStateListener {
     save();
   }
 
-  get apiToken {
+  String get apiToken {
     return _apiToken;
   }
 

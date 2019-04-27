@@ -6,27 +6,29 @@ import 'package:memoapp/api/model.dart';
 
 // TODO make it scrollable
 
-/*Widget used to decorate input fields with rounded and fill it with grey color*/
 class AudioList extends StatefulWidget {
   TermInfo term;
+  VoidCallback refresh;
 
-  //предполагаю из него будем вытаскивать озвучки по ID
-  AudioList({@required this.term});
+  AudioList(this.term, this.refresh);
 
   @override
-  _AudioListState createState() => _AudioListState(term);
+  _AudioListState createState() => _AudioListState();
 }
 
 class _AudioListState extends State<AudioList> {
-  TermInfo term;
+  TermInfo get term {
+    return widget.term;
+  }
 
-  _AudioListState(this.term);
-
-  List<Widget> audios;
+  VoidCallback get refresh {
+    return widget.refresh;
+  }
 
   @override
   Widget build(BuildContext context) {
-    var audios = term.audio.items.map((t) => new LoadedAudio(t)).toList();
+    var audios =
+        term.audio.items.map((t) => new LoadedAudio(t, refresh)).toList();
 
     return new Center(
       child: Padding(
@@ -53,8 +55,9 @@ class _AudioListState extends State<AudioList> {
 
 class LoadedAudio extends StatelessWidget {
   MediaInfo audio;
+  VoidCallback refresh;
 
-  LoadedAudio(this.audio);
+  LoadedAudio(this.audio, this.refresh);
 
   get appState {
     return appData.appState;
@@ -112,8 +115,13 @@ class LoadedAudio extends StatelessWidget {
                             Icons.thumb_up,
                             size: 15,
                           ),
-                          onPressed: () {
-                            like(userId, audio.uid);
+                          onPressed: () async {
+                            try {
+                              await like(userId, audio.uid);
+                              refresh();
+                            } catch (err) {
+                              // TODO display error snackbar
+                            }
                           },
                         ),
                         Text(
@@ -125,8 +133,13 @@ class LoadedAudio extends StatelessWidget {
                             Icons.thumb_down,
                             size: 15,
                           ),
-                          onPressed: (){
-                            dislike(userId, audio.uid);
+                          onPressed: () async {
+                            try {
+                              await dislike(userId, audio.uid);
+                              refresh();
+                            } catch (err) {
+                              // TODO display error snackbar
+                            }
                           },
                         ),
                         Text(
