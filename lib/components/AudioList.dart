@@ -35,7 +35,7 @@ class _AudioListState extends State<AudioList> {
         padding: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
         child: Container(
           padding: EdgeInsets.only(top: 10),
-          decoration: BoxDecoration(
+          decoration: BoxDecoration(boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[300], blurRadius: 4)],
               color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
           child: new Column(
             children: <Widget>[
@@ -70,6 +70,7 @@ class LoadedAudio extends StatelessWidget {
       padding: EdgeInsets.only(top: 4, left: 20, right: 20),
       child: Container(
           decoration: BoxDecoration(
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[500], blurRadius: 4)],
               color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
           child: Padding(
             padding: EdgeInsets.only(left: 2, right: 10),

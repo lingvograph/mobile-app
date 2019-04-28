@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';
+import 'package:memoapp/components/addContentButton.dart';
 
 typedef SearchCallback = void Function(String searchString);
 
@@ -71,52 +73,8 @@ class TermDetailState extends State<TermDetail> {
             child: TermView(term: term, tappable: false),
           ),
           new AudioList(term, fetchData),
-          Container(
-            decoration: new BoxDecoration(
-              color: Colors.white,
-              boxShadow: <BoxShadow>[
-                BoxShadow(color: Colors.blue, blurRadius: 3),
-              ],
-              shape: BoxShape.circle,
-            ),
-            child: Container(
-              alignment: Alignment(-0.05, 0),
-              padding: EdgeInsets.only(bottom: 15),
-              //padding: EdgeInsets.only(bottom: 15, left: 150),
-              child: AnimatedCrossFade(
-                  alignment: Alignment(0, 0),
-                  firstChild: new IconButton(
-                      icon: Icon(
-                        Icons.add,
-                        color: Colors.blue,
-                        size: 50,
-                      ),
-                      onPressed: addContent),
-                  secondChild: new IconButton(
-                      icon: Icon(
-                        Icons.remove,
-                        color: Colors.red,
-                        size: 50,
-                      ),
-                      onPressed: addContent),
-                  crossFadeState: _addStatus == 0
-                      ? CrossFadeState.showSecond
-                      : CrossFadeState.showFirst,
-                  duration: Duration(milliseconds: 300)),
-            ),
-          ),
-          Padding(
+          Container(child: RadialMenu()),
 
-            padding: EdgeInsets.all(20),
-            child: AnimatedContainer(
-              height: 100,
-              transform: Matrix4.rotationY(_addStatus==1?0:3.14),
-              alignment: FractionalOffset.centerRight,
-              duration: Duration(milliseconds: 1000),
-              child: Text("sdAA"),
-              decoration: BoxDecoration(color: Colors.grey[200], borderRadius: BorderRadius.circular(20), boxShadow: <BoxShadow>[BoxShadow(color: Colors.black, blurRadius: 4)]),
-            ),
-          ),
         ],
       ),
     );
