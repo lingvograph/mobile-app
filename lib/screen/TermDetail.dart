@@ -73,8 +73,26 @@ class TermDetailState extends State<TermDetail> {
             child: TermView(term: term, tappable: false),
           ),
           new AudioList(term, fetchData),
-          Container(child: RadialMenu()),
-
+          Container(
+              child: RadialMenu(
+            icons: <RadialBtn>[
+              RadialBtn(
+                  angle: 140,
+                  color: Colors.grey[600],
+                  icon: FontAwesomeIcons.cameraRetro,
+                  onTap: null),
+              RadialBtn(
+                  angle: 90,
+                  color: Colors.green,
+                  icon: FontAwesomeIcons.images,
+                  onTap: null),
+              RadialBtn(
+                  angle: 40,
+                  color: Colors.orange,
+                  icon: FontAwesomeIcons.microphoneAlt,
+                  onTap: null),
+            ],
+          )),
         ],
       ),
     );

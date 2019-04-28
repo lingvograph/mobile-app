@@ -4,23 +4,31 @@ import 'package:vector_math/vector_math.dart' show radians, Vector3;
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class RadialMenu extends StatefulWidget {
+  List<RadialBtn> icons;
+
+  RadialMenu({this.icons});
+
   createState() => _RadialMenuState();
 }
 
-class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateMixin {
-
+class _RadialMenuState extends State<RadialMenu>
+    with SingleTickerProviderStateMixin {
   AnimationController controller;
 
   @override
   void initState() {
     super.initState();
-    controller = AnimationController(duration: Duration(milliseconds: 900), vsync: this);
+    controller =
+        AnimationController(duration: Duration(milliseconds: 900), vsync: this);
     // ..addListener(() => setState(() {}));
   }
 
   @override
   Widget build(BuildContext context) {
-    return RadialAnimation(controller: controller);
+    return RadialAnimation(
+      controller: controller,
+      icons: widget.icons,
+    );
   }
 
   @override
@@ -30,30 +38,22 @@ class _RadialMenuState extends State<RadialMenu> with SingleTickerProviderStateM
   }
 }
 
-
 class RadialAnimation extends StatelessWidget {
-  RadialAnimation({ Key key, this.controller }) :
+  List<RadialBtn> icons;
 
-        translation = Tween<double>(
+  RadialAnimation({Key key, this.controller, this.icons})
+      : translation = Tween<double>(
           begin: 0.0,
           end: 90.0,
         ).animate(
-          CurvedAnimation(
-              parent: controller,
-              curve: Curves.elasticOut
-          ),
+          CurvedAnimation(parent: controller, curve: Curves.elasticOut),
         ),
-
         scale = Tween<double>(
           begin: 1.5,
           end: 0.0,
         ).animate(
-          CurvedAnimation(
-              parent: controller,
-              curve: Curves.fastOutSlowIn
-          ),
+          CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn),
         ),
-
         rotation = Tween<double>(
           begin: 0.0,
           end: 360.0,
@@ -61,12 +61,12 @@ class RadialAnimation extends StatelessWidget {
           CurvedAnimation(
             parent: controller,
             curve: Interval(
-              0.0, 0.7,
+              0.0,
+              0.7,
               curve: Curves.decelerate,
             ),
           ),
         ),
-
         super(key: key);
 
   final AnimationController controller;
@@ -83,10 +83,27 @@ class RadialAnimation extends StatelessWidget {
               angle: radians(rotation.value),
               child: Stack(
                   alignment: Alignment.center,
-                  children: <Widget>[
+                  children: icons
+                      .map((t) => _buildButton(t.angle,
+                          color: t.color, icon: t.icon, onTap: null))
+                      .toList()
+                        ..add(Transform.scale(
+                          scale: scale.value - 1,
+                          child: FloatingActionButton(
+                              child: Icon(FontAwesomeIcons.minus),
+                              onPressed: _close,
+                              backgroundColor: Colors.red),
+                        ))
+                        ..add(Transform.scale(
+                          scale: scale.value / 1.5,
+                          child: FloatingActionButton(
+                              child: Icon(FontAwesomeIcons.plus),
+                              onPressed: _open),
+                        )),
+                  /*<Widget>[
                     _buildButton(140, color: Colors.grey[600], icon: FontAwesomeIcons.cameraRetro),
                     _buildButton(90 , color: Colors.green, icon:FontAwesomeIcons.images),
-                    _buildButton(40 , color: Colors.orange, icon:FontAwesomeIcons.microphoneAlt),
+                    _buildButton(40 , color: Colors.orange, icon:FontAwesomeIcons.microphoneAlt, onTap: null),
                     Transform.scale(
                       scale: scale.value - 1,
                       child: FloatingActionButton(child: Icon(FontAwesomeIcons.minus  ), onPressed: _close, backgroundColor: Colors.red),
@@ -96,8 +113,8 @@ class RadialAnimation extends StatelessWidget {
                       child: FloatingActionButton(child: Icon(FontAwesomeIcons.plus), onPressed: _open),
                     )
 
-                  ])
-          );
+                  ]*/
+                  ));
         });
   }
 
@@ -109,16 +126,26 @@ class RadialAnimation extends StatelessWidget {
     controller.reverse();
   }
 
-  _buildButton(double angle, { Color color, IconData icon }) {
+  Widget _buildButton(double angle,
+      {Color color, IconData icon, Function onTap = null}) {
     final double rad = radians(angle);
     return Transform(
-        transform: Matrix4.identity()..translate(
-            (translation.value) * cos(rad),
-            (translation.value) * sin(rad)
-        ),
-
+        transform: Matrix4.identity()
+          ..translate(
+              (translation.value) * cos(rad), (translation.value) * sin(rad)),
         child: FloatingActionButton(
-            child: Icon(icon), backgroundColor: color, onPressed: _close, elevation: 0)
-    );
+            child: Icon(icon),
+            backgroundColor: color,
+            onPressed: onTap,
+            elevation: 0));
   }
+}
+
+class RadialBtn {
+  double angle;
+  Color color;
+  IconData icon;
+  Function onTap;
+
+  RadialBtn({this.angle, this.icon, this.color, this.onTap = null});
 }
