@@ -77,6 +77,8 @@ class _TermState extends State<TermView> {
             child: Icons.play_circle_outline,
             size: 58,
             color: Colors.grey[200],
+            left: 1,
+            top: 1,
           )),
     );
     var firstAudio = firstOrElse(term.audio.items, MediaInfo.empty);

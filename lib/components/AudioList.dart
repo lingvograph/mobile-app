@@ -35,7 +35,7 @@ class _AudioListState extends State<AudioList> {
         padding: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
         child: Container(
           padding: EdgeInsets.only(top: 10),
-          decoration: BoxDecoration(boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[300], blurRadius: 4)],
+          decoration: BoxDecoration(boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[400], blurRadius: 10, offset: Offset(0, 0))],
               color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
           child: new Column(
             children: <Widget>[

@@ -7,6 +7,7 @@ import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/addContentButton.dart';
+import 'package:memoapp/screen/recordaudioscreen.dart';
 
 typedef SearchCallback = void Function(String searchString);
 
@@ -56,7 +57,17 @@ class TermDetailState extends State<TermDetail> {
       });
     }
   }
+  void openAddAudio()
+  {
+    print("audio open!");
+    var route = MaterialPageRoute(builder: (_) => new RecordAudioScreen());
+    Navigator.pushReplacement(context, route);
+  }
+  void openAddPhotoGallery()
+  {
+    print("gallery open!");
 
+  }
   @override
   Widget build(BuildContext context) {
     if (term == null) {
@@ -72,27 +83,28 @@ class TermDetailState extends State<TermDetail> {
             padding: EdgeInsets.only(top: 10),
             child: TermView(term: term, tappable: false),
           ),
-          new AudioList(term, fetchData),
+          new AudioList(term, fetchData)  ,
           Container(
               child: RadialMenu(
             icons: <RadialBtn>[
               RadialBtn(
-                  angle: 140,
+                  angle: 160,
                   color: Colors.grey[600],
                   icon: FontAwesomeIcons.cameraRetro,
                   onTap: null),
               RadialBtn(
-                  angle: 90,
+                  angle: 110,
                   color: Colors.green,
                   icon: FontAwesomeIcons.images,
-                  onTap: null),
+                  onTap: (){openAddPhotoGallery();}),
               RadialBtn(
                   angle: 40,
                   color: Colors.orange,
                   icon: FontAwesomeIcons.microphoneAlt,
-                  onTap: null),
+                  onTap:(){openAddAudio();}),
             ],
           )),
+
         ],
       ),
     );

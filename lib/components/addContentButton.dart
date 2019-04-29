@@ -79,42 +79,33 @@ class RadialAnimation extends StatelessWidget {
     return AnimatedBuilder(
         animation: controller,
         builder: (context, widget) {
-          return Transform.rotate(
+          return Container(
+            padding: EdgeInsets.only(bottom: 90),
+            width: 300,
+            height: 250,
+            child: Transform.rotate(
               angle: radians(rotation.value),
               child: Stack(
-                  alignment: Alignment.center,
-                  children: icons
-                      .map((t) => _buildButton(t.angle,
-                          color: t.color, icon: t.icon, onTap: null))
-                      .toList()
-                        ..add(Transform.scale(
-                          scale: scale.value - 1,
-                          child: FloatingActionButton(
-                              child: Icon(FontAwesomeIcons.minus),
-                              onPressed: _close,
-                              backgroundColor: Colors.red),
-                        ))
-                        ..add(Transform.scale(
-                          scale: scale.value / 1.5,
-                          child: FloatingActionButton(
-                              child: Icon(FontAwesomeIcons.plus),
-                              onPressed: _open),
-                        )),
-                  /*<Widget>[
-                    _buildButton(140, color: Colors.grey[600], icon: FontAwesomeIcons.cameraRetro),
-                    _buildButton(90 , color: Colors.green, icon:FontAwesomeIcons.images),
-                    _buildButton(40 , color: Colors.orange, icon:FontAwesomeIcons.microphoneAlt, onTap: null),
-                    Transform.scale(
-                      scale: scale.value - 1,
-                      child: FloatingActionButton(child: Icon(FontAwesomeIcons.minus  ), onPressed: _close, backgroundColor: Colors.red),
-                    ),
-                    Transform.scale(
-                      scale: scale.value/1.5,
-                      child: FloatingActionButton(child: Icon(FontAwesomeIcons.plus), onPressed: _open),
-                    )
+                alignment: Alignment.center,
+                children: icons
+                    .map((t) => _buildButton(t.angle,
+                    color: t.color, icon: t.icon, onTap: t.onTap))
+                    .toList()
+                  ..add(Transform.scale(
+                    scale: scale.value - 1,
+                    child: FloatingActionButton(
+                        child: Icon(FontAwesomeIcons.minus),
+                        onPressed: _close,
+                        backgroundColor: Colors.red),
+                  ))
+                  ..add(Transform.scale(
+                    scale: scale.value / 1.5,
+                    child: FloatingActionButton(
+                        child: Icon(FontAwesomeIcons.plus),
+                        onPressed: _open),
+                  )),
 
-                  ]*/
-                  ));
+              )),);
         });
   }
 
@@ -127,16 +118,17 @@ class RadialAnimation extends StatelessWidget {
   }
 
   Widget _buildButton(double angle,
-      {Color color, IconData icon, Function onTap = null}) {
+      {Color color, IconData icon, Function onTap}) {
     final double rad = radians(angle);
-    return Transform(
+    return new Transform(
+      //transformHitTests: false,
         transform: Matrix4.identity()
           ..translate(
               (translation.value) * cos(rad), (translation.value) * sin(rad)),
         child: FloatingActionButton(
             child: Icon(icon),
             backgroundColor: color,
-            onPressed: onTap,
+            onPressed: (){onTap();},
             elevation: 0));
   }
 }
@@ -147,5 +139,5 @@ class RadialBtn {
   IconData icon;
   Function onTap;
 
-  RadialBtn({this.angle, this.icon, this.color, this.onTap = null});
+  RadialBtn({this.angle, this.icon, this.color, this.onTap});
 }
