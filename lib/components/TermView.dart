@@ -188,7 +188,9 @@ class _TermState extends State<TermView> {
   void imageOnTap() {
     if (widget.tappable) {
       // TODO view visual, not audio
-      view(appState.user.uid, term.audio.items[0].uid);
+      if (term.audio.items.isNotEmpty) {
+        view(appState.user.uid, term.audio.items[0].uid);
+      }
       var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
       Navigator.push(context, route);
     }
