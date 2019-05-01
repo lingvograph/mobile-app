@@ -163,7 +163,6 @@ Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
   return updateGraph(nquads);
 }
 
-// TODO consider to make like, dislike bidirectional edges using @reverse
 Future<dynamic> rel(String userId, String objectId, String predicate) {
   var nquads = [
     NQuad.format(userId, predicate, objectId),
@@ -172,7 +171,6 @@ Future<dynamic> rel(String userId, String objectId, String predicate) {
   return updateGraph(nquads);
 }
 
-// TODO delete previous dislike on like
 Future<dynamic> view(String userId, String objectId) {
   return rel(userId, objectId, 'see');
 }
@@ -202,7 +200,6 @@ Future<dynamic> dislike(String userId, String objectId) {
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
     {TermFilter filter = null}) async {
-  
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: TermQueryKind.termList,

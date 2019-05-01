@@ -9,14 +9,15 @@ bool isWord(String s) {
   return exp.hasMatch(s);
 }
 
-enum TermQueryKind { termList, audioList, visualList, tagsList}
+enum TermQueryKind { termList, audioList, visualList }
 
 class TermFilter {
   String searchString;
   List<Tag> tags;
 
-  TermFilter(String searchString, {this.tags}) {
+  TermFilter(String searchString, {List<Tag> tags}) {
     this.searchString = (searchString ?? '').trim();
+    this.tags = tags ?? new List<Tag>();
   }
 }
 
@@ -28,7 +29,11 @@ class TermQuery {
   Pagination range;
 
   TermQuery(
-      {this.kind, this.firstLang, this.termUid, this.filter, this.range}) {}
+      {this.kind, this.firstLang, this.termUid, this.filter, this.range}) {
+    if (this.filter == null) {
+      this.filter = new TermFilter('');
+    }
+  }
 
   // TODO filter known words
   // TODO order audio, visual by popularity
@@ -45,13 +50,17 @@ class TermQuery {
         : '(first: 10)';
     final termRange = isTermList ? ', ${range.toString()}' : '';
 
-    final searchExpr = makeSearchFilter();
-    final searchFilter = searchExpr.isNotEmpty ? ' and $searchExpr' : '';
-
-    // TODO add filter by tags
-    final termFilter = isTermList
-        ? '@filter(has(Term) and not eq(lang, "$firstLang")$searchFilter)'
+    final brace = (String s) => '($s)';
+    final searchFilter = makeSearchFilter();
+    final langFilter = 'not eq(lang, "$firstLang")';
+    final tagFilter = filter.tags.isNotEmpty
+        ? brace(filter.tags.map((t) => 'uid_id(tag, ${t.uid})').join(' or '))
         : '';
+
+    final filterExpr = ['has(Term)', langFilter, tagFilter, searchFilter]
+        .where((s) => s != null && s.isNotEmpty)
+        .join(' and ');
+    final termFilter = isTermList ? '@filter($filterExpr)' : '';
 
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
@@ -118,13 +127,14 @@ class TermQuery {
       return '';
     }
 
-    final str = (filter?.searchString ?? '').trim();
+    final str = (filter.searchString ?? '').trim();
     if (str.isEmpty) {
       return '';
     }
 
     // too small word fails with 'regular expression is too wide-ranging and can't be executed efficiently'
-    final regexp = isWord(str) && str.length >= 3 ? 'regexp(text, /$str.*/i)' : '';
+    final regexp =
+        isWord(str) && str.length >= 3 ? 'regexp(text, /$str.*/i)' : '';
     final anyoftext = 'anyoftext(text, "$str")';
     final exprs = [anyoftext, regexp].where((s) => s.isNotEmpty).toList();
     if (exprs.length > 1) {
@@ -136,8 +146,6 @@ class TermQuery {
   String countBy() {
     switch (kind) {
       case TermQueryKind.termList:
-        return 'uid';
-      case TermQueryKind.tagsList:
         return 'uid';
       case TermQueryKind.audioList:
         return 'audio';
