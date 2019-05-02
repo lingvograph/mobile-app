@@ -48,17 +48,6 @@ class UserInfo {
   };
 }
 
-class Tag {
-  String uid;
-  // text in different languages
-  Map<String, String> text;
-
-  Tag.fromJson(Map<String, dynamic> json) {
-    uid = json['uid'];
-    text = multilangText(json, 'text');
-  }
-}
-
 class MediaInfo {
   String uid;
   String path;
@@ -116,7 +105,7 @@ class TermInfo {
   List<TermInfo> translations;
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
-  List<Tag> tags;
+  List<TermInfo> tags;
 
   TermInfo.fromJson(Map<String, dynamic> json,
       {int audioTotal = 0, int visualTotal = 0}) {
@@ -126,7 +115,7 @@ class TermInfo {
     text = json['text'];
 
     transcript = multilangText(json, 'transcript');
-    tags = mapList(json, 'tag', (t) => Tag.fromJson(t));
+    tags = mapList(json, 'tag', (t) => TermInfo.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));

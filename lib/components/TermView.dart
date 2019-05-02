@@ -168,13 +168,13 @@ class _TermState extends State<TermView> {
     );
   }
 
-  Container tagFromTerm(Tag t) {
+  Container tagFromTerm(TermInfo t) {
     return Container(
         padding: EdgeInsets.all(3),
         decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
         child: Text(
-          "#" + t.text[appState.user.firstLang] + " ",
+          "#" + (t.text ?? "") + " ",
           style: TextStyle(color: Colors.blue),
         ));
   }
