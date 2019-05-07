@@ -33,6 +33,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
   double slider_current_position = 0.0;
   double max_duration = 1.0;
   String path;
+
   @override
   void initState() {
     super.initState();
@@ -180,108 +181,80 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: new Row(
-          children: <Widget>[
-            Icon(FontAwesomeIcons.microphoneAlt),
-            Text(" Your recording studio")
-          ],
-        ),
+    var audioRecordName = Padding(
+      padding: EdgeInsets.all(30),
+      child: Container(
+        child: new Container(
+            padding: EdgeInsets.all(10),
+            decoration: BoxDecoration(
+                color: Colors.grey[100],
+                boxShadow: <BoxShadow>[
+                  BoxShadow(color: Colors.black, blurRadius: 5)
+                ],
+                borderRadius: BorderRadius.circular(20)),
+            width: 300,
+            child: new TextField(style: new TextStyle(color: Colors.black))),
       ),
-      body: ListView(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.all(10),
-          ),
-          Padding(
-            padding: EdgeInsets.all(30),
-            child: Container(
-              child: new Container(
-                  padding: EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                      color: Colors.grey[100],
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(color: Colors.black, blurRadius: 5)
-                      ],
-                      borderRadius: BorderRadius.circular(20)),
-                  width: 300,
-                  child:
-                      new TextField(style: new TextStyle(color: Colors.black))),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.all(10),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[],
-          ),
-          Row(
-            children: <Widget>[
-              Container(
-                alignment: Alignment(0, 0),
+    );
+    var recordText = Container(
+      alignment: Alignment(0, 0),
+      padding: EdgeInsets.all(10),
+      decoration: BoxDecoration(
+          color: Colors.grey[100],
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: <BoxShadow>[
+            BoxShadow(color: Colors.grey[500], blurRadius: 5)
+          ]),
+      child: Text(
+        "Record",
+        style: TextStyle(fontSize: 20),
+      ),
+    );
+    var recordDuration = Container(
                 padding: EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                    color: Colors.grey[100],
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(color: Colors.grey[500], blurRadius: 5)
-                    ]),
                 child: Text(
-                  "Record",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
-              Container(
-                width: 100.0,
-                height: 80.0,
-                child: ClipOval(
-                  child: FlatButton(
-                    onPressed: () {
-                      if (!this._isRecording) {
-                        return this.startRecorder();
-                      }
-                      this.stopRecorder();
-                    },
-                    padding: EdgeInsets.all(8.0),
-                    child: Container(
-                        child: Column(
-                      children: <Widget>[
-                        AnimatedCrossFade(
-                            firstChild: Icon(
-                              FontAwesomeIcons.microphone,
-                              color: Colors.blue,
-                            ),
-                            secondChild: Icon(
-                              FontAwesomeIcons.microphoneSlash,
-                              color: Colors.red,
-                            ),
-                            crossFadeState: _isRecording
-                                ? CrossFadeState.showSecond
-                                : CrossFadeState.showFirst,
-                            duration: Duration(milliseconds: 500)),
-                        Container(
-                          padding: EdgeInsets.all(10),
-                          child: Text(
-                            this._recorderTxt,
-                            style: TextStyle(
-                              fontSize: 15.0,
-                              color: Colors.black,
-                            ),
-                          ),
-                        )
-                      ],
-                    )),
+                  this._recorderTxt,
+                  style: TextStyle(
+                    fontSize: 15.0,
+                    color: Colors.black,
                   ),
                 ),
-              ),
+              );
+    var recordAudioBtn = Container(
+      width: 100.0,
+      height: 80.0,
+      child: ClipOval(
+        child: FlatButton(
+          onPressed: () {
+            if (!this._isRecording) {
+              return this.startRecorder();
+            }
+            this.stopRecorder();
+          },
+          padding: EdgeInsets.all(8.0),
+          child: Container(
+              child: Column(
+            children: <Widget>[
+              AnimatedCrossFade(
+                  firstChild: Icon(
+                    FontAwesomeIcons.microphone,
+                    color: Colors.blue,
+                  ),
+                  secondChild: Icon(
+                    FontAwesomeIcons.microphoneSlash,
+                    color: Colors.red,
+                  ),
+                  crossFadeState: _isRecording
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: Duration(milliseconds: 500)),
+              recordDuration
             ],
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-          ),
-          Column(
+          )),
+        ),
+      ),
+    );
+    var playProgressBar = Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -296,21 +269,8 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                 ),
               ),
             ],
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 20, right: 20),
-            child: Container(
-              alignment: Alignment(0, 0),
-              padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(color: Colors.grey[500], blurRadius: 5)
-                  ],
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20)),
-              child: Row(
-                children: <Widget>[
-                  Container(
+          );
+    var playBtn = Container(
                     width: 56.0,
                     height: 56.0,
                     child: ClipOval(
@@ -325,8 +285,8 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                         ),
                       ),
                     ),
-                  ),
-                  Container(
+                  );
+    var pauseBtn = Container(
                     width: 56.0,
                     height: 56.0,
                     child: ClipOval(
@@ -341,8 +301,8 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                         ),
                       ),
                     ),
-                  ),
-                  Container(
+                  );
+    var stopBtn = Container(
                     width: 56.0,
                     height: 56.0,
                     child: ClipOval(
@@ -357,8 +317,8 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                         ),
                       ),
                     ),
-                  ),
-                  Container(
+                  );
+    var playDuration = Container(
                       height: 56.0,
                       child: Slider(
                           value: slider_current_position,
@@ -367,27 +327,19 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                           onChanged: (double value) async {
                             await flutterSound.seekToPlayer(value.toInt());
                           },
-                          divisions: max_duration.toInt()))
-                ],
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-              ),
-            ),
-          ),
-          Padding(padding: EdgeInsets.all(10),),
-          Stack(
+                          divisions: max_duration.toInt()));
+    var sendRecordBtn = Stack(
             alignment: Alignment(-0.8, 0),
             children: <Widget>[
               Container(
                 width: 80,
                 height: 80,
                 decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.grey[200],
+                    shape: BoxShape.circle,
+                    color: Colors.grey[200],
                     boxShadow: <BoxShadow>[
                       BoxShadow(color: Colors.grey[500], blurRadius: 5)
-                    ]
-                ),
+                    ]),
                 padding: EdgeInsets.only(top: 10),
                 alignment: Alignment(-0.8, 0),
               ),
@@ -395,20 +347,75 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                 top: 10,
                 left: 45,
                 child: IconButton(
-                icon: Icon(
-                  FontAwesomeIcons.upload,
-                  color: Colors.blue,
-                  size: 40,
+                  icon: Icon(
+                    FontAwesomeIcons.upload,
+                    color: Colors.blue,
+                    size: 40,
+                  ),
+                  onPressed: () {
+                    uploadAudio(path);
+                  },
                 ),
-                onPressed: (){uploadAudio(path);},
-              ),)
+              )
             ],
-          )
+          );
+    return Scaffold(
+      appBar: AppBar(
+        title: new Row(
+          children: <Widget>[
+            Icon(FontAwesomeIcons.microphoneAlt),
+            Text(" Your recording studio")
+          ],
+        ),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(10),
+          ),
+          audioRecordName,
+          Padding(
+            padding: EdgeInsets.all(10),
+          ),
+          Row(
+            children: <Widget>[
+              recordText,
+              recordAudioBtn,
+            ],
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+          ),
+          playProgressBar,
+          Padding(
+            padding: EdgeInsets.only(left: 20, right: 20),
+            child: Container(
+              alignment: Alignment(0, 0),
+              padding: EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                  boxShadow: <BoxShadow>[
+                    BoxShadow(color: Colors.grey[500], blurRadius: 5)
+                  ],
+                  color: Colors.grey[100],
+                  borderRadius: BorderRadius.circular(20)),
+              child: Row(
+                children: <Widget>[
+                  playBtn,
+                  pauseBtn,
+                  stopBtn,
+                  playDuration
+                ],
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+              ),
+            ),
+          ),
+          Padding(
+            padding: EdgeInsets.all(10),
+          ),
+          sendRecordBtn
         ],
       ),
       // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 }
-
-

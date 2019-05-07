@@ -73,18 +73,7 @@ class TermDetailState extends State<TermDetail> {
     if (term == null) {
       return Loading();
     }
-    return new Scaffold(
-      appBar: AppBar(
-        title: Text("Detail"),
-      ),
-      body: ListView(
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(top: 10),
-            child: TermView(term: term, tappable: false),
-          ),
-          new AudioList(term, fetchData)  ,
-          Container(
+    var RadialAddButton = Container(
               child: RadialMenu(
             icons: <RadialBtn>[
               RadialBtn(
@@ -103,7 +92,19 @@ class TermDetailState extends State<TermDetail> {
                   icon: FontAwesomeIcons.microphoneAlt,
                   onTap:(){openAddAudio();}),
             ],
-          )),
+          ));
+    return new Scaffold(
+      appBar: AppBar(
+        title: Text("Detail"),
+      ),
+      body: ListView(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: TermView(term: term, tappable: false),
+          ),
+          new AudioList(term, fetchData)  ,
+          RadialAddButton,
 
         ],
       ),

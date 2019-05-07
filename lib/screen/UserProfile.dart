@@ -37,8 +37,7 @@ class _ProfileState extends State<UserProfile> {
 
   @override
   Widget build(BuildContext context) {
-    return new Column(children: <Widget>[
-      Container(
+    var userAvatar = Container(
           width: 100,
           height: 100,
           decoration: new BoxDecoration(
@@ -47,18 +46,15 @@ class _ProfileState extends State<UserProfile> {
                   fit: BoxFit.fill,
                   image: Image.asset(
                     'assets/avatar_default.png',
-                  ).image))),
-      Container(
+                  ).image)));
+    var userName = Container(
         padding: EdgeInsets.only(top: 10),
         child: new Text(
           'UserName',
           style: TextStyle(fontSize: 20),
         ),
-      ),
-      Padding(
-        padding: EdgeInsets.all(10),
-      ),
-      new Row(
+      );
+    var tabsSelector = new Row(
         children: <Widget>[
           ProfileTabSelector(
             picture: Icon(Icons.contacts),
@@ -76,7 +72,14 @@ class _ProfileState extends State<UserProfile> {
             onTap: openContent,
           ),
         ],
+      );
+    return new Column(children: <Widget>[
+      userAvatar,
+      userName,
+      Padding(
+        padding: EdgeInsets.all(10),
       ),
+      tabsSelector,
       currentProfileWindow,
     ]);
   }
