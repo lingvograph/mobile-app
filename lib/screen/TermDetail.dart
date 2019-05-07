@@ -133,8 +133,22 @@ class TermDetailState extends State<TermDetail> {
       //maxHeight: 50.0,
       //maxWidth: 50.0,
     );
-    if (cameraFile!= null) {
+    if (cameraFile != null) {
       print("You selected camera image : " + cameraFile.path);
+      List<int> bytes = cameraFile.readAsBytesSync();
+
+      // TODO link to current term
+      var uuid = new Uuid();
+      final user = appData.appState.user;
+      String datauid = uuid.v4();
+      final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
+
+      var res = await upload("$remotePath", 'visual/jpeg', bytes);
+      TermUpdate tup = new TermUpdate();
+      tup.imageUid = res.uid;
+      print(tup.imageUid);
+      var res2 = await upadteTerm(term.uid, tup);
+      print(res2.toString());
     } else {
       print("no data");
     }
@@ -149,28 +163,25 @@ class TermDetailState extends State<TermDetail> {
       // maxHeight: 50.0,
       // maxWidth: 50.0,
     );
-    if(galleryFile!=null)
-      {
-        print("You selected gallery image : " + galleryFile.path);
-        List<int> bytes = galleryFile.readAsBytesSync();
+    if (galleryFile != null) {
+      print("You selected gallery image : " + galleryFile.path);
+      List<int> bytes = galleryFile.readAsBytesSync();
 
-        // TODO link to current term
-        var uuid = new Uuid();
-        final user = appData.appState.user;
-        String datauid = uuid.v4();
-        final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
+      // TODO link to current term
+      var uuid = new Uuid();
+      final user = appData.appState.user;
+      String datauid = uuid.v4();
+      final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
 
-        var res = await upload("$remotePath", 'visual/jpeg', bytes);
-        TermUpdate tup = new TermUpdate();
-        tup.imageUid = res.uid;
-        print(tup.imageUid);
-        var res2 = await upadteTerm(term.uid, tup);
-        print(res2.toString());
-      }
-    else
-      {
-        print("no data");
-      }
+      var res = await upload("$remotePath", 'visual/jpeg', bytes);
+      TermUpdate tup = new TermUpdate();
+      tup.imageUid = res.uid;
+      print(tup.imageUid);
+      var res2 = await upadteTerm(term.uid, tup);
+      print(res2.toString());
+    } else {
+      print("no data");
+    }
     setState(() {});
   }
 }
