@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memoapp/AppData.dart';
@@ -8,6 +10,12 @@ import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/addContentButton.dart';
 import 'package:memoapp/screen/recordaudioscreen.dart';
+
+//import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:path/path.dart' show join;
+import 'package:path_provider/path_provider.dart';
+import 'package:image_picker/image_picker.dart';
 
 typedef SearchCallback = void Function(String searchString);
 
@@ -57,42 +65,45 @@ class TermDetailState extends State<TermDetail> {
       });
     }
   }
-  void openAddAudio()
-  {
+
+  void openAddAudio() {
     print("audio open!");
     var route = MaterialPageRoute(builder: (_) => new RecordAudioScreen());
     Navigator.pushReplacement(context, route);
   }
-  void openAddPhotoGallery()
-  {
-    print("gallery open!");
 
-  }
+
   @override
   Widget build(BuildContext context) {
     if (term == null) {
       return Loading();
     }
     var RadialAddButton = Container(
-              child: RadialMenu(
-            icons: <RadialBtn>[
-              RadialBtn(
-                  angle: 160,
-                  color: Colors.grey[600],
-                  icon: FontAwesomeIcons.cameraRetro,
-                  onTap: null),
-              RadialBtn(
-                  angle: 110,
-                  color: Colors.green,
-                  icon: FontAwesomeIcons.images,
-                  onTap: (){openAddPhotoGallery();}),
-              RadialBtn(
-                  angle: 40,
-                  color: Colors.orange,
-                  icon: FontAwesomeIcons.microphoneAlt,
-                  onTap:(){openAddAudio();}),
-            ],
-          ));
+        child: RadialMenu(
+      icons: <RadialBtn>[
+        RadialBtn(
+            angle: 160,
+            color: Colors.grey[600],
+            icon: FontAwesomeIcons.cameraRetro,
+            onTap: () {
+              openCamera();
+            }),
+        RadialBtn(
+            angle: 110,
+            color: Colors.green,
+            icon: FontAwesomeIcons.images,
+            onTap: () {
+              openGalery();
+            }),
+        RadialBtn(
+            angle: 40,
+            color: Colors.orange,
+            icon: FontAwesomeIcons.microphoneAlt,
+            onTap: () {
+              openAddAudio();
+            }),
+      ],
+    ));
     return new Scaffold(
       appBar: AppBar(
         title: Text("Detail"),
@@ -103,11 +114,36 @@ class TermDetailState extends State<TermDetail> {
             padding: EdgeInsets.only(top: 10),
             child: TermView(term: term, tappable: false),
           ),
-          new AudioList(term, fetchData)  ,
+          new AudioList(term, fetchData),
           RadialAddButton,
-
         ],
       ),
     );
+  }
+
+  void openCamera() async {
+    File cameraFile;
+    print("camera open!");
+    cameraFile = await ImagePicker.pickImage(
+      source: ImageSource.camera,
+      //maxHeight: 50.0,
+      //maxWidth: 50.0,
+    );
+    print("You selected camera image : " + cameraFile.path);
+    setState(() {});
+    
+  }
+
+  void openGalery() async
+  {
+    File galleryFile;
+
+    galleryFile = await ImagePicker.pickImage(
+      source: ImageSource.gallery,
+      // maxHeight: 50.0,
+      // maxWidth: 50.0,
+    );
+    print("You selected gallery image : " + galleryFile.path);
+    setState(() {});
   }
 }
