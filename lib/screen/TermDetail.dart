@@ -157,10 +157,15 @@ class TermDetailState extends State<TermDetail> {
         // TODO link to current term
         var uuid = new Uuid();
         final user = appData.appState.user;
-        final remotePath = "user/${user.uid}/visual/${uuid.v4()}.jpeg";
+        String datauid = uuid.v4();
+        final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
 
         var res = await upload("$remotePath", 'visual/jpeg', bytes);
-        print(res.path);
+        TermUpdate tup = new TermUpdate();
+        tup.imageUid = res.uid;
+        print(tup.imageUid);
+        var res2 = await upadteTerm(term.uid, tup);
+        print(res2.toString());
       }
     else
       {
