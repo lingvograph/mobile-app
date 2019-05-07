@@ -152,7 +152,7 @@ class DiscoverState extends State<DiscoverScreen> {
         controller: scrollController,
         itemCount: terms.length,
         itemBuilder: (BuildContext context, int index) {
-          return new TermView(term: terms[index]);
+          return new TermView(term: terms[index],);
         });
   }
 }

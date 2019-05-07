@@ -13,11 +13,11 @@ enum TermQueryKind { termList, audioList, visualList }
 
 class TermFilter {
   String searchString;
-  List<Tag> tags;
+  List<TermInfo> tags;
 
-  TermFilter(String searchString, {List<Tag> tags}) {
+  TermFilter(String searchString, {List<TermInfo> tags}) {
     this.searchString = (searchString ?? '').trim();
-    this.tags = tags ?? new List<Tag>();
+    this.tags = tags ?? new List<TermInfo>();
   }
 }
 
@@ -71,8 +71,10 @@ class TermQuery {
         transcript@en
         tag {
           uid
-          text@en
-          text@ru
+          text
+          lang
+          transcript@ru
+          transcript@en
         }
         translated_as {
           uid
@@ -82,8 +84,10 @@ class TermQuery {
           transcript@en
           tag {
             uid
-            text@en
-            text@ru
+            text
+            lang
+            transcript@ru
+            transcript@en
           }
         }
         audio $audioRange {
@@ -118,7 +122,6 @@ class TermQuery {
         total: count(${countBy()})
       }
     }""";
-    print(q.toString());
     return q;
   }
 

@@ -40,23 +40,12 @@ class UserInfo {
   }
 
   Map<String, dynamic> toJson() => {
-    'uid': name,
-    'name': name,
-    'first_lang': firstLang,
-    'gender': gender,
-    'country': country,
-  };
-}
-
-class Tag {
-  String uid;
-  // text in different languages
-  Map<String, String> text;
-
-  Tag.fromJson(Map<String, dynamic> json) {
-    uid = json['uid'];
-    text = multilangText(json, 'text');
-  }
+        'uid': name,
+        'name': name,
+        'first_lang': firstLang,
+        'gender': gender,
+        'country': country,
+      };
 }
 
 class MediaInfo {
@@ -73,15 +62,15 @@ class MediaInfo {
 
   MediaInfo(
       {this.uid,
-        this.path,
-        this.url,
-        this.source,
-        this.contentType,
-        this.author,
-        this.createdAt,
-        this.views = 0,
-        this.likes = 0,
-        this.dislikes = 0});
+      this.path,
+      this.url,
+      this.source,
+      this.contentType,
+      this.author,
+      this.createdAt,
+      this.views = 0,
+      this.likes = 0,
+      this.dislikes = 0});
 
   static MediaInfo empty = new MediaInfo();
 
@@ -94,16 +83,15 @@ class MediaInfo {
     views = json.containsKey('views') ? json['views'] : 0;
     likes = json.containsKey('likes') ? json['likes'] : 0;
     dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
-    createdAt = json.containsKey('created_at')
-        ? parseTime(json['created_at'])
-        : null;
+    createdAt =
+        json.containsKey('created_at') ? parseTime(json['created_at']) : null;
     author = json.containsKey('created_by')
         ? UserInfo.fromJson(json['created_by'][0])
         : UserInfo.fromJson({
-      'name': 'system',
-      'gender': 'robot',
-      'country': 'Russia',
-    });
+            'name': 'system',
+            'gender': 'robot',
+            'country': 'Russia',
+          });
   }
 }
 
@@ -111,24 +99,23 @@ class TermInfo {
   String uid;
   String lang;
   String text;
+
   // transcriptions in different languages
   Map<String, String> transcript;
   List<TermInfo> translations;
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
-  List<Tag> tags;
-
-  TermInfo({this.uid, this.text});
+  List<TermInfo> tags;
 
   TermInfo.fromJson(Map<String, dynamic> json,
       {int audioTotal = 0, int visualTotal = 0}) {
-    print(json.toString());
+    //print(json.toString());
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
 
     transcript = multilangText(json, 'transcript');
-    tags = mapList(json, 'tag', (t) => Tag.fromJson(t));
+    tags = mapList(json, 'tag', (t) => TermInfo.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
@@ -136,27 +123,36 @@ class TermInfo {
 
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
-    print(visualItems.length);
-    if(visualItems.length == 0)
-      {
-        if(tags[0].text['en']=="phrase" || tags[0].text['en']=="idiom")
-          {
-            List<MediaInfo> m = new List();
-            m.add(new MediaInfo(url: "https://images.pexels.com/photos/207301/pexels-photo-207301.jpeg?cs=srgb&dl=hd-wallpaper-ivy-wall-207301.jpg&fm=jpg"));
-            visual = new ListResult<MediaInfo>(m, 1);
-
-          }
-          else
-        {
-          List<MediaInfo> m = new List();
-          m.add(new MediaInfo(
-              url: "https://ak2.picdn.net/shutterstock/videos/3740342/thumb/12.jpg"));
-          visual = new ListResult<MediaInfo>(m, 1);
-        }
+    if(tags.length>0)
+      print(tags[0].text.toString()+" "+text);
+    if (visual.total == 0) {
+      if (tags.length>0 && isIdiom(tags)) {
+        List<MediaInfo> m = new List();
+        m.add(new MediaInfo(
+            url:
+                "https://images.pexels.com/photos/207301/pexels-photo-207301.jpeg?cs=srgb&dl=hd-wallpaper-ivy-wall-207301.jpg&fm=jpg"));
+        visual = new ListResult<MediaInfo>(m, 1);
+      } else {
+        List<MediaInfo> m = new List();
+        m.add(new MediaInfo(
+            url:
+                "https://ak2.picdn.net/shutterstock/videos/3740342/thumb/12.jpg"));
+        visual = new ListResult<MediaInfo>(m, 1);
       }
+    }
   }
 }
-
+bool isIdiom(List<TermInfo> tags)
+{
+  for(int i=0;i<tags.length;i++)
+    {
+      if(tags[i].text == "idiom" || tags[i].text == "phrase")
+        {
+          return true;
+        }
+    }
+  return false;
+}
 List<T> mapList<T>(
     Map<String, dynamic> json, String key, T mapper(Map<String, dynamic> val)) {
   if (!json.containsKey(key)) {

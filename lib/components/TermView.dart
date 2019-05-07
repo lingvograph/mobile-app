@@ -187,20 +187,15 @@ class _TermState extends State<TermView> {
     );
   }
 
-  Widget tagFromTerm(Tag t) {
-    return InkWell(
-      child: Container(
-          padding: EdgeInsets.all(3),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
-          child: Text(
-            "#" + t.text[appState.user.firstLang] + " ",
-            style: TextStyle(color: Colors.blue),
-          )),
-      onTap: () {
-        widget.onSearch(t.text[appState.user.firstLang]);
-      },
-    );
+  Container tagFromTerm(TermInfo t) {
+    return Container(
+        padding: EdgeInsets.all(3),
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
+        child: Text(
+          "#" + (t.text ?? "") + " ",
+          style: TextStyle(color: Colors.blue),
+        ));
   }
 
   void expandTags() {
@@ -212,7 +207,9 @@ class _TermState extends State<TermView> {
   void imageOnTap() {
     if (widget.tappable) {
       // TODO view visual, not audio
-      view(appState.user.uid, term.audio.items[0].uid);
+      if (term.audio.items.isNotEmpty) {
+        view(appState.user.uid, term.audio.items[0].uid);
+      }
       var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
       Navigator.push(context, route);
     }
