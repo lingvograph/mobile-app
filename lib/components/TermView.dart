@@ -39,6 +39,7 @@ class _TermState extends State<TermView> {
 
   @override
   Widget build(BuildContext context) {
+    maxTagHeight = 50*term.tags.length.toDouble()/3;
     var firstLang = appState.user?.firstLang ?? 'ru';
     var text1 = term.text ?? '';
     var text2 = firstOrElse(
@@ -187,15 +188,19 @@ class _TermState extends State<TermView> {
     );
   }
 
-  Container tagFromTerm(TermInfo t) {
-    return Container(
-        padding: EdgeInsets.all(3),
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20), color: Colors.grey[200]),
-        child: Text(
-          "#" + (t.text ?? "") + " ",
-          style: TextStyle(color: Colors.blue),
-        ));
+  Widget tagFromTerm(TermInfo t) {
+    return Padding(
+      padding: EdgeInsets.all(3),
+      child: Container(
+          padding: EdgeInsets.all(3),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20), color: Colors.grey[200],
+          boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[400],blurRadius: 2)]),
+          child: Text(
+            "#" + (t.text ?? "") + " ",
+            style: TextStyle(color: Colors.blue),
+          )),
+    );
   }
 
   void expandTags() {
