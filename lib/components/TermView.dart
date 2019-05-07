@@ -273,7 +273,7 @@ class _TermState extends State<TermView> {
 
   Widget makeImage(MediaInfo visual) {
     return new Container(
-      padding: new EdgeInsets.only(left: 16.0, bottom: 8.0, right: 16.0),
+      padding: new EdgeInsets.only(left: 16.0,  right: 16.0),
       decoration: new BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         border: new Border.all(color: Colors.grey, width: 2),

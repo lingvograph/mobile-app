@@ -114,7 +114,7 @@ class TermDetailState extends State<TermDetail> {
             padding: EdgeInsets.only(top: 10),
             child: TermView(term: term, tappable: false),
           ),
-          new AudioList(term, fetchData),
+          term.audio.items.length>0?new AudioList(term, fetchData):SizedBox(height: 10,),
           RadialAddButton,
         ],
       ),
@@ -131,7 +131,7 @@ class TermDetailState extends State<TermDetail> {
     );
     print("You selected camera image : " + cameraFile.path);
     setState(() {});
-    
+
   }
 
   void openGalery() async
