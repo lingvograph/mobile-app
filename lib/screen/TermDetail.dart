@@ -69,7 +69,7 @@ class TermDetailState extends State<TermDetail> {
 
   void openAddAudio() {
     print("audio open!");
-    var route = MaterialPageRoute(builder: (_) => new RecordAudioScreen());
+    var route = MaterialPageRoute(builder: (_) => new RecordAudioScreen(term: term,));
     Navigator.pushReplacement(context, route);
   }
 
@@ -135,20 +135,7 @@ class TermDetailState extends State<TermDetail> {
     );
     if (cameraFile != null) {
       print("You selected camera image : " + cameraFile.path);
-      List<int> bytes = cameraFile.readAsBytesSync();
-
-      // TODO link to current term
-      var uuid = new Uuid();
-      final user = appData.appState.user;
-      String datauid = uuid.v4();
-      final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
-
-      var res = await upload("$remotePath", 'visual/jpeg', bytes);
-      TermUpdate tup = new TermUpdate();
-      tup.imageUid = res.uid;
-      print(tup.imageUid);
-      var res2 = await upadteTerm(term.uid, tup);
-      print(res2.toString());
+      uploadPhoto(cameraFile);
     } else {
       print("no data");
     }
@@ -165,23 +152,27 @@ class TermDetailState extends State<TermDetail> {
     );
     if (galleryFile != null) {
       print("You selected gallery image : " + galleryFile.path);
-      List<int> bytes = galleryFile.readAsBytesSync();
-
-      // TODO link to current term
-      var uuid = new Uuid();
-      final user = appData.appState.user;
-      String datauid = uuid.v4();
-      final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
-
-      var res = await upload("$remotePath", 'visual/jpeg', bytes);
-      TermUpdate tup = new TermUpdate();
-      tup.imageUid = res.uid;
-      print(tup.imageUid);
-      var res2 = await upadteTerm(term.uid, tup);
-      print(res2.toString());
+      uploadPhoto(galleryFile);
     } else {
       print("no data");
     }
     setState(() {});
+  }
+  void uploadPhoto(File f) async
+  {
+    List<int> bytes = f.readAsBytesSync();
+
+    // TODO link to current term
+    var uuid = new Uuid();
+    final user = appData.appState.user;
+    String datauid = uuid.v4();
+    final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
+
+    var res = await upload("$remotePath", 'visual/jpeg', bytes);
+    TermUpdate tup = new TermUpdate();
+    tup.imageUid = res.uid;
+    print(tup.imageUid);
+    var res2 = await upadteTerm(term.uid, tup);
+    print(res2.toString());
   }
 }

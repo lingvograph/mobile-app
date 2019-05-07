@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/InputFieldDecoration.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sound/flutter_sound.dart';
@@ -14,6 +15,8 @@ import 'package:memoapp/api/api.dart';
 import 'package:uuid/uuid.dart';
 
 class RecordAudioScreen extends StatefulWidget {
+  TermInfo term;
+  RecordAudioScreen({this.term});
   @override
   _RecordAudioScreen createState() => _RecordAudioScreen();
 }
@@ -33,7 +36,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
   double slider_current_position = 0.0;
   double max_duration = 1.0;
   String path;
-
+  String way;
   @override
   void initState() {
     super.initState();
@@ -47,7 +50,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
   void startRecorder() async {
     try {
       String path = await flutterSound.startRecorder(null);
-
+      way = path;
       /*
       /storage/emulated/0/default.mp4 вот такой путь у записи
       */
@@ -104,12 +107,12 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
   void startPlayer() async {
     _recorderTxt = '00:00:00';
     _playerTxt = '00:00:00';
-    path = await flutterSound.startPlayer(null);
+    String path = await flutterSound.startPlayer(null);
 
     await flutterSound.setVolume(1.0);
 
     // TODO upload should be initiated by save button
-    uploadAudio(path);
+    //uploadAudio(path);
 
     try {
       _playerSubscription = flutterSound.onPlayerStateChanged.listen((e) {
@@ -166,17 +169,23 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
     print('seekToPlayer: $result');
   }
 
-  void uploadAudio(String path) {
+  void uploadAudio(String path) async{
     print('uploadFile: $path');
     File f = new File(path);
+
     List<int> bytes = f.readAsBytesSync();
 
-    // TODO link to current term
     var uuid = new Uuid();
     final user = appData.appState.user;
-    final remotePath = "user/${user.uid}/audio/${uuid.v4()}.mp3";
+    String dataUid = uuid.v4();
+    final remotePath = "user/${user.uid}/audio/${dataUid}.mp3";
 
-    upload("$remotePath", 'audio/mpeg', bytes);
+    var res = await upload("$remotePath", 'aduio/mpeg', bytes);
+    TermUpdate tup = new TermUpdate();
+    tup.audioUid = res.uid;
+    print(tup.imageUid);
+    var res2 = await upadteTerm(widget.term.uid, tup);
+    print(res2.toString());
   }
 
   @override
@@ -353,7 +362,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
                     size: 40,
                   ),
                   onPressed: () {
-                    uploadAudio(path);
+                    uploadAudio(way);
                   },
                 ),
               )
@@ -373,7 +382,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
           Padding(
             padding: EdgeInsets.all(10),
           ),
-          audioRecordName,
+          //audioRecordName,
           Padding(
             padding: EdgeInsets.all(10),
           ),
