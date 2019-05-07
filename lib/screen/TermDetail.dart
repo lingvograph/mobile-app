@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:uuid/uuid.dart';
 
 typedef SearchCallback = void Function(String searchString);
 
@@ -72,7 +73,6 @@ class TermDetailState extends State<TermDetail> {
     Navigator.pushReplacement(context, route);
   }
 
-
   @override
   Widget build(BuildContext context) {
     if (term == null) {
@@ -114,7 +114,11 @@ class TermDetailState extends State<TermDetail> {
             padding: EdgeInsets.only(top: 10),
             child: TermView(term: term, tappable: false),
           ),
-          term.audio.items.length>0?new AudioList(term, fetchData):SizedBox(height: 10,),
+          term.audio.items.length > 0
+              ? new AudioList(term, fetchData)
+              : SizedBox(
+                  height: 10,
+                ),
           RadialAddButton,
         ],
       ),
@@ -129,13 +133,15 @@ class TermDetailState extends State<TermDetail> {
       //maxHeight: 50.0,
       //maxWidth: 50.0,
     );
-    print("You selected camera image : " + cameraFile.path);
+    if (cameraFile!= null) {
+      print("You selected camera image : " + cameraFile.path);
+    } else {
+      print("no data");
+    }
     setState(() {});
-
   }
 
-  void openGalery() async
-  {
+  void openGalery() async {
     File galleryFile;
 
     galleryFile = await ImagePicker.pickImage(
@@ -143,7 +149,23 @@ class TermDetailState extends State<TermDetail> {
       // maxHeight: 50.0,
       // maxWidth: 50.0,
     );
-    print("You selected gallery image : " + galleryFile.path);
+    if(galleryFile!=null)
+      {
+        print("You selected gallery image : " + galleryFile.path);
+        List<int> bytes = galleryFile.readAsBytesSync();
+
+        // TODO link to current term
+        var uuid = new Uuid();
+        final user = appData.appState.user;
+        final remotePath = "user/${user.uid}/visual/${uuid.v4()}.jpeg";
+
+        var res = await upload("$remotePath", 'visual/jpeg', bytes);
+        print(res.path);
+      }
+    else
+      {
+        print("no data");
+      }
     setState(() {});
   }
 }

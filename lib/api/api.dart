@@ -140,6 +140,7 @@ Future<dynamic> query(String query) async {
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result =
       await postData('/api/file/$path', body, contentType: contentType);
+  print(result.toString());
   return MediaInfo.fromJson(result);
 }
 
