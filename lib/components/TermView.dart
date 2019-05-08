@@ -28,7 +28,8 @@ class _TermState extends State<TermView> {
   int _current = 0;
   double tagsBarHeight = 0;
   double maxTagHeight = 30;
-
+  double width;
+  double imgH;
   AppState get appState {
     return appData.appState;
   }
@@ -38,7 +39,15 @@ class _TermState extends State<TermView> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
+  @override
   Widget build(BuildContext context) {
+    width = MediaQuery.of(context).size.width;
+    imgH = width/2;
     maxTagHeight = 50*term.tags.length.toDouble()/3;
     var firstLang = appState.user?.firstLang ?? 'ru';
     var text1 = term.text ?? '';
@@ -251,13 +260,13 @@ class _TermState extends State<TermView> {
     if (images.isEmpty) {
       images = new List<MediaInfo>();
       final placeholderURL =
-          'https://imgplaceholder.com/420x320/ff7f7f/333333/fa-image';
+          'https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg';
       images.add(new MediaInfo(url: placeholderURL));
     }
     return images.length == 1
         ? makeImage(images.first)
         : CarouselSlider(
-            //height: 500.0,
+            height: imgH,
             viewportFraction: 1.0,
             aspectRatio: 2.0,
             enlargeCenterPage: true,

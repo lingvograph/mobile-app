@@ -109,7 +109,8 @@ class TermInfo {
 
   TermInfo.fromJson(Map<String, dynamic> json,
       {int audioTotal = 0, int visualTotal = 0}) {
-    //print(json.toString());
+    print(json.toString());
+
     uid = json['uid'];
     lang = json['lang'];
     text = json['text'];
@@ -136,7 +137,7 @@ class TermInfo {
         List<MediaInfo> m = new List();
         m.add(new MediaInfo(
             url:
-                "https://ak2.picdn.net/shutterstock/videos/3740342/thumb/12.jpg"));
+                "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg"));
         visual = new ListResult<MediaInfo>(m, 1);
       }
     }

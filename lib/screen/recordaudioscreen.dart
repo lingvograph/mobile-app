@@ -16,7 +16,9 @@ import 'package:uuid/uuid.dart';
 
 class RecordAudioScreen extends StatefulWidget {
   TermInfo term;
+
   RecordAudioScreen({this.term});
+
   @override
   _RecordAudioScreen createState() => _RecordAudioScreen();
 }
@@ -35,8 +37,8 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
 
   double slider_current_position = 0.0;
   double max_duration = 1.0;
-  String path;
   String way;
+
   @override
   void initState() {
     super.initState();
@@ -84,8 +86,8 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
 
   void stopRecorder() async {
     try {
-      path = await flutterSound.stopRecorder();
-      print('stopRecorder: $path');
+      String path = await flutterSound.stopRecorder();
+      //print('stopRecorder: $path');
 
       if (_recorderSubscription != null) {
         _recorderSubscription.cancel();
@@ -169,7 +171,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
     print('seekToPlayer: $result');
   }
 
-  void uploadAudio(String path) async{
+  void uploadAudio(String path) async {
     print('uploadFile: $path');
     File f = new File(path);
 
@@ -220,18 +222,18 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
       ),
     );
     var recordDuration = Container(
-                padding: EdgeInsets.all(10),
-                child: Text(
-                  this._recorderTxt,
-                  style: TextStyle(
-                    fontSize: 15.0,
-                    color: Colors.black,
-                  ),
-                ),
-              );
+      padding: EdgeInsets.all(10),
+      child: Text(
+        this._recorderTxt,
+        style: TextStyle(
+          fontSize: 15.0,
+          color: Colors.black,
+        ),
+      ),
+    );
     var recordAudioBtn = Container(
-      width: 100.0,
-      height: 80.0,
+      width: 130.0,
+      height: 120.0,
       child: ClipOval(
         child: FlatButton(
           onPressed: () {
@@ -247,11 +249,13 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
               AnimatedCrossFade(
                   firstChild: Icon(
                     FontAwesomeIcons.microphone,
-                    color: Colors.blue,
+                    color: Colors.grey[500],
+                    size: 50,
                   ),
                   secondChild: Icon(
-                    FontAwesomeIcons.microphoneSlash,
+                    FontAwesomeIcons.microphone,
                     color: Colors.red,
+                    size: 50,
                   ),
                   crossFadeState: _isRecording
                       ? CrossFadeState.showSecond
@@ -264,110 +268,101 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
       ),
     );
     var playProgressBar = Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(top: 60.0, bottom: 16.0),
-                child: Text(
-                  this._playerTxt,
-                  style: TextStyle(
-                    fontSize: 28.0,
-                    color: Colors.black,
-                  ),
-                ),
-              ),
-            ],
-          );
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: <Widget>[
+        Container(
+          margin: EdgeInsets.only(top: 60.0, bottom: 16.0),
+          child: Text(
+            this._playerTxt,
+            style: TextStyle(
+              fontSize: 28.0,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
+    );
     var playBtn = Container(
-                    width: 56.0,
-                    height: 56.0,
-                    child: ClipOval(
-                      child: FlatButton(
-                        onPressed: () {
-                          startPlayer();
-                        },
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.play_circle_outline,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                  );
+      width: 56.0,
+      height: 56.0,
+      child: ClipOval(
+        child: FlatButton(
+          onPressed: () {
+            startPlayer();
+          },
+          padding: EdgeInsets.all(8.0),
+          child: Icon(
+            FontAwesomeIcons.playCircle,
+            size: 30,
+          ),
+        ),
+      ),
+    );
     var pauseBtn = Container(
-                    width: 56.0,
-                    height: 56.0,
-                    child: ClipOval(
-                      child: FlatButton(
-                        onPressed: () {
-                          pausePlayer();
-                        },
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.pause_circle_outline,
-                          size: 40,
-                        ),
-                      ),
-                    ),
-                  );
+      width: 56.0,
+      height: 56.0,
+      child: ClipOval(
+        child: FlatButton(
+          onPressed: () {
+            pausePlayer();
+          },
+          padding: EdgeInsets.all(8.0),
+          child: Icon(
+            FontAwesomeIcons.pauseCircle,
+            size: 40,
+          ),
+        ),
+      ),
+    );
     var stopBtn = Container(
-                    width: 56.0,
-                    height: 56.0,
-                    child: ClipOval(
-                      child: FlatButton(
-                        onPressed: () {
-                          stopPlayer();
-                        },
-                        padding: EdgeInsets.all(8.0),
-                        child: Icon(
-                          Icons.stop,
-                          size: 30,
-                        ),
-                      ),
-                    ),
-                  );
+      width: 56.0,
+      height: 56.0,
+      child: ClipOval(
+        child: FlatButton(
+          onPressed: () {
+            stopPlayer();
+          },
+          padding: EdgeInsets.all(8.0),
+          child: Icon(
+            FontAwesomeIcons.stopCircle,
+            size: 30,
+          ),
+        ),
+      ),
+    );
     var playDuration = Container(
-                      height: 56.0,
-                      child: Slider(
-                          value: slider_current_position,
-                          min: 0.0,
-                          max: max_duration,
-                          onChanged: (double value) async {
-                            await flutterSound.seekToPlayer(value.toInt());
-                          },
-                          divisions: max_duration.toInt()));
-    var sendRecordBtn = Stack(
-            alignment: Alignment(-0.8, 0),
-            children: <Widget>[
-              Container(
-                width: 80,
-                height: 80,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: Colors.grey[200],
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(color: Colors.grey[500], blurRadius: 5)
-                    ]),
-                padding: EdgeInsets.only(top: 10),
-                alignment: Alignment(-0.8, 0),
-              ),
-              Positioned(
-                top: 10,
-                left: 45,
-                child: IconButton(
-                  icon: Icon(
-                    FontAwesomeIcons.upload,
-                    color: Colors.blue,
-                    size: 40,
-                  ),
-                  onPressed: () {
-                    uploadAudio(way);
-                  },
-                ),
-              )
-            ],
-          );
+        height: 56.0,
+        child: Slider(
+            value: slider_current_position,
+            min: 0.0,
+            max: max_duration,
+            onChanged: (double value) async {
+              await flutterSound.seekToPlayer(value.toInt());
+            },
+            divisions: max_duration.toInt()));
+    var sendRecordBtn = Material(
+        child: Ink(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey[500], width: 2.0),
+        color: Colors.grey[200],
+        shape: BoxShape.circle,
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(1000.0),
+        onTap: () {
+          uploadAudio(way);
+        },
+        child: Padding(
+          padding: EdgeInsets.all(20.0),
+          child: Icon(
+            FontAwesomeIcons.paperPlane,
+            size: 30.0,
+            color: Colors.black,
+          ),
+        ),
+      ),
+    ));
     return Scaffold(
       appBar: AppBar(
         title: new Row(
@@ -388,30 +383,34 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
           ),
           Row(
             children: <Widget>[
-              recordText,
+              //recordText,
               recordAudioBtn,
             ],
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
           ),
-          playProgressBar,
+
           Padding(
             padding: EdgeInsets.only(left: 20, right: 20),
             child: Container(
               alignment: Alignment(0, 0),
               padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                  boxShadow: <BoxShadow>[
-                    BoxShadow(color: Colors.grey[500], blurRadius: 5)
-                  ],
-                  color: Colors.grey[100],
-                  borderRadius: BorderRadius.circular(20)),
               child: Row(
                 children: <Widget>[
-                  playBtn,
-                  pauseBtn,
-                  stopBtn,
-                  playDuration
+                  Column(
+                    children: <Widget>[
+                      playProgressBar,
+                      Row(
+                        children: <Widget>[
+                          playBtn,
+                          pauseBtn,
+                          stopBtn,
+                        ],
+                      )
+                    ],
+                  )
+
+                  //playDuration
                 ],
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
