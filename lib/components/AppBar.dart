@@ -58,7 +58,7 @@ class SearchBtnState extends State<SearchBtn> {
                         },
                         tooltip: 'Search',
                       )),
-                  duration: Duration(microseconds: 1000),
+                  duration: Duration(milliseconds: 400),
                   secondCurve: Curves.elasticIn,
                   crossFadeState: mode
                       ? CrossFadeState.showFirst

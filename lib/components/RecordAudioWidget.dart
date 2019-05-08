@@ -7,10 +7,13 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:uuid/uuid.dart';
 
 /*Widget used to decorate input fields with rounded and fill it with grey color*/
 class RecordAudioWidget extends StatefulWidget {
+  TermInfo term;
+  RecordAudioWidget({this.term});
   @override
   _RecordState createState() => _RecordState();
 }
@@ -160,17 +163,24 @@ class _RecordState extends State<RecordAudioWidget> {
     print('seekToPlayer: $result');
   }
 
-  void uploadAudio(String path) {
+  void uploadAudio(String path) async{
     print('uploadFile: $path');
     File f = new File(path);
+
     List<int> bytes = f.readAsBytesSync();
 
-    // TODO link to current term
     var uuid = new Uuid();
     final user = appData.appState.user;
-    final remotePath = "user/${user.uid}/audio/${uuid.v4()}.mp3";
+    String dataUid = uuid.v4();
+    final remotePath = "user/${user.uid}/audio/${dataUid}.mp3";
 
-    upload("$remotePath", 'audio/mpeg', bytes);
+    var res = await upload("$remotePath", 'aduio/mpeg', bytes);
+    TermUpdate tup = new TermUpdate();
+    tup.imageUid = res.uid;
+    print(tup.imageUid);
+    var res2 = await upadteTerm(widget.term.uid, tup);
+    print(res2.toString());
+
   }
 
   @override

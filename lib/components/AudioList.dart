@@ -35,7 +35,7 @@ class _AudioListState extends State<AudioList> {
         padding: EdgeInsets.only(top: 10, left: 15, right: 15, bottom: 10),
         child: Container(
           padding: EdgeInsets.only(top: 10),
-          decoration: BoxDecoration(
+          decoration: BoxDecoration(boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[400], blurRadius: 10, offset: Offset(0, 0))],
               color: Colors.grey[100], borderRadius: BorderRadius.circular(10)),
           child: new Column(
             children: <Widget>[
@@ -66,27 +66,45 @@ class LoadedAudio extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var userId = appState.user.uid;
-    return Padding(
-      padding: EdgeInsets.only(top: 4, left: 20, right: 20),
-      child: Container(
-          decoration: BoxDecoration(
-              color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: EdgeInsets.only(left: 2, right: 10),
-            child: Row(
-              children: <Widget>[
-                IconButton(
+    var playBtn = IconButton(
                     icon: Icon(
                       Icons.play_arrow,
                       size: 25,
                     ),
-                    onPressed: playSound),
-                Column(
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(top: 10),
-                    ),
-                    new Row(
+                    onPressed: playSound);
+    var dislikes = Text(
+                          audio.dislikes.toString(),
+                          style: TextStyle(fontSize: 13),
+                        );
+    var dislikeBtn = IconButton(
+                          icon: Icon(
+                            Icons.thumb_down,
+                            size: 15,
+                          ),
+                          onPressed: () async {
+                            try {
+                              await dislike(userId, audio.uid);
+                              refresh();
+                            } catch (err) {
+                              // TODO display error snackbar
+                            }
+                          },
+                        );
+    var likeBtn = IconButton(
+                          icon: Icon(
+                            Icons.thumb_up,
+                            size: 15,
+                          ),
+                          onPressed: () async {
+                            try {
+                              await like(userId, audio.uid);
+                              refresh();
+                            } catch (err) {
+                              // TODO display error snackbar
+                            }
+                          },
+                        );
+    var spellerInfo = new Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
@@ -101,51 +119,40 @@ class LoadedAudio extends StatelessWidget {
                           style: TextStyle(color: Colors.grey, fontSize: 13),
                         )
                       ],
+                    );
+    var likes = Text(
+                          "7 votes",
+                          style: TextStyle(fontSize: 13),
+                        );
+    return Padding(
+      padding: EdgeInsets.only(top: 4, left: 20, right: 20),
+      child: Container(
+          decoration: BoxDecoration(
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[500], blurRadius: 4)],
+              color: Colors.grey[200], borderRadius: BorderRadius.circular(10)),
+          child: Padding(
+            padding: EdgeInsets.only(left: 2, right: 10),
+            child: Row(
+              children: <Widget>[
+                playBtn,
+                Column(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.only(top: 10),
                     ),
+                    spellerInfo,
                     new Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        Text(
-                          "7 votes",
-                          style: TextStyle(fontSize: 13),
-                        ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.thumb_up,
-                            size: 15,
-                          ),
-                          onPressed: () async {
-                            try {
-                              await like(userId, audio.uid);
-                              refresh();
-                            } catch (err) {
-                              // TODO display error snackbar
-                            }
-                          },
-                        ),
+                        likes,
+                        likeBtn,
                         Text(
                           audio.likes.toString(),
                           style: TextStyle(fontSize: 13),
                         ),
-                        IconButton(
-                          icon: Icon(
-                            Icons.thumb_down,
-                            size: 15,
-                          ),
-                          onPressed: () async {
-                            try {
-                              await dislike(userId, audio.uid);
-                              refresh();
-                            } catch (err) {
-                              // TODO display error snackbar
-                            }
-                          },
-                        ),
-                        Text(
-                          audio.dislikes.toString(),
-                          style: TextStyle(fontSize: 13),
-                        ),
+                        dislikeBtn,
+                        dislikes,
                       ],
                     ),
                   ],

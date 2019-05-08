@@ -140,6 +140,7 @@ Future<dynamic> query(String query) async {
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result =
       await postData('/api/file/$path', body, contentType: contentType);
+  print(result.toString());
   return MediaInfo.fromJson(result);
 }
 
@@ -199,7 +200,7 @@ Future<dynamic> dislike(String userId, String objectId) {
 }
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
-    {TermFilter filter = null}) async {
+    {TermFilter filter}) async {
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: TermQueryKind.termList,
@@ -215,6 +216,7 @@ Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
 }
 
 Future<TermInfo> fetchAudioList(String termUid, int offset, int limit) async {
+
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: TermQueryKind.audioList, termUid: termUid, range: range);

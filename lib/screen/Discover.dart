@@ -62,8 +62,7 @@ class DiscoverState extends State<DiscoverScreen> {
       home: DefaultTabController(
           length: 3,
           child: Scaffold(
-            /*Тут я, наверно, не очень хорошо делаю, передавая всё что есть в шапку,
-             но по другому не знаю как заставить это работать, потому что нужно делать setstate менно от State*/
+
             appBar: buildAppBar(context, doSearch),
             bottomNavigationBar: new TabBar(
               tabs: makeTabs(),
@@ -91,6 +90,14 @@ class DiscoverState extends State<DiscoverScreen> {
     setState(() {
       total = result.total;
       terms.addAll(result.items);
+      print(total.toString());
+      if(total == 0)
+        {
+          searchString = "";
+          terms.clear();
+          fetchPage();
+          //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
+        }
     });
   }
 
@@ -131,8 +138,7 @@ class DiscoverState extends State<DiscoverScreen> {
     ].toList();
   }
 
-  /*Ладно, на русском коментирую
-  * Тут подключаю виджет(на самом деле экран) записи аудио*/
+
   List<Widget> makeTabViews() {
     return [
       makeListView(),
@@ -146,7 +152,7 @@ class DiscoverState extends State<DiscoverScreen> {
         controller: scrollController,
         itemCount: terms.length,
         itemBuilder: (BuildContext context, int index) {
-          return new TermView(terms[index]);
+          return new TermView(term: terms[index],);
         });
   }
 }
