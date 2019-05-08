@@ -1,4 +1,3 @@
-import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/model.dart';
 
 bool isWord(String s) {
