@@ -200,7 +200,7 @@ Future<dynamic> dislike(String userId, String objectId) {
 }
 
 Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
-    {TermFilter filter = null}) async {
+    {TermFilter filter}) async {
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: TermQueryKind.termList,

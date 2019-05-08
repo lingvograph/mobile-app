@@ -83,8 +83,9 @@ class MediaInfo {
     views = json.containsKey('views') ? json['views'] : 0;
     likes = json.containsKey('likes') ? json['likes'] : 0;
     dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
-    createdAt =
-        json.containsKey('created_at') ? parseTime(json['created_at']) : null;
+    createdAt = json.containsKey('created_at')
+        ? parseTime(json['created_at'])
+        : null;
     author = json.containsKey('created_by')
         ? UserInfo.fromJson(json['created_by'][0])
         : UserInfo.fromJson({
@@ -124,6 +125,7 @@ class TermInfo {
 
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
+    // TODO review block below
     if(tags.length>0)
       print(tags[0].text.toString()+" "+text);
     if (visual.total == 0) {
