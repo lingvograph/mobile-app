@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:memoapp/api/api.dart';
 import 'package:memoapp/components/InputFieldDecoration.dart';
 
 typedef SearchCallback = void Function(String searchString);
@@ -17,9 +18,18 @@ class SearchBtnState extends State<SearchBtn> {
   double width = 0;
   Color c = Colors.black;
   String searchText = "";
+  List<String> tags;
 
   get onSearch {
     return widget.onSearch;
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    tags = new List();
+    getTagList();
   }
 
   @override
@@ -36,6 +46,21 @@ class SearchBtnState extends State<SearchBtn> {
                   onChanged: (text) {
                     //debugPrint(text);
                     searchText = text;
+                    if (searchText.contains('#')) {
+                      print('dies');
+                      List<String> val = getSelected(text);
+                      if (val.length == 0) {
+                        print('no hit');
+                        setState(() {
+                          selectedDropDownValues.clear();
+                          //selectedDropDownValues.add('');
+                        });
+                      } else {
+                        setState(() {
+                          selectedDropDownValues = val;
+                        });
+                      }
+                    }
                   },
                 ),
                 AnimatedCrossFade(
@@ -64,6 +89,9 @@ class SearchBtnState extends State<SearchBtn> {
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
                 ),
+
+
+
               ],
             ),
           ),
@@ -121,17 +149,87 @@ class SearchBtnState extends State<SearchBtn> {
           duration: Duration(milliseconds: 300),
           firstCurve: Curves.elasticInOut,
           secondCurve: Curves.elasticInOut,
-        )
+        ),
+        selectedDropDownValues.length == 0 ? Container() : dropdownWidget()
       ],
     );
+  }
+
+  getTagList() async {
+    var result = await getData("/api/data/tag/list");
+    var terms = result['items'] as List<dynamic>;
+    var items = terms.map((t) => tagTextFromJson(t)).toList();
+    setState(() {
+      tags = items;
+    });
+    //print(tags.toString());
+  }
+
+  String tagTextFromJson(t) {
+    return t['text'];
+  }
+
+  List<String> getSelected(String text) {
+    List<String> res = new List();
+    print(tags.toString());
+    for (int i = 0; i < tags.length; i++) {
+      //print(text+" "+text.replaceAll('#', ''));
+      if (text.length != 1 && tags[i].contains(text.replaceAll('#', ''))) {
+        res.add(tags[i]);
+      }
+    }
+    return res;
   }
 }
 
 buildAppBar(BuildContext context, SearchCallback search) {
   return AppBar(
     title: Text('Learn'),
-    actions: <Widget>[
-      SearchBtn(search),
-    ],
+    actions: <Widget>[SearchBtn(search)],
+  );
+}
+
+List<String> selectedDropDownValues = [
+  "One",
+  "Two",
+  "Three",
+  "Four",
+  "Five"
+]; //The list of values we want on the dropdown
+String _currentlySelected = "";
+
+Widget dropdownWidget() {
+  return Container(
+    width: 100,
+    child: DropdownButton(
+      //map each value from the lIst to our dropdownMenuItem widget
+      items: selectedDropDownValues
+          .map((value) => DropdownMenuItem(
+        child: Text(value),
+        value: value,
+      ))
+          .toList(),
+      onChanged: (String value) {
+        //once dropdown changes, update the state of out currentValue
+
+      },
+      //this wont make dropdown expanded and fill the horizontal space
+      isExpanded: false,
+      //make default value of dropdown the first value of our list
+      value: selectedDropDownValues.first,
+    ),
+  );
+  return Container(
+    width: 100,
+    child: Stack(children: <Widget>[Column(
+      children: selectedDropDownValues
+          .map((value) => Container(
+        height: 20,
+        child: Text(value),
+      ))
+          .toList(),
+    ),  ],
+
+    ),
   );
 }

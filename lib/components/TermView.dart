@@ -30,6 +30,7 @@ class _TermState extends State<TermView> {
   double maxTagHeight = 30;
   double width;
   double imgH;
+
   AppState get appState {
     return appData.appState;
   }
@@ -42,13 +43,13 @@ class _TermState extends State<TermView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
   }
+
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
-    imgH = width/2;
-    maxTagHeight = 50*term.tags.length.toDouble()/3;
+    imgH = width / 2;
+    maxTagHeight = 50 * term.tags.length.toDouble() / 3;
     var firstLang = appState.user?.firstLang ?? 'ru';
     var text1 = term.text ?? '';
     var text2 = firstOrElse(
@@ -65,7 +66,9 @@ class _TermState extends State<TermView> {
       left: 10,
       top: 10,
       child: Container(
-        child: new Text(text1, style: termTextStyle),
+        child: text1.length > 25
+            ? new Text(text1.substring(0, 25) + "...", style: termTextStyle)
+            : new Text(text1, style: termTextStyle),
         width: 300,
       ),
     );
@@ -179,7 +182,9 @@ class _TermState extends State<TermView> {
             constraints: new BoxConstraints.expand(
               height: 200.0,
             ),
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey, blurRadius: 5)]),
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(color: Colors.grey, blurRadius: 5)
+            ]),
             child: Stack(
               // TODO improve position of subtitles
               children: <Widget>[
@@ -203,8 +208,11 @@ class _TermState extends State<TermView> {
       child: Container(
           padding: EdgeInsets.all(3),
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20), color: Colors.grey[200],
-          boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey[400],blurRadius: 2)]),
+              borderRadius: BorderRadius.circular(20),
+              color: Colors.grey[200],
+              boxShadow: <BoxShadow>[
+                BoxShadow(color: Colors.grey[400], blurRadius: 2)
+              ]),
           child: Text(
             "#" + (t.text ?? "") + " ",
             style: TextStyle(color: Colors.blue),
@@ -271,7 +279,6 @@ class _TermState extends State<TermView> {
             aspectRatio: 2.0,
             enlargeCenterPage: true,
             scrollDirection: Axis.horizontal,
-            // good param to play with
             onPageChanged: (index) {
               setState(() {
                 _current = index;
@@ -279,15 +286,24 @@ class _TermState extends State<TermView> {
             },
             items: images.map((t) => makeImage(t)).toList());
   }
-
+  loadImg(String url)
+  {
+    var img;
+    img = new CachedNetworkImageProvider(url, errorListener: () {
+      print("failed");
+      img = CachedNetworkImageProvider(
+          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
+    });
+    return img;
+  }
   Widget makeImage(MediaInfo visual) {
     return new Container(
-      padding: new EdgeInsets.only(left: 16.0,  right: 16.0),
+      padding: new EdgeInsets.only(left: 16.0, right: 16.0),
       decoration: new BoxDecoration(
         borderRadius: BorderRadius.circular(10),
         border: new Border.all(color: Colors.grey, width: 2),
         image: new DecorationImage(
-          image: new CachedNetworkImageProvider(visual.url),
+          image: loadImg(visual.url),
           fit: BoxFit.cover,
         ),
       ),

@@ -120,6 +120,8 @@ Future<dynamic> getData(String methodPath) async {
     throw new StateError(msg);
   }
   var results = parseJSON(resp);
+  //print(results.toString());
+
   return results;
 }
 
