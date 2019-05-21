@@ -46,11 +46,12 @@ class SearchBtnState extends State<SearchBtn> {
                   onChanged: (text) {
                     //debugPrint(text);
                     searchText = text;
-                    //onSearch(searchText);
+                    if (searchText.length > 0)
+                      onSearch(searchText);
                     if (searchText.contains('#')) {
                       print('dies');
                       List<String> val = getSelected(text);
-                      if (val.length == 0) {
+                      /*if (val.length == 0) {
                         print('no hit');
                         setState(() {
                           selectedDropDownValues.clear();
@@ -60,7 +61,7 @@ class SearchBtnState extends State<SearchBtn> {
                         setState(() {
                           selectedDropDownValues = val;
                         });
-                      }
+                      }*/
                     }
                   },
                 ),
@@ -90,9 +91,6 @@ class SearchBtnState extends State<SearchBtn> {
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
                 ),
-
-
-
               ],
             ),
           ),
@@ -192,9 +190,8 @@ buildAppBar(BuildContext context, SearchCallback search) {
   );
 }
 
-List<String> selectedDropDownValues = [
-
-]; //The list of values we want on the dropdown
+List<String> selectedDropDownValues =
+    []; //The list of values we want on the dropdown
 String _currentlySelected = "";
 
 Widget dropdownWidget() {
@@ -204,13 +201,12 @@ Widget dropdownWidget() {
       //map each value from the lIst to our dropdownMenuItem widget
       items: selectedDropDownValues
           .map((value) => DropdownMenuItem(
-        child: Text(value),
-        value: value,
-      ))
+                child: Text(value),
+                value: value,
+              ))
           .toList(),
       onChanged: (String value) {
         //once dropdown changes, update the state of out currentValue
-
       },
       //this wont make dropdown expanded and fill the horizontal space
       isExpanded: false,
@@ -220,15 +216,17 @@ Widget dropdownWidget() {
   );
   return Container(
     width: 100,
-    child: Stack(children: <Widget>[Column(
-      children: selectedDropDownValues
-          .map((value) => Container(
-        height: 20,
-        child: Text(value),
-      ))
-          .toList(),
-    ),  ],
-
+    child: Stack(
+      children: <Widget>[
+        Column(
+          children: selectedDropDownValues
+              .map((value) => Container(
+                    height: 20,
+                    child: Text(value),
+                  ))
+              .toList(),
+        ),
+      ],
     ),
   );
 }

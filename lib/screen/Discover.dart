@@ -74,15 +74,42 @@ class DiscoverState extends State<DiscoverScreen> {
     );
   }
 
-  doSearch(String text) {
-    setState(() {
+  doSearch(String text) async{
+    /*setState(() {
       searchString = text;
       terms.clear();
 
       fetchPage();
-    });
-  }
+    });*/
 
+    loadBySearch(text);
+
+  }
+  loadBySearch(String t) async
+  {
+
+    var filter = new TermFilter(t);
+    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
+    print(result.items.toList().toString());
+    total = result.total;
+    if(total>0)
+    {
+      terms = new List();
+      for (int i = 0; i < result.total; i++)
+      {
+        try
+        {
+          setState(()
+          {
+            terms.add(result.items[i]);
+          });
+        }
+        catch (e)
+        {}
+      }
+    }
+    //total = 2;
+  }
   /*create new method */
   fetchPage() async {
     var filter = new TermFilter(searchString);
