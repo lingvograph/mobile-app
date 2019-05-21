@@ -77,9 +77,10 @@ class DiscoverState extends State<DiscoverScreen> {
   doSearch(String text) {
     setState(() {
       searchString = text;
-    });
-      fetchPage();
+      terms.clear();
 
+      fetchPage();
+    });
   }
 
   /*create new method */
@@ -89,16 +90,14 @@ class DiscoverState extends State<DiscoverScreen> {
 
     //print(result.toString());
     setState(() {
-      terms.clear();
       total = result.total;
       terms.addAll(result.items);
       print(total.toString());
       if(total == 0)
         {
-          print("total 0");
-          //searchString = "";
-          //terms.clear();
-          //fetchPage();
+          searchString = "";
+          terms.clear();
+          fetchPage();
           //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
         }
     });
