@@ -79,7 +79,7 @@ class _TermState extends State<TermView> {
           ? Text("")
           : new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
     );
-    var iconPlayAudio = Positioned(
+    var iconPlayAudio = term.audio.total>0?Positioned(
       left: 10,
       top: 100,
       child: InkWell(
@@ -93,9 +93,9 @@ class _TermState extends State<TermView> {
             left: 1,
             top: 1,
           )),
-    );
+    ):Container();
     var firstAudio = firstOrElse(term.audio.items, MediaInfo.empty);
-    var termInfo = Row(
+    var termInfo = term.audio.total>0?Row(
       children: <Widget>[
         IconWithShadow(
             color: Colors.grey[200],
@@ -140,10 +140,10 @@ class _TermState extends State<TermView> {
           style: termTextStyleInfo,
         ),
       ],
-    );
+    ):Container();
     var termInfoField = Positioned(
         left: 200, top: 150, child: widget.tappable ? termInfo : Text(""));
-    var showTagsIcon = Positioned(
+    var showTagsIcon = term.tags.length>0?Positioned(
       top: 160,
       left: 10,
       child: InkWell(
@@ -156,7 +156,7 @@ class _TermState extends State<TermView> {
         ),
         onTap: expandTags,
       ),
-    );
+    ):Container();
     var dotsIndicators = Container(
       alignment: Alignment(0, 1),
       child: Row(children: dots, mainAxisAlignment: MainAxisAlignment.center),

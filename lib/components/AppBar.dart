@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/InputFieldDecoration.dart';
 
 typedef SearchCallback = void Function(String searchString);
@@ -18,8 +19,8 @@ class SearchBtnState extends State<SearchBtn> {
   double width = 0;
   Color c = Colors.black;
   String searchText = "";
-  List<String> tags;
-
+  List<TermInfo> tags;
+  Color textColor = Colors.black;
   get onSearch {
     return widget.onSearch;
   }
@@ -29,7 +30,7 @@ class SearchBtnState extends State<SearchBtn> {
     // TODO: implement initState
     super.initState();
     tags = new List();
-    getTagList();
+    //getTagList();
   }
 
   @override
@@ -41,16 +42,25 @@ class SearchBtnState extends State<SearchBtn> {
             child: Stack(
               children: <Widget>[
                 new TextField(
+                  style: TextStyle(color: textColor),
                   //decoration: const InputDecoration(labelText: 'Name'),
                   keyboardType: TextInputType.text,
                   onChanged: (text) {
                     //debugPrint(text);
                     searchText = text;
                     if (searchText.length > 0)
-                      onSearch(searchText);
+                      {
+                        print("search......");
+                        onSearch(searchText);
+
+                      }
                     if (searchText.contains('#')) {
                       print('dies');
-                      List<String> val = getSelected(text);
+                      setState(() {
+                        textColor = Colors.blue;
+                      });
+                      //List<TermInfo> val = getSelected(text);
+                      
                       /*if (val.length == 0) {
                         print('no hit');
                         setState(() {
@@ -63,9 +73,15 @@ class SearchBtnState extends State<SearchBtn> {
                         });
                       }*/
                     }
+                    else
+                      {
+                        setState(() {
+                          textColor = Colors.black;
+                        });
+                      }
                   },
                 ),
-                AnimatedCrossFade(
+                /*AnimatedCrossFade(
                   firstChild: Container(
                       alignment: Alignment(1, 0),
                       child: Icon(
@@ -90,7 +106,7 @@ class SearchBtnState extends State<SearchBtn> {
                   crossFadeState: mode
                       ? CrossFadeState.showFirst
                       : CrossFadeState.showSecond,
-                ),
+                ),*/
               ],
             ),
           ),
@@ -108,14 +124,18 @@ class SearchBtnState extends State<SearchBtn> {
             onPressed: () {
               setState(() {
                 //c = Colors.red;
+                //FocusScope.of(context).requestFocus(new FocusNode());
+
                 if (mode) {
                   width = 200;
                   c = Colors.red;
                   mode = !mode;
+
                 } else if (!mode) {
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
+
                   onSearch('');
                 }
               });
@@ -154,31 +174,7 @@ class SearchBtnState extends State<SearchBtn> {
     );
   }
 
-  getTagList() async {
-    var result = await getData("/api/data/tag/list");
-    var terms = result['items'] as List<dynamic>;
-    var items = terms.map((t) => tagTextFromJson(t)).toList();
-    setState(() {
-      tags = items;
-    });
-    //print(tags.toString());
-  }
 
-  String tagTextFromJson(t) {
-    return t['text'];
-  }
-
-  List<String> getSelected(String text) {
-    List<String> res = new List();
-    print(tags.toString());
-    for (int i = 0; i < tags.length; i++) {
-      //print(text+" "+text.replaceAll('#', ''));
-      if (text.length != 1 && tags[i].contains(text.replaceAll('#', ''))) {
-        res.add(tags[i]);
-      }
-    }
-    return res;
-  }
 }
 
 buildAppBar(BuildContext context, SearchCallback search) {
