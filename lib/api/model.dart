@@ -1,5 +1,6 @@
 import 'package:memoapp/api/api_utils.dart';
 import 'package:memoapp/utils.dart';
+import 'dart:io';
 
 class ListResult<T> {
   List<T> items;
@@ -133,7 +134,7 @@ class TermInfo {
         List<MediaInfo> m = new List();
         m.add(new MediaInfo(
             url:
-                "https://images.pexels.com/photos/207301/pexels-photo-207301.jpeg?cs=srgb&dl=hd-wallpaper-ivy-wall-207301.jpg&fm=jpg"));
+                "https://s3.envato.com/files/bbae20eb-841d-4c3e-a319-2564266bd641/inline_image_preview.jpg"));
         visual = new ListResult<MediaInfo>(m, 1);
       } else {
         List<MediaInfo> m = new List();
@@ -142,6 +143,31 @@ class TermInfo {
                 "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg"));
         visual = new ListResult<MediaInfo>(m, 1);
       }
+    }
+    /*Временно буду заменять этот недоступный fa.jpg на картинку из интернета, слишком много пустых незагруженных картинок получается*/
+
+    for(int i=0;i<visual.total;i++)
+      {
+        //checkIfImageAvailible(visual.items[i].url);
+        if(visual.items[i].url == "https://imgplaceholder.com/420x320/ff7f7f/333333/fa-image")
+          {
+            visual.items[i].url = "https://t4.ftcdn.net/jpg/02/20/78/47/240_F_220784725_xK7PvAEVAZZ8M6Nv4ZvenIxBr7gTCaEz.jpg";
+          }
+      }
+  }
+
+  /* not connected Failed host lookup: (путь до картинки). Что-то я делаю не так, google.com лукапается нормально
+  * Вообще у CachedNetworkImageProvider есть функция на ошибку, и я её даже написал, но она не работает. С сетью вообще всё сложно и половина всего не работает..*/
+  checkIfImageAvailible(String url) async
+  {
+    try {
+
+      final result = await InternetAddress.lookup(url);
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print(url.toString()+' connected');
+      }
+    } on SocketException catch (e) {
+      print(url.toString()+' - not connected '+e.message.toString());
     }
   }
 }

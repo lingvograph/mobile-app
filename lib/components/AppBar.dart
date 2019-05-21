@@ -46,6 +46,7 @@ class SearchBtnState extends State<SearchBtn> {
                   onChanged: (text) {
                     //debugPrint(text);
                     searchText = text;
+                    //onSearch(searchText);
                     if (searchText.contains('#')) {
                       print('dies');
                       List<String> val = getSelected(text);
@@ -186,15 +187,13 @@ buildAppBar(BuildContext context, SearchCallback search) {
   return AppBar(
     title: Text('Learn'),
     actions: <Widget>[SearchBtn(search)],
+
+    //bottom: PreferredSize(child: Container(padding:EdgeInsets.all(20),width: 140,child: Column(children: <Widget>[Text("SDSD")],),)),
   );
 }
 
 List<String> selectedDropDownValues = [
-  "One",
-  "Two",
-  "Three",
-  "Four",
-  "Five"
+
 ]; //The list of values we want on the dropdown
 String _currentlySelected = "";
 

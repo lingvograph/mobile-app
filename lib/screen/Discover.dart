@@ -77,25 +77,28 @@ class DiscoverState extends State<DiscoverScreen> {
   doSearch(String text) {
     setState(() {
       searchString = text;
-      terms.clear();
-      fetchPage();
     });
+      fetchPage();
+
   }
 
   /*create new method */
   fetchPage() async {
     var filter = new TermFilter(searchString);
     var result = await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
+
     //print(result.toString());
     setState(() {
+      terms.clear();
       total = result.total;
       terms.addAll(result.items);
       print(total.toString());
       if(total == 0)
         {
-          searchString = "";
-          terms.clear();
-          fetchPage();
+          print("total 0");
+          //searchString = "";
+          //terms.clear();
+          //fetchPage();
           //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
         }
     });
