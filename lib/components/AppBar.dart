@@ -54,24 +54,12 @@ class SearchBtnState extends State<SearchBtn> {
                         onSearch(searchText);
 
                       }
-                    if (searchText.contains('#')) {
+                    if (searchText.length>0 && searchText[0]=="#") {
                       print('dies');
                       setState(() {
                         textColor = Colors.blue;
                       });
-                      //List<TermInfo> val = getSelected(text);
-                      
-                      /*if (val.length == 0) {
-                        print('no hit');
-                        setState(() {
-                          selectedDropDownValues.clear();
-                          //selectedDropDownValues.add('');
-                        });
-                      } else {
-                        setState(() {
-                          selectedDropDownValues = val;
-                        });
-                      }*/
+
                     }
                     else
                       {

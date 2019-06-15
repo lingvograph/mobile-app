@@ -110,8 +110,9 @@ class DiscoverState extends State<DiscoverScreen> {
     List<TermInfo> res = new List();
     for (int i = 0; i < tags.length; i++) {
 
+      print(tags[i].text==null?"null":tags[i].text);
       //print(text+" "+text.replaceAll('#', ''));
-      if (text.length != 1 && tags[i].text.contains(text.replaceAll('#', ''))) {
+      if (tags[i]!=null && tags[i].text!=null && text.length > 1 && tags[i].text.contains(text.substring(1))) {
         print(tags[i].text);
 
         res.add(tags[i]);
@@ -120,7 +121,7 @@ class DiscoverState extends State<DiscoverScreen> {
     return res;
   }
   doSearch(String text) async {
-    if (text.contains('#')) {
+    if (text[0]=="#") {
       print("by tag!");
       List<TermInfo> res = getSelected(text);
       if (res.length > 0) {

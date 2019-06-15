@@ -152,7 +152,7 @@ class _TermState extends State<TermView> {
           top: 1,
           left: 1,
           size: 50,
-          color: Colors.blue,
+          color: Colors.grey[200],
         ),
         onTap: expandTags,
       ),
