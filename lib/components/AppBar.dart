@@ -146,7 +146,7 @@ class SearchBtnState extends State<SearchBtn> {
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
-                  onSearch('');
+                  onSearch("");
                 }
               });
             },

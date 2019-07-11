@@ -10,56 +10,69 @@ import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:youtube_player/youtube_player.dart';
 
 /*Ультимативный typedef*/
 typedef SearchCallback = void Function(String searchString);
 
-class TermView extends StatefulWidget {
+class TermView extends StatefulWidget
+{
   SearchCallback onSearch;
 
   TermView({this.term, this.tappable = true, this.onSearch = null});
 
-  _TermState createState() => _TermState();
+  _TermState createState()
+  => _TermState();
   final TermInfo term;
   final bool tappable;
 }
 
-class _TermState extends State<TermView> {
+class _TermState extends State<TermView>
+{
   int _current = 0;
   double tagsBarHeight = 0;
   double maxTagHeight = 30;
   double width;
   double imgH;
 
-  AppState get appState {
+  AppState get appState
+  {
     return appData.appState;
   }
 
-  TermInfo get term {
+  TermInfo get term
+  {
     return widget.term;
   }
 
   @override
-  void initState() {
+  void initState()
+  {
     // TODO: implement initState
     super.initState();
   }
 
   @override
-  Widget build(BuildContext context) {
-    width = MediaQuery.of(context).size.width;
+  Widget build(BuildContext context)
+  {
+    width = MediaQuery
+        .of(context)
+        .size
+        .width;
     imgH = width / 2;
     maxTagHeight = 50 * term.tags.length.toDouble() / 3;
     var firstLang = appState.user?.firstLang ?? 'ru';
     var text1 = term.text ?? '';
     var text2 = firstOrElse(
-            term.translations
-                .where((t) => t.lang == firstLang)
-                .map((t) => t.text),
-            '') ??
+        term.translations
+            .where((t)
+        => t.lang == firstLang)
+            .map((t)
+        => t.text),
+        '') ??
         '';
     var trans = firstByKey(term.transcript, firstLang, true) ?? '';
-    var slider = makeSlider();
+    var slider = makeSlider(context);
 
     var dots = initDots();
     var termText1 = Positioned(
@@ -79,11 +92,13 @@ class _TermState extends State<TermView> {
           ? Text("")
           : new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
     );
-    var iconPlayAudio = term.audio.total>0?Positioned(
+    var iconPlayAudio = term.audio.total > 0
+        ? Positioned(
       left: 10,
       top: 100,
       child: InkWell(
-          onTap: () {
+          onTap: ()
+          {
             playSound();
           },
           child: IconWithShadow(
@@ -93,9 +108,11 @@ class _TermState extends State<TermView> {
             left: 1,
             top: 1,
           )),
-    ):Container();
+    )
+        : Container();
     var firstAudio = firstOrElse(term.audio.items, MediaInfo.empty);
-    var termInfo = term.audio.total>0?Row(
+    var termInfo = term.audio.total > 0
+        ? Row(
       children: <Widget>[
         IconWithShadow(
             color: Colors.grey[200],
@@ -115,7 +132,8 @@ class _TermState extends State<TermView> {
                 child: Icons.thumb_up,
                 left: 1,
                 top: 1),
-            onTap: () {
+            onTap: ()
+            {
               debugPrint(firstAudio.uid);
               like(appState.user.uid, firstAudio.uid);
             }),
@@ -132,7 +150,8 @@ class _TermState extends State<TermView> {
                 child: Icons.thumb_down,
                 left: 1,
                 top: 1),
-            onTap: () {
+            onTap: ()
+            {
               dislike(appState.user.uid, firstAudio.uid);
             }),
         Text(
@@ -140,10 +159,12 @@ class _TermState extends State<TermView> {
           style: termTextStyleInfo,
         ),
       ],
-    ):Container();
+    )
+        : Container();
     var termInfoField = Positioned(
         left: 200, top: 150, child: widget.tappable ? termInfo : Text(""));
-    var showTagsIcon = term.tags.length>0?Positioned(
+    var showTagsIcon = term.tags.length > 0
+        ? Positioned(
       top: 160,
       left: 10,
       child: InkWell(
@@ -156,20 +177,22 @@ class _TermState extends State<TermView> {
         ),
         onTap: expandTags,
       ),
-    ):Container();
+    )
+        : Container();
     var dotsIndicators = Container(
       alignment: Alignment(0, 1),
       child: Row(children: dots, mainAxisAlignment: MainAxisAlignment.center),
     );
     var tagsView = AnimatedContainer(
       alignment: Alignment(0, 0),
-      child: Wrap(children: term.tags.map((t) => tagFromTerm(t)).toList()),
+      child: Wrap(children: term.tags.map((t)
+      => tagFromTerm(t)).toList()),
       duration: Duration(milliseconds: 300),
       height: tagsBarHeight,
       width: 200,
       decoration: BoxDecoration(
           color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(5),
           boxShadow: <BoxShadow>[
             BoxShadow(
                 color: Colors.black54, offset: Offset(1, 1), blurRadius: 5)
@@ -202,50 +225,65 @@ class _TermState extends State<TermView> {
     );
   }
 
-  Widget tagFromTerm(TermInfo t) {
+  Widget tagFromTerm(TermInfo t)
+  {
     return Padding(
       padding: EdgeInsets.all(3),
-      child: Container(
-          padding: EdgeInsets.all(3),
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              color: Colors.grey[200],
-              boxShadow: <BoxShadow>[
-                BoxShadow(color: Colors.grey[400], blurRadius: 2)
-              ]),
-          child: Text(
-            "#" + (t.text ?? "") + " ",
-            style: TextStyle(color: Colors.blue),
-          )),
+      child: InkWell(
+        child: Container(
+            padding: EdgeInsets.all(3),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.grey[200],
+                boxShadow: <BoxShadow>[
+                  BoxShadow(color: Colors.grey[400], blurRadius: 2)
+                ]),
+            child: Text(
+              "#" + (t.text ?? "") + " ",
+              style: TextStyle(color: Colors.blue),
+            )),
+        onTap: null,
+      ),
     );
   }
 
-  void expandTags() {
-    setState(() {
+  void expandTags()
+  {
+    setState(()
+    {
       tagsBarHeight = tagsBarHeight == maxTagHeight ? 0 : maxTagHeight;
     });
   }
 
-  void imageOnTap() {
-    if (widget.tappable) {
+  void imageOnTap()
+  {
+    if (widget.tappable)
+    {
       // TODO view visual, not audio
-      if (term.audio.items.isNotEmpty) {
+      if (term.audio.items.isNotEmpty)
+      {
         view(appState.user.uid, term.audio.items[0].uid);
       }
-      var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
+      var route = MaterialPageRoute(builder: (_)
+      => new TermDetail(term.uid));
       Navigator.push(context, route);
     }
   }
 
-  List<Widget> initDots() {
+  List<Widget> initDots()
+  {
     var dots = new List<Widget>();
-    if (term.visual.items.length > 1) {
-      for (int i = 0; i < term.visual.items.length; i++) {
+    if (term.visual.items.length > 1)
+    {
+      for (int i = 0; i < term.visual.items.length; i++)
+      {
         double size = 8.0;
-        if (i == term.visual.items.length - 1 || i == 0) {
+        if (i == term.visual.items.length - 1 || i == 0)
+        {
           size = 5;
         }
-        if (i == _current) {
+        if (i == _current)
+        {
           size = 8;
         }
         dots.add(Container(
@@ -263,41 +301,62 @@ class _TermState extends State<TermView> {
     return dots;
   }
 
-  Widget makeSlider() {
+  Widget makeSlider(BuildContext context)
+  {
     var images = term.visual.items;
-    if (images.isEmpty) {
+    if (images.isEmpty)
+    {
       images = new List<MediaInfo>();
       final placeholderURL =
           'https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg';
       images.add(new MediaInfo(url: placeholderURL));
     }
     return images.length == 1
-        ? makeImage(images.first)
+        ? makeImage(images.first, context)
         : CarouselSlider(
-            height: imgH,
-            viewportFraction: 1.0,
-            aspectRatio: 2.0,
-            enlargeCenterPage: true,
-            scrollDirection: Axis.horizontal,
-            onPageChanged: (index) {
-              setState(() {
-                _current = index;
-              });
-            },
-            items: images.map((t) => makeImage(t)).toList());
+        height: imgH,
+        viewportFraction: 1.0,
+        aspectRatio: 2.0,
+        enlargeCenterPage: true,
+        scrollDirection: Axis.horizontal,
+        onPageChanged: (index)
+        {
+          setState(()
+          {
+            _current = index;
+          });
+        },
+        items: images.map((t)
+        => makeImage(t, context)).toList());
   }
+
   loadImg(String url)
   {
     var img;
-    img = new CachedNetworkImageProvider(url, errorListener: () {
+    img = new CachedNetworkImageProvider(url, errorListener: ()
+    {
       print("failed");
       img = CachedNetworkImageProvider(
           "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
     });
     return img;
   }
-  Widget makeImage(MediaInfo visual) {
-    return new Container(
+
+  Widget makeImage(MediaInfo visual, BuildContext context)
+  {
+    print(visual.url);
+    return visual.url.toString().contains("www.youtube.com")
+        ? Container(
+      child: YoutubePlayer(
+        //isLive: true,
+        context: context,
+        source: getTubeVideoSource("https://www.youtube.com/watch?v=JuQQM32k2mU&lc=z224t3wq2sbndbsdsacdp43bwaf2blv00dceh31rvmhw03c010c.1562517384972474"),
+        quality: YoutubeQuality.HIGH,
+        // callbackController is (optional).
+        // use it to control player on your own.
+      ),
+    )
+        : new Container(
       padding: new EdgeInsets.only(left: 16.0, right: 16.0),
       decoration: new BoxDecoration(
         borderRadius: BorderRadius.circular(10),
@@ -310,10 +369,19 @@ class _TermState extends State<TermView> {
     );
   }
 
-  void playSound() {
+  String getTubeVideoSource(String url)
+  {
+    return url.replaceAll("https://www.youtube.com/watch?v=", "");
+  }
+
+
+
+  void playSound()
+  {
     var audioPlayer = new AudioPlayer();
     var sound = firstOrElse(term.audio.items, null);
-    if (sound != null) {
+    if (sound != null)
+    {
       audioPlayer.play(sound.url);
     }
   }

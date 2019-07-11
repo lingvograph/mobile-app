@@ -17,6 +17,8 @@ import 'package:path/path.dart' show join;
 import 'package:path_provider/path_provider.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
+import 'package:youtube_player/youtube_player.dart';
+
 
 typedef SearchCallback = void Function(String searchString);
 
@@ -32,11 +34,14 @@ class TermDetail extends StatefulWidget {
 }
 
 class TermDetailState extends State<TermDetail> {
+  Widget currentPage = Container();
+  Widget switcher = Container();
   String id;
   TermInfo term;
   int _addStatus = 1;
 
   TermDetailState(this.id);
+
 
   get appState {
     return appData.appState;
@@ -46,12 +51,20 @@ class TermDetailState extends State<TermDetail> {
   void initState() {
     super.initState();
     fetchData();
+
   }
+
+
 
   fetchData() async {
     var result = await fetchAudioList(id, 0, 10);
     setState(() {
       term = result;
+      currentPage = getAudiosPage();
+      switcher = Row(
+        children: <Widget>[Text("1 "), Text("2")],
+        mainAxisAlignment: MainAxisAlignment.center,
+      );
     });
   }
 
@@ -69,8 +82,31 @@ class TermDetailState extends State<TermDetail> {
 
   void openAddAudio() {
     print("audio open!");
-    var route = MaterialPageRoute(builder: (_) => new RecordAudioScreen(term: term,));
+    var route = MaterialPageRoute(
+        builder: (_) => new RecordAudioScreen(
+              term: term,
+            ));
     Navigator.pushReplacement(context, route);
+  }
+
+  Widget getAudiosPage() {
+    return term.audio.items.length > 0
+        ? new AudioList(term, fetchData)
+        : Align(
+            child: Container(
+              width: 200,
+              child: Text(
+                "No audios yet ;)",
+                style: TextStyle(fontSize: 20, color: Colors.blue[800]),
+              ),
+              alignment: Alignment(0, 0),
+              padding: EdgeInsets.only(top: 10, bottom: 10),
+              decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: <BoxShadow>[BoxShadow(blurRadius: 5)]),
+            ),
+          );
   }
 
   @override
@@ -104,6 +140,7 @@ class TermDetailState extends State<TermDetail> {
             }),
       ],
     ));
+
     return new Scaffold(
       appBar: AppBar(
         title: Text("Detail"),
@@ -111,14 +148,22 @@ class TermDetailState extends State<TermDetail> {
       body: ListView(
         children: <Widget>[
           Padding(
-            padding: EdgeInsets.only(top: 10),
+            padding: EdgeInsets.only(top: 10, bottom: 10),
             child: TermView(term: term, tappable: false),
           ),
-          term.audio.items.length > 0
-              ? new AudioList(term, fetchData)
-              : SizedBox(
-                  height: 10,
-                ),
+          switcher,
+          currentPage,
+
+          YoutubePlayer(
+            //isLive: true,
+            hideShareButton: true,
+            context: context,
+            source: "JuQQM32k2mU&lc=z224t3wq2sbndbsdsacdp43bwaf2blv00dceh31rvmhw03c010c.1562517384972474",
+            quality: YoutubeQuality.HD,
+            // callbackController is (optional).
+            // use it to control player on your own.
+
+          ),
           RadialAddButton,
         ],
       ),
@@ -158,8 +203,8 @@ class TermDetailState extends State<TermDetail> {
     }
     setState(() {});
   }
-  void uploadPhoto(File f) async
-  {
+
+  void uploadPhoto(File f) async {
     List<int> bytes = f.readAsBytesSync();
 
     // TODO link to current term

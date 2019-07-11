@@ -121,7 +121,7 @@ class DiscoverState extends State<DiscoverScreen> {
     return res;
   }
   doSearch(String text) async {
-    if (text[0]=="#") {
+    if (text.length>0 && text[0]=="#") {
       print("by tag!");
       List<TermInfo> res = getSelected(text);
       if (res.length > 0) {
@@ -146,33 +146,48 @@ class DiscoverState extends State<DiscoverScreen> {
       }
 
     } else {
+      terms = new List();
       loadBySearch(text);
     }
   }
 
   loadBySearch(String t) async {
-    var filter = new TermFilter(t);
-    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
-    print(result.items.toList().toString());
-    if (result.total > 0) {
-      total = result.total;
-
-      terms = new List();
-      for (int i = 0; i < result.total; i++) {
-        try {
-          setState(() {
-            terms.add(result.items[i]);
-          });
-        } catch (e) {}
+    if(t.length==0)
+      {
+        fetchPage();
       }
-    } else if (result.total == 0) {
-      TermInfo t = TermInfo.fromJson(notFound);
+    else
+    {
+      var filter = new TermFilter(t);
+      var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
+      print(result.items.toList().toString());
+      if (result.total > 0)
+      {
+        total = result.total;
 
-      setState(() {
         terms = new List();
-        terms.add(t);
-        total = 1;
-      });
+        for (int i = 0; i < result.total; i++)
+        {
+          try
+          {
+            setState(()
+            {
+              terms.add(result.items[i]);
+            });
+          } catch (e)
+          {}
+        }
+      } else if (result.total == 0)
+      {
+        TermInfo t = TermInfo.fromJson(notFound);
+
+        setState(()
+        {
+          terms = new List();
+          terms.add(t);
+          total = 1;
+        });
+      }
     }
     //total = 2;
   }
