@@ -19,7 +19,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:youtube_player/youtube_player.dart';
 
-
 typedef SearchCallback = void Function(String searchString);
 
 class TermDetail extends StatefulWidget {
@@ -32,6 +31,7 @@ class TermDetail extends StatefulWidget {
     return new TermDetailState(id);
   }
 }
+
 List<IconData> images = [
   Icons.looks_one,
   Icons.looks_two,
@@ -40,11 +40,15 @@ List<IconData> images = [
 ];
 
 List<String> title = [
-  "Connection #1",
-  "Connection #2",
-  "Connection #3",
-  "Connection #4",
+  "audio",
+  "visual",
+  "translated_as",
+  "in",
+  "related",
+  "def",
+  "def_of",
 ];
+
 class TermDetailState extends State<TermDetail> {
   Widget cp = Container();
   Widget switcher = Container();
@@ -54,7 +58,6 @@ class TermDetailState extends State<TermDetail> {
 
   TermDetailState(this.id);
 
-
   get appState {
     return appData.appState;
   }
@@ -63,10 +66,7 @@ class TermDetailState extends State<TermDetail> {
   void initState() {
     super.initState();
     fetchData();
-
   }
-
-
 
   fetchData() async {
     var result = await fetchAudioList(id, 0, 10);
@@ -129,7 +129,8 @@ class TermDetailState extends State<TermDetail> {
       return Loading();
     }
 
-    PageController controller = PageController(initialPage: images.length - 1);
+    PageController controller = PageController(initialPage: title.length - 1);
+
     controller.addListener(() {
       setState(() {
         currentPage = controller.page;
@@ -176,21 +177,22 @@ class TermDetailState extends State<TermDetail> {
           //switcher,
           Stack(
             children: <Widget>[
-              CardScrollWidget(currentPage),
+              Positioned(child: CardScrollWidget(currentPage)),
               Positioned.fill(
                 child: PageView.builder(
-                  itemCount: images.length,
+                  itemCount: title.length,
                   controller: controller,
-                  reverse: true,
+                  reverse: false,
                   itemBuilder: (context, index) {
-                    return Container();
+                    return Container(
+                      child: Text(index.toString()),
+                    );
                   },
                 ),
               )
             ],
           ),
           cp,
-
 
           RadialAddButton,
         ],
@@ -250,115 +252,59 @@ class TermDetailState extends State<TermDetail> {
   }
 }
 
+var gar = 12.0 / 16.0;
+
 //Переименовать...
-class EdgeSelectorData
-{
+class EdgeSelectorData {
   String dgeName;
   Color backColor;
 }
+
 class CardScrollWidget extends StatelessWidget {
   var currentPage;
-  var padding = 20.0;
-  var verticalInset = 20.0;
 
   CardScrollWidget(this.currentPage);
 
   @override
   Widget build(BuildContext context) {
-    return new AspectRatio(
-      aspectRatio: 12.0/16.0* 1.2,
-      child: LayoutBuilder(builder: (context, contraints) {
-        var width = contraints.maxWidth;
-        var height = contraints.maxHeight;
+    double width = MediaQuery.of(context).size.width;
+    List<Widget> cardList = new List();
 
-        var safeWidth = width - 2 * padding;
-        var safeHeight = height - 2 * padding;
+    for (var i = 0; i < title.length; i++) {
+      var delta = i - currentPage;
+      bool isOnRight = delta > 0;
 
-        var heightOfPrimaryCard = safeHeight;
-        var widthOfPrimaryCard = heightOfPrimaryCard * 12.0/16.0;
-
-        var primaryCardLeft = safeWidth - widthOfPrimaryCard;
-        var horizontalInset = primaryCardLeft / 2;
-
-        List<Widget> cardList = new List();
-
-        for (var i = 0; i < images.length; i++) {
-          var delta = i - currentPage;
-          bool isOnRight = delta > 0;
-
-          var start = padding +
-              max(
-                  primaryCardLeft -
-                      horizontalInset * -delta * (isOnRight ? 15 : 1),
-                  0.0);
-
-          var cardItem = Positioned.directional(
-            top: padding + verticalInset * max(-delta, 0.0),
-            bottom: padding + verticalInset * max(-delta, 0.0),
-            start: start,
-            textDirection: TextDirection.rtl,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(16.0),
-              child: Container(
-                decoration: BoxDecoration(color: Colors.grey[i*100+100], boxShadow: [
+      var cardItem = Positioned(
+        top: 2*delta*(delta>0?1:-1),
+        left: width/2+100*sqrt(delta*(delta>0?1:-1))*(delta>0?1:-1)-title[i].length/2*10,
+        //textDirection: TextDirection.rtl,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(16.0),
+          child: Container(
+            height: 40,
+            decoration: BoxDecoration(
+                color: Colors.grey[i * 100 + 100],
+                boxShadow: [
                   BoxShadow(
                       color: Colors.black12,
                       offset: Offset(3.0, 6.0),
                       blurRadius: 20.0)
                 ]),
-                child: AspectRatio(
-                  aspectRatio: 12.0/16.0,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: <Widget>[
-
-                      Icon(images[i]),
-                      Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Padding(
-                              padding: EdgeInsets.symmetric(
-                                  horizontal: 16.0, vertical: 8.0),
-                              child: Text(title[i],
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 25.0,
-                                      fontFamily: "SF-Pro-Text-Regular")),
-                            ),
-                            SizedBox(
-                              height: 10.0,
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(
-                                  left: 12.0, bottom: 12.0),
-                              child: Container(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 22.0, vertical: 6.0),
-                                decoration: BoxDecoration(
-                                    color: Colors.blueAccent,
-                                    borderRadius: BorderRadius.circular(20.0)),
-                                child: Text("Useless Button",
-                                    style: TextStyle(color: Colors.white)),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                ),
+            child: Center(
+              child: Container(padding: EdgeInsets.all(10),
+                //aspectRatio: gar,
+                child: Text(title[i]+" "+i.toString()),
               ),
             ),
-          );
-          cardList.add(cardItem);
-        }
-        return Stack(
-          children: cardList,
-        );
-      }),
+          ),
+        ),
+      );
+      cardList.add(cardItem);
+    }
+    return Container(
+
+      height: 200,
+        child: Stack(children: cardList,)
     );
   }
 }
