@@ -39,14 +39,14 @@ List<IconData> images = [
   Icons.looks_4,
 ];
 
-List<String> title = [
-  "audio",
-  "visual",
-  "translated_as",
-  "in",
-  "related",
-  "def",
-  "def_of",
+List<EdgeSelectorData> title = [
+  new EdgeSelectorData("Audio", Colors.grey[300], "audio"),
+  new EdgeSelectorData("Visual", Colors.grey[400], "visual"),
+  new EdgeSelectorData("Translated as", Colors.green, "translated_as"),
+  new EdgeSelectorData("Is in", Colors.grey[400], "in"),
+  new EdgeSelectorData("Related to", Colors.grey[400], "related"),
+  new EdgeSelectorData("Defenition", Colors.grey[400], "def"),
+  new EdgeSelectorData("Defenition of", Colors.grey[400], "def_of"),
 ];
 
 class TermDetailState extends State<TermDetail> {
@@ -121,7 +121,7 @@ class TermDetailState extends State<TermDetail> {
           );
   }
 
-  var currentPage = images.length - 1.0;
+  var currentPage = 0.0;
 
   @override
   Widget build(BuildContext context) {
@@ -129,7 +129,7 @@ class TermDetailState extends State<TermDetail> {
       return Loading();
     }
 
-    PageController controller = PageController(initialPage: title.length - 1);
+    PageController controller = PageController(initialPage: 0);
 
     controller.addListener(() {
       setState(() {
@@ -177,7 +177,7 @@ class TermDetailState extends State<TermDetail> {
           //switcher,
           Stack(
             children: <Widget>[
-              Positioned(child: CardScrollWidget(currentPage)),
+              Positioned(child: HorizontalEdgeMenu(currentPage)),
               Positioned.fill(
                 child: PageView.builder(
                   itemCount: title.length,
@@ -185,8 +185,8 @@ class TermDetailState extends State<TermDetail> {
                   reverse: false,
                   itemBuilder: (context, index) {
                     return Container(
-                      child: Text(index.toString()),
-                    );
+                        //child: Text(index.toString()),
+                        );
                   },
                 ),
               )
@@ -254,16 +254,31 @@ class TermDetailState extends State<TermDetail> {
 
 var gar = 12.0 / 16.0;
 
-//Переименовать...
+//Элемент горизонтально списка в меню делтального просмотра
 class EdgeSelectorData {
-  String dgeName;
+  //Название, которое видит пользователь
+  String edgeName;
+  //Цвет фона этой кнопки
   Color backColor;
-}
+  //Код(строка), по которому будет происходить запрос ребра(EDGE)
+  String code;
 
-class CardScrollWidget extends StatelessWidget {
+  EdgeSelectorData(String n, Color c, String co) {
+    this.edgeName = n;
+    this.backColor = c;
+    this.code = co;
+  }
+}
+//Горизонтальное меню прокрутки
+//Использует "хак", подсмотренный тут - https://www.youtube.com/watch?v=5KbiU-93-yU&t=1s
+//создаётся PageView, который однако не рисуется, но из него берётся контроллер, который знает текущую страницу
+//в виде double величины, то есть можно плавно скролить вбок
+//В виджете элементы запихиваются в Stack, проходя циклом по всем менюшкам
+//На основе "разницы" с текущей страницей высчитывается смещение каждого элемента
+class HorizontalEdgeMenu extends StatelessWidget {
   var currentPage;
 
-  CardScrollWidget(this.currentPage);
+  HorizontalEdgeMenu(this.currentPage);
 
   @override
   Widget build(BuildContext context) {
@@ -272,18 +287,19 @@ class CardScrollWidget extends StatelessWidget {
 
     for (var i = 0; i < title.length; i++) {
       var delta = i - currentPage;
-      bool isOnRight = delta > 0;
 
       var cardItem = Positioned(
-        top: 2*delta*(delta>0?1:-1),
-        left: width/2+100*sqrt(delta*(delta>0?1:-1))*(delta>0?1:-1)-title[i].length/2*10,
+        top: 3 * delta * (delta > 0 ? 1 : -1),
+        left: width / 2 +
+            100 * sqrt(delta * (delta > 0 ? 1 : -1)) * (delta > 0 ? 1 : -1) -
+            title[i].edgeName.length / 2 * 10,
         //textDirection: TextDirection.rtl,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(16.0),
+          borderRadius: BorderRadius.circular(8.0),
           child: Container(
             height: 40,
             decoration: BoxDecoration(
-                color: Colors.grey[i * 100 + 100],
+                color: title[i].backColor,
                 boxShadow: [
                   BoxShadow(
                       color: Colors.black12,
@@ -291,20 +307,23 @@ class CardScrollWidget extends StatelessWidget {
                       blurRadius: 20.0)
                 ]),
             child: Center(
-              child: Container(padding: EdgeInsets.all(10),
+              child: Container(
+                padding: EdgeInsets.all(10),
                 //aspectRatio: gar,
-                child: Text(title[i]+" "+i.toString()),
+                child: Text(title[i].edgeName),
               ),
             ),
           ),
         ),
       );
-      cardList.add(cardItem);
+
+      delta > 0 ? cardList.insert(0, cardItem) : cardList.add(cardItem);
+      //cardList[delta]==null?cardList[i]=cardItem:cardList[i+1]=cardItem;
     }
     return Container(
-
-      height: 200,
-        child: Stack(children: cardList,)
-    );
+        height: 70,
+        child: Stack(
+          children: cardList,
+        ));
   }
 }
