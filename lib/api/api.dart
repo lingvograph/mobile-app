@@ -228,3 +228,15 @@ Future<TermInfo> fetchAudioList(String termUid, int offset, int limit) async {
   final term = results['terms'][0] as Map<String, dynamic>;
   return TermInfo.fromJson(term, audioTotal: total);
 }
+Future<TermInfo> fetchVisualList(String termUid, int offset, int limit) async {
+
+  final range = new Pagination(offset, limit);
+  final q = new TermQuery(
+      kind: TermQueryKind.visualList, termUid: termUid, range: range);
+  final qs = q.makeQuery();
+  final results = await query(qs);
+  final total = results['count'][0]['total'];
+  final term = results['terms'][0] as Map<String, dynamic>;
+  print(term.toString());
+  return TermInfo.fromJson(term, visualTotal: total);
+}

@@ -61,6 +61,19 @@ class TermQuery {
         .join(' and ');
     final termFilter = isTermList ? '@filter($filterExpr)' : '';
 
+    final termBody = """uid
+          text
+          lang  
+          transcript@ru
+          transcript@en
+          tag {
+            uid
+            text
+            lang
+            transcript@ru
+            transcript@en
+          }""";
+
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
         uid
@@ -76,18 +89,10 @@ class TermQuery {
           transcript@en
         }
         translated_as {
-          uid
-          text
-          lang
-          transcript@ru
-          transcript@en
-          tag {
-            uid
-            text
-            lang
-            transcript@ru
-            transcript@en
-          }
+          $termBody
+        }
+        related {
+          $termBody
         }
         audio $audioRange {
           uid

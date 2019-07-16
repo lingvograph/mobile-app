@@ -316,7 +316,7 @@ class _TermState extends State<TermView> {
               //isLive: true,
               context: context,
               source: visual.url,
-              quality: YoutubeQuality.HD,
+              quality: YoutubeQuality.HIGH,
               // callbackController is (optional).
               // use it to control player on your own.
             ),

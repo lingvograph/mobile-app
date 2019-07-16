@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memoapp/AppData.dart';
@@ -42,11 +43,11 @@ List<IconData> images = [
 List<EdgeSelectorData> title = [
   new EdgeSelectorData("Audio", Colors.grey[300], "audio"),
   new EdgeSelectorData("Visual", Colors.grey[400], "visual"),
-  new EdgeSelectorData("Translated as", Colors.green, "translated_as"),
-  new EdgeSelectorData("Is in", Colors.grey[400], "in"),
-  new EdgeSelectorData("Related to", Colors.grey[400], "related"),
-  new EdgeSelectorData("Defenition", Colors.grey[400], "def"),
-  new EdgeSelectorData("Defenition of", Colors.grey[400], "def_of"),
+  new EdgeSelectorData("Translated as", Colors.blueAccent, "translated_as"),
+  new EdgeSelectorData("Is in", Colors.grey[500], "in"),
+  new EdgeSelectorData("Related to", Colors.grey[600], "related"),
+  new EdgeSelectorData("Defenition", Colors.grey[700], "def"),
+  new EdgeSelectorData("Defenition of", Colors.blue, "def_of"),
 ];
 
 class TermDetailState extends State<TermDetail> {
@@ -58,6 +59,8 @@ class TermDetailState extends State<TermDetail> {
 
   TermDetailState(this.id);
 
+  List<Widget> pages;
+
   get appState {
     return appData.appState;
   }
@@ -68,15 +71,120 @@ class TermDetailState extends State<TermDetail> {
     fetchData();
   }
 
+  //ДОДЕЛАТЬ................
+  void _showDialog() {
+    // flutter defined function
+    showDialog(
+      //context: context,
+      builder: (BuildContext context) {
+        // return object of type Dialog
+        return AlertDialog(
+          title: new Text("Alert Dialog title"),
+          content: new Text("Alert Dialog body"),
+          actions: <Widget>[
+            // usually buttons at the bottom of the dialog
+            new FlatButton(
+              child: new Text("Close"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void initPages(TermInfo visualTerm) {
+    pages = new List(title.length);
+
+    for (int i = 0; i < title.length; i++) {
+      pages[i] = Align(
+        child: Container(
+          width: 200,
+          child: Text(
+            " No Content for " + title[i].edgeName + "",
+            style: TextStyle(fontSize: 20, color: Colors.blue[800]),
+          ),
+          alignment: Alignment(0, 0),
+          padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+          decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: <BoxShadow>[BoxShadow(blurRadius: 5)]),
+        ),
+      );
+    }
+    List<Widget> pictures = new List();
+
+    pages[0] = getAudiosPage();
+    for (int i = 0; i < visualTerm.visual.total; i++) {
+      visualTerm.visual.items[i].url.contains('youtube')
+          ? pictures.add(Container())
+          : pictures.add(InkWell(
+              onTap: () {
+                print("TAPPPPPPP");
+                _showDialog();
+              },
+              child: Column(
+                children: <Widget>[
+                  Padding(
+                    child: Container(
+                      height: 200,
+                      padding: new EdgeInsets.only(left: 16.0, right: 16.0),
+                      decoration: new BoxDecoration(
+                        boxShadow: <BoxShadow>[BoxShadow(blurRadius: 10)],
+                        borderRadius: BorderRadius.circular(5),
+                        border:
+                            new Border.all(color: Colors.grey[400], width: 2),
+                        image: new DecorationImage(
+                          image: loadImg(visualTerm.visual.items[i].url),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                    padding: EdgeInsets.all(7),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(5),
+                  )
+                ],
+              ),
+            ));
+    }
+    pages[1] = new Column(
+      children: pictures,
+    );
+
+    List<Widget> translationView = new List();
+    for(int i=0;i<visualTerm.translations.length;i++)
+      {
+        translationView.add(TermView(term: visualTerm.translations[i]));
+      }
+    print("translated as length"+visualTerm.translations.length.toString());
+
+    pages[2] = new Column(
+      children: translationView,
+    );
+  }
+
+  loadImg(String url) {
+    var img;
+    img = new CachedNetworkImageProvider(url, errorListener: () {
+      print("failed");
+      img = CachedNetworkImageProvider(
+          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
+    });
+    return img;
+  }
+
   fetchData() async {
     var result = await fetchAudioList(id, 0, 10);
+    TermInfo visualTerm = await fetchVisualList(id, 0, 10);
     setState(() {
       term = result;
-      cp = getAudiosPage();
-      switcher = Row(
-        children: <Widget>[Text("1 "), Text("2")],
-        mainAxisAlignment: MainAxisAlignment.center,
-      );
+      //cp = getAudiosPage();
+      initPages(visualTerm);
     });
   }
 
@@ -175,24 +283,29 @@ class TermDetailState extends State<TermDetail> {
             child: TermView(term: term, tappable: false),
           ),
           //switcher,
-          Stack(
-            children: <Widget>[
-              Positioned(child: HorizontalEdgeMenu(currentPage)),
-              Positioned.fill(
-                child: PageView.builder(
-                  itemCount: title.length,
-                  controller: controller,
-                  reverse: false,
-                  itemBuilder: (context, index) {
-                    return Container(
-                        //child: Text(index.toString()),
-                        );
-                  },
-                ),
-              )
-            ],
+          Container(
+            //padding: EdgeInsets.all(10),
+
+            child: Stack(
+              children: <Widget>[
+                Positioned(child: HorizontalEdgeMenu(currentPage)),
+                Positioned.fill(
+                  child: PageView.builder(
+                    itemCount: title.length,
+                    controller: controller,
+                    reverse: false,
+                    itemBuilder: (context, index) {
+                      return Container(
+                          //child: Text(index.toString()),
+                          );
+                    },
+                  ),
+                )
+              ],
+            ),
           ),
-          cp,
+          pages[currentPage.toInt()],
+          //cp,
 
           RadialAddButton,
         ],
@@ -258,8 +371,10 @@ var gar = 12.0 / 16.0;
 class EdgeSelectorData {
   //Название, которое видит пользователь
   String edgeName;
+
   //Цвет фона этой кнопки
   Color backColor;
+
   //Код(строка), по которому будет происходить запрос ребра(EDGE)
   String code;
 
@@ -269,6 +384,7 @@ class EdgeSelectorData {
     this.code = co;
   }
 }
+
 //Горизонтальное меню прокрутки
 //Использует "хак", подсмотренный тут - https://www.youtube.com/watch?v=5KbiU-93-yU&t=1s
 //создаётся PageView, который однако не рисуется, но из него берётся контроллер, который знает текущую страницу
@@ -298,14 +414,12 @@ class HorizontalEdgeMenu extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.0),
           child: Container(
             height: 40,
-            decoration: BoxDecoration(
-                color: title[i].backColor,
-                boxShadow: [
-                  BoxShadow(
-                      color: Colors.black12,
-                      offset: Offset(3.0, 6.0),
-                      blurRadius: 20.0)
-                ]),
+            decoration: BoxDecoration(color: title[i].backColor, boxShadow: [
+              BoxShadow(
+                  color: Colors.black12,
+                  offset: Offset(3.0, 6.0),
+                  blurRadius: 20.0)
+            ]),
             child: Center(
               child: Container(
                 padding: EdgeInsets.all(10),
