@@ -10,6 +10,7 @@ import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/addContentButton.dart';
+import 'package:memoapp/components/detailedViewMethods.dart';
 import 'package:memoapp/screen/recordaudioscreen.dart';
 
 //import 'package:image_picker/image_picker.dart';
@@ -40,15 +41,6 @@ List<IconData> images = [
   Icons.looks_4,
 ];
 
-List<EdgeSelectorData> title = [
-  new EdgeSelectorData("Audio", Colors.grey[300], "audio"),
-  new EdgeSelectorData("Visual", Colors.grey[400], "visual"),
-  new EdgeSelectorData("Translations", Colors.blueAccent, "translated_as"),
-  new EdgeSelectorData("Is in other", Colors.grey[500], "in"),
-  new EdgeSelectorData("Related to", Colors.grey[600], "related"),
-  new EdgeSelectorData("Defenition", Colors.grey[700], "def"),
-  new EdgeSelectorData("Defenition of", Colors.blue, "def_of"),
-];
 
 class TermDetailState extends State<TermDetail> {
   Widget cp = Container();
@@ -324,14 +316,14 @@ class TermDetailState extends State<TermDetail> {
             color: Colors.grey[600],
             icon: FontAwesomeIcons.cameraRetro,
             onTap: () {
-              openCamera();
+              openCamera(term);
             }),
         RadialBtn(
             angle: 110,
             color: Colors.green,
             icon: FontAwesomeIcons.images,
             onTap: () {
-              openGalery();
+              openGalery(term);
             }),
         RadialBtn(
             angle: 40,
@@ -384,131 +376,9 @@ class TermDetailState extends State<TermDetail> {
     );
   }
 
-  void openCamera() async {
-    File cameraFile;
-    print("camera open!");
-    cameraFile = await ImagePicker.pickImage(
-      source: ImageSource.camera,
-      //maxHeight: 50.0,
-      //maxWidth: 50.0,
-    );
-    if (cameraFile != null) {
-      print("You selected camera image : " + cameraFile.path);
-      uploadPhoto(cameraFile);
-    } else {
-      print("no data");
-    }
-    setState(() {});
-  }
 
-  void openGalery() async {
-    File galleryFile;
-
-    galleryFile = await ImagePicker.pickImage(
-      source: ImageSource.gallery,
-      // maxHeight: 50.0,
-      // maxWidth: 50.0,
-    );
-    if (galleryFile != null) {
-      print("You selected gallery image : " + galleryFile.path);
-      uploadPhoto(galleryFile);
-    } else {
-      print("no data");
-    }
-    setState(() {});
-  }
-
-  void uploadPhoto(File f) async {
-    List<int> bytes = f.readAsBytesSync();
-
-    // TODO link to current term
-    var uuid = new Uuid();
-    final user = appData.appState.user;
-    String datauid = uuid.v4();
-    final remotePath = "user/${user.uid}/visual/${datauid}.jpeg";
-
-    var res = await upload("$remotePath", 'visual/jpeg', bytes);
-    TermUpdate tup = new TermUpdate();
-    tup.imageUid = res.uid;
-    print(tup.imageUid);
-    var res2 = await upadteTerm(term.uid, tup);
-    print(res2.toString());
-  }
 }
 
-var gar = 12.0 / 16.0;
 
-//Элемент горизонтально списка в меню делтального просмотра
-class EdgeSelectorData {
-  //Название, которое видит пользователь
-  String edgeName;
 
-  //Цвет фона этой кнопки
-  Color backColor;
 
-  //Код(строка), по которому будет происходить запрос ребра(EDGE)
-  String code;
-
-  EdgeSelectorData(String n, Color c, String co) {
-    this.edgeName = n;
-    this.backColor = c;
-    this.code = co;
-  }
-}
-
-//Горизонтальное меню прокрутки
-//Использует "хак", подсмотренный тут - https://www.youtube.com/watch?v=5KbiU-93-yU&t=1s
-//создаётся PageView, который однако не рисуется, но из него берётся контроллер, который знает текущую страницу
-//в виде double величины, то есть можно плавно скролить вбок
-//В виджете элементы запихиваются в Stack, проходя циклом по всем менюшкам
-//На основе "разницы" с текущей страницей высчитывается смещение каждого элемента
-class HorizontalEdgeMenu extends StatelessWidget {
-  var currentPage;
-
-  HorizontalEdgeMenu(this.currentPage);
-
-  @override
-  Widget build(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    List<Widget> cardList = new List();
-
-    for (var i = 0; i < title.length; i++) {
-      var delta = i - currentPage;
-
-      var cardItem = Positioned(
-        top: 3 * delta * (delta > 0 ? 1 : -1),
-        left: width / 2 +
-            100 * sqrt(delta * (delta > 0 ? 1 : -1)) * (delta > 0 ? 1 : -1) -
-            title[i].edgeName.length / 2 * 10,
-        //textDirection: TextDirection.rtl,
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: Container(
-            height: 40,
-            decoration: BoxDecoration(color: title[i].backColor, boxShadow: [
-              BoxShadow(
-                  color: Colors.black12,
-                  offset: Offset(3.0, 6.0),
-                  blurRadius: 20.0)
-            ]),
-            child: Center(
-              child: Container(
-                padding: EdgeInsets.all(10),
-                //aspectRatio: gar,
-                child: Text(title[i].edgeName),
-              ),
-            ),
-          ),
-        ),
-      );
-
-      delta > 0 ? cardList.insert(0, cardItem) : cardList.add(cardItem);
-      //cardList[delta]==null?cardList[i]=cardItem:cardList[i+1]=cardItem;
-    }
-    return Container(
-        height: 70,
-        child: Stack(
-          children: cardList,
-        ));
-  }
-}

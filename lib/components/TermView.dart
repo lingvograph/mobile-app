@@ -18,11 +18,15 @@ typedef SearchCallback = void Function(String searchString);
 class TermView extends StatefulWidget {
   SearchCallback onSearch;
 
-  TermView({this.term, this.tappable = true, this.onSearch = null});
+  TermView({this.term, this.tappable = true, this.onSearch = null, this.viewMode=1});
 
   _TermState createState() => _TermState();
   final TermInfo term;
   final bool tappable;
+  //1 - full view
+  //2 - semi-compact view
+  //3 - compact view(only text)
+  int viewMode;
 }
 
 class _TermState extends State<TermView> {
@@ -232,7 +236,7 @@ class _TermState extends State<TermView> {
 
   void expandTags() {
     setState(() {
-      tagsBarHeight = tagsBarHeight == maxTagHeight ? 0 : maxTagHeight;
+      tagsBarHeight = tagsBarHeight != 0? 0 : maxTagHeight;
     });
   }
 

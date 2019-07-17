@@ -34,7 +34,7 @@ class TermQuery {
       this.termUid,
       this.filter,
       this.range,
-      this.detailed=false}) {
+      this.detailed = false}) {
     if (this.filter == null) {
       this.filter = new TermFilter('');
     }
@@ -67,11 +67,32 @@ class TermQuery {
         .join(' and ');
     final termFilter = isTermList ? '@filter($filterExpr)' : '';
 
+    final visualInfo = """
+          visual $visualRange {
+          url
+          source
+          content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
+          created_at
+          created_by {
+            uid
+            name
+          }
+        }""";
+    final shortVisualInfo = """
+          visual $visualRange {
+          url
+          source
+          content_type
+        }""";
     final termBody = """uid
           text
           lang  
           transcript@ru
           transcript@en
+          $shortVisualInfo
           tag {
             uid
             text
@@ -98,6 +119,8 @@ class TermQuery {
           $termBody
         }"""
         : "";
+
+
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
         uid
@@ -113,7 +136,7 @@ class TermQuery {
           transcript@en
         }
         $detailedInfo
-        
+        $visualInfo
         audio $audioRange {
           uid
           url
@@ -128,19 +151,7 @@ class TermQuery {
             name
           }
         }
-        visual $visualRange {
-          url
-          source
-          content_type
-          views: count(see)
-          likes: count(like)
-          dislikes: count(dislike)
-          created_at
-          created_by {
-            uid
-            name
-          }
-        }
+        
       }
       count(func: $matchFn) $termFilter {
         total: count(${countBy()})
