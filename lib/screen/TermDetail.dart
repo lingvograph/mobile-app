@@ -43,8 +43,8 @@ List<IconData> images = [
 List<EdgeSelectorData> title = [
   new EdgeSelectorData("Audio", Colors.grey[300], "audio"),
   new EdgeSelectorData("Visual", Colors.grey[400], "visual"),
-  new EdgeSelectorData("Translated as", Colors.blueAccent, "translated_as"),
-  new EdgeSelectorData("Is in", Colors.grey[500], "in"),
+  new EdgeSelectorData("Translations", Colors.blueAccent, "translated_as"),
+  new EdgeSelectorData("Is in other", Colors.grey[500], "in"),
   new EdgeSelectorData("Related to", Colors.grey[600], "related"),
   new EdgeSelectorData("Defenition", Colors.grey[700], "def"),
   new EdgeSelectorData("Defenition of", Colors.blue, "def_of"),
@@ -102,9 +102,17 @@ class TermDetailState extends State<TermDetail> {
       pages[i] = Align(
         child: Container(
           width: 200,
-          child: Text(
-            " No Content for " + title[i].edgeName + "",
-            style: TextStyle(fontSize: 20, color: Colors.blue[800]),
+          child: Column(
+            children: <Widget>[
+              Text(
+                " No Content for ",
+                style: TextStyle(fontSize: 20, color: Colors.blue[800]),
+              ),
+              Text(
+                title[i].edgeName + "",
+                style: TextStyle(fontSize: 20, color: Colors.blue[600]),
+              ),
+            ],
           ),
           alignment: Alignment(0, 0),
           padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
@@ -115,9 +123,80 @@ class TermDetailState extends State<TermDetail> {
         ),
       );
     }
+    makeDetailedPictures(visualTerm);
+
+    makeDetailedTranslations(visualTerm);
+    makeDetailedInOther(visualTerm);
+    makeDetailedRelated(visualTerm);
+    makeDetailedDefinition(visualTerm);
+    makeDetailedDefinitionOf(visualTerm);
+  }
+
+  void makeDetailedDefinitionOf(TermInfo visualTerm) {
+    List<Widget> definitionOf = new List();
+    for (int i = 0; i < visualTerm.definitionOf.length; i++) {
+      definitionOf.add(TermView(term: visualTerm.definitionOf[i]));
+    }
+    if (definitionOf.length > 0) {
+      pages[6] = new Column(
+        children: definitionOf,
+      );
+    }
+  }
+
+  void makeDetailedDefinition(TermInfo visualTerm) {
+    List<Widget> definition = new List();
+    for (int i = 0; i < visualTerm.definition.length; i++) {
+      definition.add(TermView(term: visualTerm.definition[i]));
+    }
+    if (definition.length > 0) {
+      pages[5] = new Column(
+        children: definition,
+      );
+    }
+  }
+
+  void makeDetailedRelated(TermInfo visualTerm) {
+    List<Widget> relatedTo = new List();
+    for (int i = 0; i < visualTerm.relatedTo.length; i++) {
+      relatedTo.add(TermView(term: visualTerm.relatedTo[i]));
+    }
+    if (relatedTo.length > 0) {
+      pages[4] = new Column(
+        children: relatedTo,
+      );
+    }
+  }
+
+  void makeDetailedInOther(TermInfo visualTerm) {
+    List<Widget> inOther = new List();
+    for (int i = 0; i < visualTerm.isInOtherTerms.length; i++) {
+      inOther.add(TermView(term: visualTerm.isInOtherTerms[i]));
+    }
+    if (inOther.length > 0) {
+      pages[3] = new Column(
+        children: inOther,
+      );
+    }
+  }
+
+  void makeDetailedTranslations(TermInfo visualTerm) {
+    List<Widget> translationView = new List();
+    for (int i = 0; i < visualTerm.translations.length; i++) {
+      translationView.add(TermView(term: visualTerm.translations[i]));
+    }
+    print("translated as length" + visualTerm.translations.length.toString());
+
+    if (translationView.length > 0) {
+      pages[2] = new Column(
+        children: translationView,
+      );
+    }
+  }
+
+  void makeDetailedPictures(TermInfo visualTerm) {
     List<Widget> pictures = new List();
 
-    pages[0] = getAudiosPage();
     for (int i = 0; i < visualTerm.visual.total; i++) {
       visualTerm.visual.items[i].url.contains('youtube')
           ? pictures.add(Container())
@@ -152,20 +231,13 @@ class TermDetailState extends State<TermDetail> {
               ),
             ));
     }
-    pages[1] = new Column(
-      children: pictures,
-    );
+    pages[0] = getAudiosPage();
 
-    List<Widget> translationView = new List();
-    for(int i=0;i<visualTerm.translations.length;i++)
-      {
-        translationView.add(TermView(term: visualTerm.translations[i]));
-      }
-    print("translated as length"+visualTerm.translations.length.toString());
-
-    pages[2] = new Column(
-      children: translationView,
-    );
+    if (pictures.length > 0) {
+      pages[1] = new Column(
+        children: pictures,
+      );
+    }
   }
 
   loadImg(String url) {
@@ -183,7 +255,6 @@ class TermDetailState extends State<TermDetail> {
     TermInfo visualTerm = await fetchVisualList(id, 0, 10);
     setState(() {
       term = result;
-      //cp = getAudiosPage();
       initPages(visualTerm);
     });
   }
@@ -304,7 +375,7 @@ class TermDetailState extends State<TermDetail> {
               ],
             ),
           ),
-          pages[currentPage.toInt()],
+          pages[currentPage.round()],
           //cp,
 
           RadialAddButton,

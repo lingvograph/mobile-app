@@ -26,9 +26,15 @@ class TermQuery {
   String termUid; // for single term request
   TermFilter filter;
   Pagination range;
+  bool detailed = false;
 
   TermQuery(
-      {this.kind, this.firstLang, this.termUid, this.filter, this.range}) {
+      {this.kind,
+      this.firstLang,
+      this.termUid,
+      this.filter,
+      this.range,
+      this.detailed=false}) {
     if (this.filter == null) {
       this.filter = new TermFilter('');
     }
@@ -74,6 +80,24 @@ class TermQuery {
             transcript@en
           }""";
 
+    final detailedInfo = detailed
+        ? """
+        translated_as {
+          $termBody
+        }
+        in{
+          $termBody
+        }
+        related{
+          $termBody
+        }
+        def{
+          $termBody
+        }
+        def_of{
+          $termBody
+        }"""
+        : "";
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
         uid
@@ -88,12 +112,8 @@ class TermQuery {
           transcript@ru
           transcript@en
         }
-        translated_as {
-          $termBody
-        }
-        related {
-          $termBody
-        }
+        $detailedInfo
+        
         audio $audioRange {
           uid
           url

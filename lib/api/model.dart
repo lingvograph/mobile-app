@@ -108,6 +108,11 @@ class TermInfo {
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
   List<TermInfo> tags;
+  List<TermInfo> isInOtherTerms;
+  List<TermInfo> relatedTo;
+  List<TermInfo> definition;
+  List<TermInfo> definitionOf;
+
 
   TermInfo.fromJson(Map<String, dynamic> json,
       {int audioTotal = 0, int visualTotal = 0}) {
@@ -120,6 +125,12 @@ class TermInfo {
     transcript = multilangText(json, 'transcript');
     tags = mapList(json, 'tag', (t) => TermInfo.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
+
+    isInOtherTerms = mapList(json, 'in', (t) => TermInfo.fromJson(t));
+    relatedTo = mapList(json, 'related', (t) => TermInfo.fromJson(t));
+    definition = mapList(json, 'def', (t) => TermInfo.fromJson(t));
+    definitionOf = mapList(json, 'def_of', (t) => TermInfo.fromJson(t));
+
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));
     audio = new ListResult<MediaInfo>(audioItems, audioTotal);

@@ -232,7 +232,7 @@ Future<TermInfo> fetchVisualList(String termUid, int offset, int limit) async {
 
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
-      kind: TermQueryKind.visualList, termUid: termUid, range: range);
+      kind: TermQueryKind.visualList, termUid: termUid, range: range, detailed: true);
   final qs = q.makeQuery();
   final results = await query(qs);
   final total = results['count'][0]['total'];
