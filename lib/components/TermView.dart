@@ -18,11 +18,16 @@ typedef SearchCallback = void Function(String searchString);
 class TermView extends StatefulWidget {
   SearchCallback onSearch;
 
-  TermView({this.term, this.tappable = true, this.onSearch = null, this.viewMode=1});
+  TermView(
+      {this.term,
+      this.tappable = true,
+      this.onSearch = null,
+      this.viewMode = 1});
 
   _TermState createState() => _TermState();
   final TermInfo term;
   final bool tappable;
+
   //1 - full view
   //2 - semi-compact view
   //3 - compact view(only text)
@@ -53,6 +58,137 @@ class _TermState extends State<TermView> {
   @override
   Widget build(BuildContext context) {
     width = MediaQuery.of(context).size.width;
+
+    if (widget.viewMode == 1) {
+      return makeFullTermView(context);
+    }
+    if (widget.viewMode == 2) {
+      return makeSemiCompactTermView(context);
+    }
+    if (widget.viewMode == 3) {
+      return makeCompactView(context);
+    }
+  }
+
+  Widget makeCompactView(BuildContext context) {
+    var firstLang = appState.user?.firstLang ?? 'ru';
+    var text1 = term.text ?? '';
+    var text2 = firstOrElse(
+            term.translations
+                .where((t) => t.lang == firstLang)
+                .map((t) => t.text),
+            '') ??
+        '';
+    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
+    return Padding(
+      padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          Container(
+            padding: EdgeInsets.all(3),
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(4),
+                color: Colors.grey[200],
+                boxShadow: <BoxShadow>[
+                  BoxShadow(color: Colors.grey[400], blurRadius: 4)
+                ]),
+            child: Column(
+              children: <Widget>[
+                Row(
+                  children: <Widget>[
+                    Text(text1,
+                        style:
+                            TextStyle(fontSize: 19, color: Colors.blue[600])),
+                    Text("@" + term.lang,
+                        style:
+                            TextStyle(fontSize: 19, color: Colors.blue[800])),
+                    Padding(
+                      padding: EdgeInsets.all(1),
+                    ),
+                    text2.length > 0
+                        ? Row(
+                            children: <Widget>[
+                              Text("Translation: ",
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.blue[800])),
+                              Text(text2,
+                                  style: TextStyle(
+                                      fontSize: 18, color: Colors.blue[600]))
+                            ],
+                          )
+                        : Container(),
+                    Padding(
+                      padding: EdgeInsets.all(2),
+                    ),
+                    Text("[" + trans + "]",
+                        style:
+                            TextStyle(fontSize: 18, color: Colors.blue[800])),
+                    Padding(
+                      padding: EdgeInsets.all(2),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.play_arrow,
+                        color: term.audio.items.length > 0
+                            ? Colors.blue[600]
+                            : Colors.grey[600],
+                      ),
+                      onPressed: () {
+                        playSound();
+                      },
+                    )
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget makeSemiCompactTermView(BuildContext context) {
+    var firstLang = appState.user?.firstLang ?? 'ru';
+
+    var text1 = term.text ?? '';
+    var text2 = firstOrElse(
+            term.translations
+                .where((t) => t.lang == firstLang)
+                .map((t) => t.text),
+            '') ??
+        '';
+    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
+    return Container(
+      width: 200,
+      height: 180,
+      child: Column(children: <Widget>[
+        Container(
+            constraints: new BoxConstraints.expand(
+              height: 180.0,
+              width: 200,
+            ),
+            decoration: BoxDecoration(boxShadow: <BoxShadow>[
+              BoxShadow(color: Colors.grey, blurRadius: 5)
+            ]),
+            child: Stack(
+              // TODO improve position of subtitles
+              children: <Widget>[
+                new InkWell(
+                    onTap: imageOnTap,
+                    child: makeImage(term.visual.items[0], context)),
+                Positioned(top: 70,left: 20,
+                  child: text1.length > 25
+                      ? new Text(text1.substring(0, 25) + "...", style: termTextStyle)
+                      : new Text(text1, style: termTextStyle),
+                )
+              ],
+            )),
+      ]),
+    );
+  }
+
+  Padding makeFullTermView(BuildContext context) {
     imgH = width / 2;
     maxTagHeight = 50 * term.tags.length.toDouble() / 3;
     var firstLang = appState.user?.firstLang ?? 'ru';
@@ -236,7 +372,7 @@ class _TermState extends State<TermView> {
 
   void expandTags() {
     setState(() {
-      tagsBarHeight = tagsBarHeight != 0? 0 : maxTagHeight;
+      tagsBarHeight = tagsBarHeight != 0 ? 0 : maxTagHeight;
     });
   }
 

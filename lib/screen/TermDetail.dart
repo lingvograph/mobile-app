@@ -41,7 +41,6 @@ List<IconData> images = [
   Icons.looks_4,
 ];
 
-
 class TermDetailState extends State<TermDetail> {
   Widget cp = Container();
   Widget switcher = Container();
@@ -52,6 +51,7 @@ class TermDetailState extends State<TermDetail> {
   TermDetailState(this.id);
 
   List<Widget> pages;
+  int viewMode = 3;
 
   get appState {
     return appData.appState;
@@ -175,14 +175,74 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedTranslations(TermInfo visualTerm) {
     List<Widget> translationView = new List();
     for (int i = 0; i < visualTerm.translations.length; i++) {
-      translationView.add(TermView(term: visualTerm.translations[i]));
+      translationView.add(TermView(
+        term: visualTerm.translations[i],
+        viewMode: viewMode,
+      ));
     }
     print("translated as length" + visualTerm.translations.length.toString());
 
     if (translationView.length > 0) {
-      pages[2] = new Column(
-        children: translationView,
-      );
+      translationView.insert(
+          0,
+          Container(
+            padding: EdgeInsets.only(right: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: <Widget>[
+                IconButton(
+                  icon: Icon(Icons.looks_one),
+                  onPressed: () {
+                    print("1");
+                    setState(() {
+                      viewMode = 1;
+                    });
+                    makeDetailedTranslations(visualTerm);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.looks_two),
+                  onPressed: () {
+                    setState(() {
+                      viewMode = 2;
+                    });
+                    makeDetailedTranslations(visualTerm);
+                  },
+                ),
+                IconButton(
+                  icon: Icon(Icons.grid_on),
+                  onPressed: () {
+                    setState(() {
+                      viewMode = 3;
+                    });
+                    makeDetailedTranslations(visualTerm);
+                  },
+                )
+              ],
+            ),
+          ));
+      if (viewMode == 2) {
+        Widget controll = translationView[0];
+        translationView.removeAt(0);
+        pages[2] = new Column(
+          children: <Widget>[
+            controll,
+            GridView.count(
+              primary: false,
+              shrinkWrap: true,
+              // Create a grid with 2 columns. If you change the scrollDirection to
+              // horizontal, this would produce 2 rows.
+              crossAxisCount: 2,
+              // Generate 100 Widgets that display their index in the List
+              children: translationView,
+            ),
+          ],
+        );
+      } else {
+        pages[2] = new Column(
+          children: translationView,
+        );
+      }
     }
   }
 
@@ -217,7 +277,7 @@ class TermDetailState extends State<TermDetail> {
                     padding: EdgeInsets.all(7),
                   ),
                   Padding(
-                    padding: EdgeInsets.all(5),
+                    padding: EdgeInsets.all(1),
                   )
                 ],
               ),
@@ -339,7 +399,7 @@ class TermDetailState extends State<TermDetail> {
       appBar: AppBar(
         title: Text("Detail"),
       ),
-      body: ListView(
+      body: ListView(shrinkWrap: true,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(top: 10, bottom: 10),
@@ -375,10 +435,4 @@ class TermDetailState extends State<TermDetail> {
       ),
     );
   }
-
-
 }
-
-
-
-
