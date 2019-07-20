@@ -177,9 +177,9 @@ class _TermState extends State<TermView> {
                 new InkWell(
                     onTap: imageOnTap,
                     child: makeImage(term.visual.items[0], context)),
-                Positioned(top: 70,left: 20,
-                  child: text1.length > 25
-                      ? new Text(text1.substring(0, 25) + "...", style: termTextStyle)
+                Positioned(top: 30,left: 12,
+                  child: text1.length > 15
+                      ? new Text(text1.substring(0, 15) + "...", style: termTextStyle)
                       : new Text(text1, style: termTextStyle),
                 )
               ],

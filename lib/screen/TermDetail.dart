@@ -50,8 +50,12 @@ class TermDetailState extends State<TermDetail> {
 
   TermDetailState(this.id);
 
+  Widget controll;
   List<Widget> pages;
   int viewMode = 3;
+
+  //Список функций в порядке меню, используется для вызова обновления при смене режима просмотра(компакт, средний, полный)
+  List<Function(TermInfo)> tabInflateMethods;
 
   get appState {
     return appData.appState;
@@ -61,6 +65,14 @@ class TermDetailState extends State<TermDetail> {
   void initState() {
     super.initState();
     fetchData();
+    tabInflateMethods = new List();
+    tabInflateMethods.add(makeDetailedAudios);
+    tabInflateMethods.add(makeDetailedPictures);
+    tabInflateMethods.add(makeDetailedTranslations);
+    tabInflateMethods.add(makeDetailedInOther);
+    tabInflateMethods.add(makeDetailedRelated);
+    tabInflateMethods.add(makeDetailedDefinition);
+    tabInflateMethods.add(makeDetailedDefinitionOf);
   }
 
   //ДОДЕЛАТЬ................
@@ -115,6 +127,43 @@ class TermDetailState extends State<TermDetail> {
         ),
       );
     }
+    controll = Container(
+      padding: EdgeInsets.only(right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.featured_play_list),
+            onPressed: () {
+              print("1");
+              setState(() {
+                viewMode = 1;
+              });
+              tabInflateMethods[currentPage.round()](visualTerm);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.grid_on),
+            onPressed: () {
+              setState(() {
+                viewMode = 2;
+              });
+              tabInflateMethods[currentPage.round()](visualTerm);
+            },
+          ),
+          IconButton(
+            icon: Icon(FontAwesomeIcons.stream),
+            onPressed: () {
+              setState(() {
+                viewMode = 3;
+              });
+              tabInflateMethods[currentPage.round()](visualTerm);
+            },
+          )
+        ],
+      ),
+    );
+    makeDetailedAudios(visualTerm);
     makeDetailedPictures(visualTerm);
 
     makeDetailedTranslations(visualTerm);
@@ -129,11 +178,8 @@ class TermDetailState extends State<TermDetail> {
     for (int i = 0; i < visualTerm.definitionOf.length; i++) {
       definitionOf.add(TermView(term: visualTerm.definitionOf[i]));
     }
-    if (definitionOf.length > 0) {
-      pages[6] = new Column(
-        children: definitionOf,
-      );
-    }
+
+    makeTermListView(definitionOf, 6);
   }
 
   void makeDetailedDefinition(TermInfo visualTerm) {
@@ -141,11 +187,8 @@ class TermDetailState extends State<TermDetail> {
     for (int i = 0; i < visualTerm.definition.length; i++) {
       definition.add(TermView(term: visualTerm.definition[i]));
     }
-    if (definition.length > 0) {
-      pages[5] = new Column(
-        children: definition,
-      );
-    }
+
+    makeTermListView(definition, 5);
   }
 
   void makeDetailedRelated(TermInfo visualTerm) {
@@ -153,11 +196,8 @@ class TermDetailState extends State<TermDetail> {
     for (int i = 0; i < visualTerm.relatedTo.length; i++) {
       relatedTo.add(TermView(term: visualTerm.relatedTo[i]));
     }
-    if (relatedTo.length > 0) {
-      pages[4] = new Column(
-        children: relatedTo,
-      );
-    }
+
+    makeTermListView(relatedTo, 4);
   }
 
   void makeDetailedInOther(TermInfo visualTerm) {
@@ -165,11 +205,8 @@ class TermDetailState extends State<TermDetail> {
     for (int i = 0; i < visualTerm.isInOtherTerms.length; i++) {
       inOther.add(TermView(term: visualTerm.isInOtherTerms[i]));
     }
-    if (inOther.length > 0) {
-      pages[3] = new Column(
-        children: inOther,
-      );
-    }
+
+    makeTermListView(inOther, 3);
   }
 
   void makeDetailedTranslations(TermInfo visualTerm) {
@@ -180,51 +217,15 @@ class TermDetailState extends State<TermDetail> {
         viewMode: viewMode,
       ));
     }
-    print("translated as length" + visualTerm.translations.length.toString());
 
-    if (translationView.length > 0) {
-      translationView.insert(
-          0,
-          Container(
-            padding: EdgeInsets.only(right: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                IconButton(
-                  icon: Icon(Icons.looks_one),
-                  onPressed: () {
-                    print("1");
-                    setState(() {
-                      viewMode = 1;
-                    });
-                    makeDetailedTranslations(visualTerm);
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.looks_two),
-                  onPressed: () {
-                    setState(() {
-                      viewMode = 2;
-                    });
-                    makeDetailedTranslations(visualTerm);
-                  },
-                ),
-                IconButton(
-                  icon: Icon(Icons.grid_on),
-                  onPressed: () {
-                    setState(() {
-                      viewMode = 3;
-                    });
-                    makeDetailedTranslations(visualTerm);
-                  },
-                )
-              ],
-            ),
-          ));
+    makeTermListView(translationView, 2);
+  }
+
+  void makeTermListView(List<Widget> children, int pageIndex)
+  {
+    if (children.length > 0) {
       if (viewMode == 2) {
-        Widget controll = translationView[0];
-        translationView.removeAt(0);
-        pages[2] = new Column(
+        pages[pageIndex] = new Column(
           children: <Widget>[
             controll,
             GridView.count(
@@ -234,16 +235,24 @@ class TermDetailState extends State<TermDetail> {
               // horizontal, this would produce 2 rows.
               crossAxisCount: 2,
               // Generate 100 Widgets that display their index in the List
-              children: translationView,
+              children: children,
             ),
           ],
         );
       } else {
-        pages[2] = new Column(
-          children: translationView,
+        pages[pageIndex] = Column(
+          children: <Widget>[
+            controll,
+            Column(
+              children: children,
+            )
+          ],
         );
       }
     }
+  }
+  void makeDetailedAudios(TermInfo ti) {
+    pages[0] = getAudiosPage();
   }
 
   void makeDetailedPictures(TermInfo visualTerm) {
@@ -283,7 +292,6 @@ class TermDetailState extends State<TermDetail> {
               ),
             ));
     }
-    pages[0] = getAudiosPage();
 
     if (pictures.length > 0) {
       pages[1] = new Column(
@@ -305,6 +313,7 @@ class TermDetailState extends State<TermDetail> {
   fetchData() async {
     var result = await fetchAudioList(id, 0, 10);
     TermInfo visualTerm = await fetchVisualList(id, 0, 10);
+    term = visualTerm;
     setState(() {
       term = result;
       initPages(visualTerm);
@@ -399,7 +408,8 @@ class TermDetailState extends State<TermDetail> {
       appBar: AppBar(
         title: Text("Detail"),
       ),
-      body: ListView(shrinkWrap: true,
+      body: ListView(
+        shrinkWrap: true,
         children: <Widget>[
           Padding(
             padding: EdgeInsets.only(top: 10, bottom: 10),
