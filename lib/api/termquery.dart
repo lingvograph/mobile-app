@@ -26,9 +26,15 @@ class TermQuery {
   String termUid; // for single term request
   TermFilter filter;
   Pagination range;
+  bool detailed = false;
 
   TermQuery(
-      {this.kind, this.firstLang, this.termUid, this.filter, this.range}) {
+      {this.kind,
+      this.firstLang,
+      this.termUid,
+      this.filter,
+      this.range,
+      this.detailed = false}) {
     if (this.filter == null) {
       this.filter = new TermFilter('');
     }
@@ -61,6 +67,60 @@ class TermQuery {
         .join(' and ');
     final termFilter = isTermList ? '@filter($filterExpr)' : '';
 
+    final visualInfo = """
+          visual $visualRange {
+          url
+          source
+          content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
+          created_at
+          created_by {
+            uid
+            name
+          }
+        }""";
+    final shortVisualInfo = """
+          visual $visualRange {
+          url
+          source
+          content_type
+        }""";
+    final termBody = """uid
+          text
+          lang  
+          transcript@ru
+          transcript@en
+          $shortVisualInfo
+          tag {
+            uid
+            text
+            lang
+            transcript@ru
+            transcript@en
+          }""";
+
+    final detailedInfo = detailed
+        ? """
+        translated_as {
+          $termBody
+        }
+        in{
+          $termBody
+        }
+        related{
+          $termBody
+        }
+        def{
+          $termBody
+        }
+        def_of{
+          $termBody
+        }"""
+        : "";
+
+
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
         uid
@@ -75,20 +135,8 @@ class TermQuery {
           transcript@ru
           transcript@en
         }
-        translated_as {
-          uid
-          text
-          lang
-          transcript@ru
-          transcript@en
-          tag {
-            uid
-            text
-            lang
-            transcript@ru
-            transcript@en
-          }
-        }
+        $detailedInfo
+        $visualInfo
         audio $audioRange {
           uid
           url
@@ -103,19 +151,7 @@ class TermQuery {
             name
           }
         }
-        visual $visualRange {
-          url
-          source
-          content_type
-          views: count(see)
-          likes: count(like)
-          dislikes: count(dislike)
-          created_at
-          created_by {
-            uid
-            name
-          }
-        }
+        
       }
       count(func: $matchFn) $termFilter {
         total: count(${countBy()})
