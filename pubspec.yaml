@@ -27,13 +27,13 @@ dependencies:
   cupertino_icons: ^0.1.2
   shared_preferences: ^0.4.3
   validate: ^1.7.0
-  cached_network_image: ^0.5.1
+  cached_network_image: ^1.1.0
   audioplayer: ^0.5.2
   http: ^0.11.0
   http_auth: ^0.2.1
   intl_translation: ">=0.16.6"
   flutter_webview_plugin: ^0.3.0+2
-  uuid: 1.0.3
+  uuid: ^2.0.2
   youtube_player: ^3.4.1
 
 dev_dependencies:
