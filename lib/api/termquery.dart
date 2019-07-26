@@ -137,6 +137,7 @@ class TermQuery {
         }
         $detailedInfo
         $visualInfo
+        
         audio $audioRange {
           uid
           url

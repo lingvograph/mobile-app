@@ -15,26 +15,28 @@ class IconWithShadow extends StatefulWidget {
 class _DecorationState extends State<IconWithShadow> {
   @override
   Widget build(BuildContext context) {
-    return new Stack(
-      children: <Widget>[
-        Positioned(
-          top: widget.top,
-          left: widget.left,
-          child: Icon(
-            widget.child,
-            color: Colors.black,
-            size: widget.size,
+    return Container(
+      child: new Stack(
+        children: <Widget>[
+          Positioned(
+            top: widget.top,
+            left: widget.left,
+            child: Icon(
+              widget.child,
+              color: Colors.black,
+              size: widget.size,
+            ),
           ),
-        ),
-        Positioned(
-          child: Icon(
-            widget.child,
-            color: widget.color,
-            size: widget.size,
+          Positioned(
+            child: Icon(
+              widget.child,
+              color: widget.color,
+              size: widget.size,
+            ),
           ),
-        ),
 
-      ],
+        ],
+      ),
     );
   }
 }

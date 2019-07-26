@@ -42,6 +42,7 @@ List<IconData> images = [
 ];
 
 class TermDetailState extends State<TermDetail> {
+
   Widget cp = Container();
   Widget switcher = Container();
   String id;
@@ -50,7 +51,6 @@ class TermDetailState extends State<TermDetail> {
 
   TermDetailState(this.id);
 
-  Widget controll;
   List<Widget> pages;
   int viewMode = 3;
 
@@ -101,7 +101,9 @@ class TermDetailState extends State<TermDetail> {
 
   void initPages(TermInfo visualTerm) {
     pages = new List(title.length);
-
+    visualTerm.audio = term.audio;
+    term = visualTerm;
+    //начальная инициализация сообщением, информирующем об отсутствии данных
     for (int i = 0; i < title.length; i++) {
       pages[i] = Align(
         child: Container(
@@ -127,42 +129,8 @@ class TermDetailState extends State<TermDetail> {
         ),
       );
     }
-    controll = Container(
-      padding: EdgeInsets.only(right: 20),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: <Widget>[
-          IconButton(
-            icon: Icon(Icons.featured_play_list),
-            onPressed: () {
-              print("1");
-              setState(() {
-                viewMode = 1;
-              });
-              tabInflateMethods[currentPage.round()](visualTerm);
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.grid_on),
-            onPressed: () {
-              setState(() {
-                viewMode = 2;
-              });
-              tabInflateMethods[currentPage.round()](visualTerm);
-            },
-          ),
-          IconButton(
-            icon: Icon(FontAwesomeIcons.stream),
-            onPressed: () {
-              setState(() {
-                viewMode = 3;
-              });
-              tabInflateMethods[currentPage.round()](visualTerm);
-            },
-          )
-        ],
-      ),
-    );
+    //кнопки для контроля масштаба термов
+
     makeDetailedAudios(visualTerm);
     makeDetailedPictures(visualTerm);
 
@@ -227,7 +195,7 @@ class TermDetailState extends State<TermDetail> {
       if (viewMode == 2) {
         pages[pageIndex] = new Column(
           children: <Widget>[
-            controll,
+            getControll(),
             GridView.count(
               primary: false,
               shrinkWrap: true,
@@ -242,7 +210,7 @@ class TermDetailState extends State<TermDetail> {
       } else {
         pages[pageIndex] = Column(
           children: <Widget>[
-            controll,
+            getControll(),
             Column(
               children: children,
             )
@@ -363,6 +331,44 @@ class TermDetailState extends State<TermDetail> {
 
   var currentPage = 0.0;
 
+  Widget getControll()
+  {
+    return Container(
+      padding: EdgeInsets.only(right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: <Widget>[
+          IconButton(
+            icon: Icon(Icons.featured_play_list, color: viewMode==1? Colors.blue[500]:Colors.blue[200],),
+            onPressed: () {
+              setState(() {
+                viewMode = 1;
+              });
+              tabInflateMethods[currentPage.round()](term);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.grid_on,color: viewMode==2? Colors.blue[500]:Colors.blue[200],),
+            onPressed: () {
+              setState(() {
+                viewMode = 2;
+              });
+              tabInflateMethods[currentPage.round()](term);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.line_style, color: viewMode==3? Colors.blue[500]:Colors.blue[200],),
+            onPressed: () {
+              setState(() {
+                viewMode = 3;
+              });
+              tabInflateMethods[currentPage.round()](term);
+            },
+          )
+        ],
+      ),
+    );
+  }
   @override
   Widget build(BuildContext context) {
     if (term == null) {
@@ -446,3 +452,5 @@ class TermDetailState extends State<TermDetail> {
     );
   }
 }
+
+

@@ -1,6 +1,7 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/api/api.dart';
@@ -215,7 +216,7 @@ class _TermState extends State<TermView> {
     );
     var termTranscript = Positioned(
       left: 10,
-      top: 50,
+      top: 55,
       child: trans.isEmpty
           ? Text("")
           : new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
@@ -241,11 +242,14 @@ class _TermState extends State<TermView> {
     var termInfo = term.audio.total > 0
         ? Row(
             children: <Widget>[
-              IconWithShadow(
-                  color: Colors.grey[200],
-                  child: Icons.remove_red_eye,
-                  left: 1,
-                  top: 1),
+              Container(width: 30,
+                child: IconWithShadow(
+                    color: Colors.grey[200],
+                    child: FontAwesomeIcons.eye,
+                    left: 1.5,
+                    top: 1.5),
+              ),
+              Padding(padding: EdgeInsets.all(2),),
               Text(
                 firstAudio.views.toString(),
                 style: termTextStyleInfo,
@@ -256,9 +260,9 @@ class _TermState extends State<TermView> {
               InkWell(
                   child: IconWithShadow(
                       color: Colors.grey[200],
-                      child: Icons.thumb_up,
-                      left: 1,
-                      top: 1),
+                      child: FontAwesomeIcons.thumbsUp,
+                      left: 1.5,
+                      top: 1.5),
                   onTap: () {
                     debugPrint(firstAudio.uid);
                     like(appState.user.uid, firstAudio.uid);
@@ -273,9 +277,9 @@ class _TermState extends State<TermView> {
               InkWell(
                   child: IconWithShadow(
                       color: Colors.grey[200],
-                      child: Icons.thumb_down,
-                      left: 1,
-                      top: 1),
+                      child: FontAwesomeIcons.thumbsDown,
+                      left: 1.5,
+                      top: 1.5),
                   onTap: () {
                     dislike(appState.user.uid, firstAudio.uid);
                   }),
@@ -323,14 +327,14 @@ class _TermState extends State<TermView> {
           ]),
     );
     return Padding(
-      padding: EdgeInsets.only(left: 10, right: 10, top: 20),
+      padding: EdgeInsets.only(left: 5, right: 5, top: 10),
       child: Column(children: <Widget>[
         Container(
             constraints: new BoxConstraints.expand(
               height: 200.0,
             ),
             decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(color: Colors.grey, blurRadius: 5)
+              BoxShadow(color: Colors.grey[500], blurRadius: 5)
             ]),
             child: Stack(
               // TODO improve position of subtitles
