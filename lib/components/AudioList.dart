@@ -5,6 +5,7 @@ import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:country_icons/country_icons.dart';
+import 'package:flutter/rendering.dart';
 
 // TODO make it scrollable
 
@@ -12,13 +13,15 @@ class AudioList extends StatefulWidget {
   TermInfo term;
   VoidCallback refresh;
 
-  AudioList(this.term, this.refresh);
+  AudioList(this.term);
 
   @override
   _AudioListState createState() => _AudioListState();
 }
 
 class _AudioListState extends State<AudioList> {
+
+
   TermInfo get term {
     return widget.term;
   }
@@ -47,13 +50,38 @@ class _AudioListState extends State<AudioList> {
               new Column(
                 children: audios,
               ),
+
               Padding(
                 padding: EdgeInsets.all(10),
               ),
             ],
-          ),
+          ), //
         ),
       ),
+    );
+  }
+}
+
+class MyObservableWidget extends StatefulWidget {
+  const MyObservableWidget({Key key}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() => new MyObservableWidgetState();
+}
+
+class MyObservableWidgetState extends State<MyObservableWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return new Container(height: 1.0, color: Colors.transparent);
+  }
+}
+
+class ContainerWithBorder extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      decoration:
+          new BoxDecoration(border: new Border.all(), color: Colors.grey),
     );
   }
 }

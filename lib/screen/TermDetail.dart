@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/rendering.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -34,15 +35,11 @@ class TermDetail extends StatefulWidget {
   }
 }
 
-List<IconData> images = [
-  Icons.looks_one,
-  Icons.looks_two,
-  Icons.looks_3,
-  Icons.looks_4,
-];
-
 class TermDetailState extends State<TermDetail> {
+  GlobalKey<State> key = new GlobalKey();
 
+  int totalLoadedAudios = 0;
+  final int loadOffset = 10;
   Widget cp = Container();
   Widget switcher = Container();
   String id;
@@ -75,34 +72,10 @@ class TermDetailState extends State<TermDetail> {
     tabInflateMethods.add(makeDetailedDefinitionOf);
   }
 
-  //ДОДЕЛАТЬ................
-  void _showDialog() {
-    // flutter defined function
-    showDialog(
-      //context: context,
-      builder: (BuildContext context) {
-        // return object of type Dialog
-        return AlertDialog(
-          title: new Text("Alert Dialog title"),
-          content: new Text("Alert Dialog body"),
-          actions: <Widget>[
-            // usually buttons at the bottom of the dialog
-            new FlatButton(
-              child: new Text("Close"),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   void initPages(TermInfo visualTerm) {
     pages = new List(title.length);
-    visualTerm.audio = term.audio;
-    term = visualTerm;
+    //visualTerm.audio = term.audio;
+    //term = visualTerm;
     //начальная инициализация сообщением, информирующем об отсутствии данных
     for (int i = 0; i < title.length; i++) {
       pages[i] = Align(
@@ -189,8 +162,7 @@ class TermDetailState extends State<TermDetail> {
     makeTermListView(translationView, 2);
   }
 
-  void makeTermListView(List<Widget> children, int pageIndex)
-  {
+  void makeTermListView(List<Widget> children, int pageIndex) {
     if (children.length > 0) {
       if (viewMode == 2) {
         pages[pageIndex] = new Column(
@@ -219,6 +191,7 @@ class TermDetailState extends State<TermDetail> {
       }
     }
   }
+
   void makeDetailedAudios(TermInfo ti) {
     pages[0] = getAudiosPage();
   }
@@ -232,7 +205,6 @@ class TermDetailState extends State<TermDetail> {
           : pictures.add(InkWell(
               onTap: () {
                 print("TAPPPPPPP");
-                _showDialog();
               },
               child: Column(
                 children: <Widget>[
@@ -279,11 +251,12 @@ class TermDetailState extends State<TermDetail> {
   }
 
   fetchData() async {
-    var result = await fetchAudioList(id, 0, 10);
+    var result = await fetchAudioList(id, totalLoadedAudios, loadOffset);
+    totalLoadedAudios = result.audio.items.length;
     TermInfo visualTerm = await fetchVisualList(id, 0, 10);
+    visualTerm.audio = result.audio;
     term = visualTerm;
     setState(() {
-      term = result;
       initPages(visualTerm);
     });
   }
@@ -311,7 +284,7 @@ class TermDetailState extends State<TermDetail> {
 
   Widget getAudiosPage() {
     return term.audio.items.length > 0
-        ? new AudioList(term, fetchData)
+        ? new AudioList(term)
         : Align(
             child: Container(
               width: 200,
@@ -331,15 +304,17 @@ class TermDetailState extends State<TermDetail> {
 
   var currentPage = 0.0;
 
-  Widget getControll()
-  {
+  Widget getControll() {
     return Container(
       padding: EdgeInsets.only(right: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
           IconButton(
-            icon: Icon(Icons.featured_play_list, color: viewMode==1? Colors.blue[500]:Colors.blue[200],),
+            icon: Icon(
+              Icons.featured_play_list,
+              color: viewMode == 1 ? Colors.blue[500] : Colors.blue[200],
+            ),
             onPressed: () {
               setState(() {
                 viewMode = 1;
@@ -348,7 +323,10 @@ class TermDetailState extends State<TermDetail> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.grid_on,color: viewMode==2? Colors.blue[500]:Colors.blue[200],),
+            icon: Icon(
+              Icons.grid_on,
+              color: viewMode == 2 ? Colors.blue[500] : Colors.blue[200],
+            ),
             onPressed: () {
               setState(() {
                 viewMode = 2;
@@ -357,7 +335,10 @@ class TermDetailState extends State<TermDetail> {
             },
           ),
           IconButton(
-            icon: Icon(Icons.line_style, color: viewMode==3? Colors.blue[500]:Colors.blue[200],),
+            icon: Icon(
+              Icons.line_style,
+              color: viewMode == 3 ? Colors.blue[500] : Colors.blue[200],
+            ),
             onPressed: () {
               setState(() {
                 viewMode = 3;
@@ -369,6 +350,7 @@ class TermDetailState extends State<TermDetail> {
       ),
     );
   }
+
   @override
   Widget build(BuildContext context) {
     if (term == null) {
@@ -414,43 +396,84 @@ class TermDetailState extends State<TermDetail> {
       appBar: AppBar(
         title: Text("Detail"),
       ),
-      body: ListView(
-        shrinkWrap: true,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.only(top: 10, bottom: 10),
-            child: TermView(term: term, tappable: false),
-          ),
-          //switcher,
-          Container(
-            //padding: EdgeInsets.all(10),
+      body: NotificationListener<ScrollNotification>(
+          child: ListView(
+            shrinkWrap: true,
+            children: <Widget>[
+              Padding(
+                padding: EdgeInsets.only(top: 10, bottom: 10),
+                child: TermView(term: term, tappable: false),
+              ),
+              //switcher,
+              Container(
+                //padding: EdgeInsets.all(10),
 
-            child: Stack(
-              children: <Widget>[
-                Positioned(child: HorizontalEdgeMenu(currentPage)),
-                Positioned.fill(
-                  child: PageView.builder(
-                    itemCount: title.length,
-                    controller: controller,
-                    reverse: false,
-                    itemBuilder: (context, index) {
-                      return Container(
-                          //child: Text(index.toString()),
-                          );
-                    },
-                  ),
-                )
-              ],
-            ),
+                child: Stack(
+                  children: <Widget>[
+                    Positioned(child: HorizontalEdgeMenu(currentPage)),
+                    Positioned.fill(
+                      child: PageView.builder(
+                        itemCount: title.length,
+                        controller: controller,
+                        reverse: false,
+                        itemBuilder: (context, index) {
+                          return Container(
+                              //child: Text(index.toString()),
+                              );
+                        },
+                      ),
+                    )
+                  ],
+                ),
+              ),
+              pages[currentPage.round()],
+              //cp,
+              new MyObservableWidget(key: key),
+              RadialAddButton,
+            ],
           ),
-          pages[currentPage.round()],
-          //cp,
+          onNotification: (ScrollNotification scroll) {
+            var currentContext = key.currentContext;
+            if (currentContext == null) return false;
 
-          RadialAddButton,
-        ],
-      ),
+            var renderObject = currentContext.findRenderObject();
+            RenderAbstractViewport viewport =
+                RenderAbstractViewport.of(renderObject);
+            var offsetToRevealBottom =
+                viewport.getOffsetToReveal(renderObject, 1.0);
+            var offsetToRevealTop =
+                viewport.getOffsetToReveal(renderObject, 0.0);
+
+            if (scroll is ScrollEndNotification) {
+              print("d'e end");
+              if (offsetToRevealBottom.offset > scroll.metrics.pixels ||
+                  scroll.metrics.pixels > offsetToRevealTop.offset) {
+                //end of list is out of view
+              } else {
+                //end of the list is visible - time to load new content
+                print("end for sure");
+
+                fetchContent();
+              }
+            }
+
+            return false;
+          }),
     );
   }
+
+  void fetchContent() async {
+    print('audio fet');
+    if (term.audio.total > totalLoadedAudios) {
+      var result = await fetchAudioList(id, totalLoadedAudios, 5);
+      totalLoadedAudios += result.audio.items.length;
+      print(result.audio.items.length.toString() +
+          " tot " +
+          totalLoadedAudios.toString());
+      setState(() {
+        term.audio.items.addAll(result.audio.items);
+      });
+      tabInflateMethods[currentPage.round()](term);
+    }
+  }
 }
-
-
