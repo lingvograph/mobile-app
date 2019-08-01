@@ -38,13 +38,19 @@ class TermDetail extends StatefulWidget {
 class TermDetailState extends State<TermDetail> {
   GlobalKey<State> key = new GlobalKey();
 
+  //total loaded audios/visuals
   int totalLoadedAudios = 0;
-  final int loadOffset = 10;
+  int totalLoadedVisuals = 0;
+
+  final int loadOffset = 5;
+  //current page
   Widget cp = Container();
+  //horizontal switch menu
   Widget switcher = Container();
   String id;
   TermInfo term;
   int _addStatus = 1;
+  bool loading = false;
 
   TermDetailState(this.id);
 
@@ -256,6 +262,7 @@ class TermDetailState extends State<TermDetail> {
     TermInfo visualTerm = await fetchVisualList(id, 0, 10);
     visualTerm.audio = result.audio;
     term = visualTerm;
+    totalLoadedVisuals = term.visual.items.length;
     setState(() {
       initPages(visualTerm);
     });
@@ -444,15 +451,18 @@ class TermDetailState extends State<TermDetail> {
             var offsetToRevealTop =
                 viewport.getOffsetToReveal(renderObject, 0.0);
 
-            if (scroll is ScrollEndNotification) {
-              print("d'e end");
-              if (offsetToRevealBottom.offset > scroll.metrics.pixels ||
-                  scroll.metrics.pixels > offsetToRevealTop.offset) {
-                //end of list is out of view
-              } else {
-                //end of the list is visible - time to load new content
-                print("end for sure");
+            //Если маркер находится в поле видимости, попытаться подтянуть данные
+            if (offsetToRevealBottom.offset > scroll.metrics.pixels ||
+                scroll.metrics.pixels > offsetToRevealTop.offset) {
+              //end of list is out of view
+            } else {
+              //end of the list is visible - time to load new content
+              print("end for sure");
 
+              //Пытаться загрузить, только если сейчас не грузит
+              //Я уже 1 раз так сервер уронил
+              if (!loading) {
+                loading = true;
                 fetchContent();
               }
             }
@@ -463,15 +473,42 @@ class TermDetailState extends State<TermDetail> {
   }
 
   void fetchContent() async {
+    //Тут смотрит по текуйщей странице что грузить
+    //Возможно это можно сделать оптимальней и более гибко...
+    //Например список методов или сущность страницы с методами и данными, но в этом (наверно) пока нет смысла
+    if(currentPage.round() == 0)
+      {
+        await paginateAudios();
+      }
+    if(currentPage.round() == 1)
+      {
+        await paginateVisual();
+      }
+    print("finish");
+    loading = false;
+  }
+
+  paginateAudios() async {
     print('audio fet');
     if (term.audio.total > totalLoadedAudios) {
       var result = await fetchAudioList(id, totalLoadedAudios, 5);
       totalLoadedAudios += result.audio.items.length;
-      print(result.audio.items.length.toString() +
-          " tot " +
-          totalLoadedAudios.toString());
+
       setState(() {
         term.audio.items.addAll(result.audio.items);
+      });
+      tabInflateMethods[currentPage.round()](term);
+    }
+  }
+
+  paginateVisual() async{
+    print('visual fet');
+    if (term.visual.total > totalLoadedVisuals) {
+      var result = await fetchAudioList(id, totalLoadedVisuals, 5);
+      totalLoadedVisuals += result.visual.items.length;
+
+      setState(() {
+        term.visual.items.addAll(result.visual.items);
       });
       tabInflateMethods[currentPage.round()](term);
     }
