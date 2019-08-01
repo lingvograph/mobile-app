@@ -151,6 +151,41 @@ class DiscoverState extends State<DiscoverScreen> {
     }
   }
 
+  loadWithTag(TermInfo tag) async
+  {
+    List<TermInfo> tags = new List();
+    tags.add(tag);
+    var filter = new TermFilter('', tags: tags);
+    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
+    print(result.items.toList().toString());
+    if (result.total > 0)
+    {
+      total = result.total;
+
+      terms = new List();
+      for (int i = 0; i < result.total; i++)
+      {
+        try
+        {
+          setState(()
+          {
+            terms.add(result.items[i]);
+          });
+        } catch (e)
+        {}
+      }
+    } else if (result.total == 0)
+    {
+      TermInfo t = TermInfo.fromJson(notFound);
+
+      setState(()
+      {
+        terms = new List();
+        terms.add(t);
+        total = 1;
+      });
+    }
+  }
   loadBySearch(String t) async {
     if(t.length==0)
       {
@@ -263,7 +298,7 @@ class DiscoverState extends State<DiscoverScreen> {
         itemCount: terms.length,
         itemBuilder: (BuildContext context, int index) {
           return new TermView(
-            term: terms[index],
+            term: terms[index],onSearch: loadWithTag,
           );
         });
   }

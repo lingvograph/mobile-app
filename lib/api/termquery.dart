@@ -59,7 +59,7 @@ class TermQuery {
     final searchFilter = makeSearchFilter();
     final langFilter = 'not eq(lang, "$firstLang")';
     final tagFilter = filter.tags.isNotEmpty
-        ? brace(filter.tags.map((t) => 'uid_id(tag, ${t.uid})').join(' or '))
+        ? brace(filter.tags.map((t) => 'uid_in(tag, ${t.uid})').join(' or '))
         : '';
 
     final filterExpr = ['has(Term)', langFilter, tagFilter, searchFilter]

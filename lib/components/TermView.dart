@@ -14,7 +14,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:youtube_player/youtube_player.dart';
 
 /*Ультимативный typedef*/
-typedef SearchCallback = void Function(String searchString);
+typedef SearchCallback = void Function(TermInfo termForSearch);
 
 class TermView extends StatefulWidget {
   SearchCallback onSearch;
@@ -178,9 +178,12 @@ class _TermState extends State<TermView> {
                 new InkWell(
                     onTap: imageOnTap,
                     child: makeImage(term.visual.items[0], context)),
-                Positioned(top: 30,left: 12,
+                Positioned(
+                  top: 30,
+                  left: 12,
                   child: text1.length > 15
-                      ? new Text(text1.substring(0, 15) + "...", style: termTextStyle)
+                      ? new Text(text1.substring(0, 15) + "...",
+                          style: termTextStyle)
                       : new Text(text1, style: termTextStyle),
                 )
               ],
@@ -242,14 +245,17 @@ class _TermState extends State<TermView> {
     var termInfo = term.audio.total > 0
         ? Row(
             children: <Widget>[
-              Container(width: 30,
+              Container(
+                width: 30,
                 child: IconWithShadow(
                     color: Colors.grey[200],
                     child: FontAwesomeIcons.eye,
                     left: 1.5,
                     top: 1.5),
               ),
-              Padding(padding: EdgeInsets.all(2),),
+              Padding(
+                padding: EdgeInsets.all(2),
+              ),
               Text(
                 firstAudio.views.toString(),
                 style: termTextStyleInfo,
@@ -369,7 +375,10 @@ class _TermState extends State<TermView> {
               "#" + (t.text ?? "") + " ",
               style: TextStyle(color: Colors.blue),
             )),
-        onTap: null,
+        onTap: () {
+          print(t.uid.toString());
+          widget.onSearch(t);
+        },
       ),
     );
   }
