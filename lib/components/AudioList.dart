@@ -4,7 +4,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
-import 'package:country_icons/country_icons.dart';
 import 'package:flutter/rendering.dart';
 
 // TODO make it scrollable
