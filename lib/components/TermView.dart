@@ -395,8 +395,7 @@ class _TermState extends State<TermView> {
       if (term.audio.items.isNotEmpty) {
         view(appState.user.uid, term.audio.items[0].uid);
       }
-      var route = MaterialPageRoute(builder: (_) => new TermDetail(term.uid));
-      Navigator.push(context, route);
+      Navigator.push(context, MaterialPageRoute(builder: (context) => TermDetail(term.uid)));
     }
   }
 
@@ -452,6 +451,12 @@ class _TermState extends State<TermView> {
 
   loadImg(String url) {
     var img;
+    if(url == null)
+      {
+        img = CachedNetworkImageProvider(
+            "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
+        return img;
+      }
     img = new CachedNetworkImageProvider(url, errorListener: () {
       print("failed");
       img = CachedNetworkImageProvider(
@@ -462,6 +467,20 @@ class _TermState extends State<TermView> {
 
   Widget makeImage(MediaInfo visual, BuildContext context) {
     print(visual.url);
+
+    var img = new Container(
+      padding: new EdgeInsets.only(left: 16.0, right: 16.0),
+      decoration: new BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: new Border.all(color: Colors.grey, width: 2),
+        image: new DecorationImage(
+          image: loadImg(visual.url),
+          fit: BoxFit.cover,
+        ),
+      ),
+    );
+    if(visual.url==null)
+      return img;
     return visual.url.toString().contains("www.youtube.com")
         ? Container(
             child: YoutubePlayer(
@@ -474,17 +493,7 @@ class _TermState extends State<TermView> {
               // use it to control player on your own.
             ),
           )
-        : new Container(
-            padding: new EdgeInsets.only(left: 16.0, right: 16.0),
-            decoration: new BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              border: new Border.all(color: Colors.grey, width: 2),
-              image: new DecorationImage(
-                image: loadImg(visual.url),
-                fit: BoxFit.cover,
-              ),
-            ),
-          );
+        : img;
   }
 
   String getTubeVideoSource(String url) {

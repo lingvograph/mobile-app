@@ -41,10 +41,13 @@ class TermDetailState extends State<TermDetail> {
   //total loaded audios/visuals
   int totalLoadedAudios = 0;
   int totalLoadedVisuals = 0;
+  String dropdownValue = 'ru';
 
   final int loadOffset = 5;
+
   //current page
   Widget cp = Container();
+
   //horizontal switch menu
   Widget switcher = Container();
   String id;
@@ -159,10 +162,15 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedTranslations(TermInfo visualTerm) {
     List<Widget> translationView = new List();
     for (int i = 0; i < visualTerm.translations.length; i++) {
-      translationView.add(TermView(
-        term: visualTerm.translations[i],
-        viewMode: viewMode,
-      ));
+      print(visualTerm.translations[i].lang);
+      if(visualTerm.translations[i].lang == dropdownValue)
+        {
+          translationView.add(TermView(
+            term: visualTerm.translations[i],
+            viewMode: viewMode,
+          ));
+        }
+
     }
 
     makeTermListView(translationView, 2);
@@ -196,6 +204,14 @@ class TermDetailState extends State<TermDetail> {
         );
       }
     }
+    else
+      {
+        pages[pageIndex] = Column(
+          children: <Widget>[
+            getControll(),
+          ],
+        );
+      }
   }
 
   void makeDetailedAudios(TermInfo ti) {
@@ -206,37 +222,41 @@ class TermDetailState extends State<TermDetail> {
     List<Widget> pictures = new List();
 
     for (int i = 0; i < visualTerm.visual.total; i++) {
-      visualTerm.visual.items[i].url.contains('youtube')
-          ? pictures.add(Container())
-          : pictures.add(InkWell(
-              onTap: () {
-                print("TAPPPPPPP");
-              },
-              child: Column(
-                children: <Widget>[
-                  Padding(
-                    child: Container(
-                      height: 200,
-                      padding: new EdgeInsets.only(left: 16.0, right: 16.0),
-                      decoration: new BoxDecoration(
-                        boxShadow: <BoxShadow>[BoxShadow(blurRadius: 10)],
-                        borderRadius: BorderRadius.circular(5),
-                        border:
-                            new Border.all(color: Colors.grey[400], width: 2),
-                        image: new DecorationImage(
-                          image: loadImg(visualTerm.visual.items[i].url),
-                          fit: BoxFit.cover,
+      try {
+        visualTerm.visual.items[i].url.contains('youtube')
+            ? pictures.add(Container())
+            : pictures.add(InkWell(
+                onTap: () {
+                  print("TAPPPPPPP");
+                },
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      child: Container(
+                        height: 200,
+                        padding: new EdgeInsets.only(left: 16.0, right: 16.0),
+                        decoration: new BoxDecoration(
+                          boxShadow: <BoxShadow>[BoxShadow(blurRadius: 10)],
+                          borderRadius: BorderRadius.circular(5),
+                          border:
+                              new Border.all(color: Colors.grey[400], width: 2),
+                          image: new DecorationImage(
+                            image: loadImg(visualTerm.visual.items[i].url),
+                            fit: BoxFit.cover,
+                          ),
                         ),
                       ),
+                      padding: EdgeInsets.all(7),
                     ),
-                    padding: EdgeInsets.all(7),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.all(1),
-                  )
-                ],
-              ),
-            ));
+                    Padding(
+                      padding: EdgeInsets.all(1),
+                    )
+                  ],
+                ),
+              ));
+      } catch (e) {
+        pictures.add(Container());
+      }
     }
 
     if (pictures.length > 0) {
@@ -317,6 +337,25 @@ class TermDetailState extends State<TermDetail> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
+      DropdownButton<String>(
+      value: dropdownValue,
+        onChanged: (String newValue) {
+          setState(() {
+            dropdownValue = newValue;
+            tabInflateMethods[currentPage.round()](term);
+
+          });
+        },
+        items: <String>['en', 'ru', 'fr']
+            .map<DropdownMenuItem<String>>((String value) {
+          return DropdownMenuItem<String>(
+            value: value,
+            child: Text(value),
+          );
+        })
+            .toList(),
+      ),
+          Padding(padding: EdgeInsets.all(5),),
           IconButton(
             icon: Icon(
               Icons.featured_play_list,
@@ -457,7 +496,7 @@ class TermDetailState extends State<TermDetail> {
               //end of list is out of view
             } else {
               //end of the list is visible - time to load new content
-              print("end for sure");
+              //print("end for sure");
 
               //Пытаться загрузить, только если сейчас не грузит
               //Я уже 1 раз так сервер уронил
@@ -476,15 +515,13 @@ class TermDetailState extends State<TermDetail> {
     //Тут смотрит по текуйщей странице что грузить
     //Возможно это можно сделать оптимальней и более гибко...
     //Например список методов или сущность страницы с методами и данными, но в этом (наверно) пока нет смысла
-    if(currentPage.round() == 0)
-      {
-        await paginateAudios();
-      }
-    if(currentPage.round() == 1)
-      {
-        await paginateVisual();
-      }
-    print("finish");
+    if (currentPage.round() == 0) {
+      await paginateAudios();
+    }
+    if (currentPage.round() == 1) {
+      await paginateVisual();
+    }
+    //print("finish");
     loading = false;
   }
 
@@ -501,7 +538,7 @@ class TermDetailState extends State<TermDetail> {
     }
   }
 
-  paginateVisual() async{
+  paginateVisual() async {
     print('visual fet');
     if (term.visual.total > totalLoadedVisuals) {
       var result = await fetchAudioList(id, totalLoadedVisuals, 5);

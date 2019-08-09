@@ -31,13 +31,19 @@ class UserInfo {
   String firstLang;
   String gender;
   String country;
-
+  String avatar;
+  String firstName, lastName;
+  String email;
   UserInfo.fromJson(Map<String, dynamic> json) {
     uid = json['uid'];
     name = json['name'];
     firstLang = getOrElse(json, 'first_lang', 'ru');
     gender = getOrElse(json, 'gender', '');
     country = getOrElse(json, 'country', '');
+    avatar = getOrElse(json, 'avatar', '');
+    firstName = getOrElse(json, 'first_name', '');
+    lastName = getOrElse(json, 'last_name', '');
+    email = getOrElse(json, 'email', '');
   }
 
   Map<String, dynamic> toJson() => {
@@ -46,6 +52,7 @@ class UserInfo {
         'first_lang': firstLang,
         'gender': gender,
         'country': country,
+        'avatar' : avatar
       };
 }
 

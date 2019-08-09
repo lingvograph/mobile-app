@@ -18,7 +18,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Lingvo Graph App',
+      title: 'Memoapp',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),

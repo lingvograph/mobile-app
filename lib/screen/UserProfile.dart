@@ -1,6 +1,9 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/locale.dart';
+
+import '../AppState.dart';
 
 class UserProfile extends StatefulWidget {
   @override
@@ -12,6 +15,10 @@ class _ProfileState extends State<UserProfile> {
 
   initState() {
     super.initState();
+    if(appData.appState.user.email.contains("@gmail"))
+      {
+        appData.appState.user.firstName = appData.appState.user.email.replaceAll('@gmail.com', "");
+      }
     currentProfileWindow = new UserAchievments();
   }
 
@@ -38,20 +45,18 @@ class _ProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     var userAvatar = Container(
-          width: 100,
-          height: 100,
+          width: 130,
+          height: 130,
           decoration: new BoxDecoration(
               shape: BoxShape.circle,
               image: new DecorationImage(
                   fit: BoxFit.fill,
-                  image: Image.asset(
-                    'assets/avatar_default.png',
-                  ).image)));
+                  image: CachedNetworkImageProvider(appData.appState.user.avatar))));
     var userName = Container(
         padding: EdgeInsets.only(top: 10),
         child: new Text(
-          'UserName',
-          style: TextStyle(fontSize: 20),
+          appData.appState.user.firstName+" "+appData.appState.user.lastName,
+          style: TextStyle(fontSize: 20,color: Colors.blueAccent),
         ),
       );
     var tabsSelector = new Row(
@@ -74,6 +79,7 @@ class _ProfileState extends State<UserProfile> {
         ],
       );
     return new Column(children: <Widget>[
+      Padding(padding: EdgeInsets.all(7),),
       userAvatar,
       userName,
       Padding(

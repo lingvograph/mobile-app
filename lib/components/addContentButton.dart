@@ -93,14 +93,16 @@ class RadialAnimation extends StatelessWidget {
                     .toList()
                   ..add(Transform.scale(
                     scale: scale.value - 1,
-                    child: FloatingActionButton(
+                    child: new FloatingActionButton(
+                      heroTag: "btn1",
                         child: Icon(FontAwesomeIcons.minus),
                         onPressed: _close,
                         backgroundColor: Colors.red),
                   ))
                   ..add(Transform.scale(
                     scale: scale.value / 1.5,
-                    child: FloatingActionButton(
+                    child: new FloatingActionButton(
+                        heroTag: "btn2",
                         child: Icon(FontAwesomeIcons.plus),
                         onPressed: _open),
                   )),
@@ -125,7 +127,8 @@ class RadialAnimation extends StatelessWidget {
         transform: Matrix4.identity()
           ..translate(
               (translation.value) * cos(rad), (translation.value) * sin(rad)),
-        child: FloatingActionButton(
+        child: new FloatingActionButton(
+            heroTag: "btn3",
             child: Icon(icon),
             backgroundColor: color,
             onPressed: (){onTap();},

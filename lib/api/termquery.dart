@@ -99,7 +99,18 @@ class TermQuery {
             lang
             transcript@ru
             transcript@en
-          }""";
+          }
+          audio $audioRange {
+            uid
+            url
+            source
+            content_type
+            views: count(see)
+            likes: count(like)
+            dislikes: count(dislike)
+            
+          }
+          """;
 
     final detailedInfo = detailed
         ? """
