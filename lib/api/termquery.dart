@@ -58,6 +58,7 @@ class TermQuery {
     final brace = (String s) => '($s)';
     final searchFilter = makeSearchFilter();
     final langFilter = 'not eq(lang, "$firstLang")';
+    //Тут можно сделать AND и тогда тэги при поиске будут "умножаться", не знаю как технически правильней
     final tagFilter = filter.tags.isNotEmpty
         ? brace(filter.tags.map((t) => 'uid_in(tag, ${t.uid})').join(' or '))
         : '';

@@ -2,10 +2,12 @@ import 'dart:convert';
 
 import 'package:audioplayer/audioplayer.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/termquery.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:memoapp/components/AppBar.dart';
+import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/components/RecordAudioWidget.dart';
 import 'package:memoapp/components/TermView.dart';
@@ -41,6 +43,9 @@ class DiscoverState extends State<DiscoverScreen> {
   int total;
   ScrollController scrollController = new ScrollController();
   String searchString = '';
+  GlobalKey<State> key = new GlobalKey();
+  bool loading = false;
+  List<TermInfo> searchTags;
 
   get appState {
     return appData.appState;
@@ -49,23 +54,15 @@ class DiscoverState extends State<DiscoverScreen> {
   @override
   void initState() {
     super.initState();
-
-    fetchPage();
+    searchTags = new List();
     tags = new List();
 
+    fetchPage();
     getTagList();
-    scrollController.addListener(() {
-      var atBottom = scrollController.position.pixels ==
-          scrollController.position.maxScrollExtent;
-      if (atBottom && terms.length < total) {
-        fetchPage();
-      }
-    });
   }
 
   @override
   void dispose() {
-
     scrollController.dispose();
     super.dispose();
   }
@@ -90,6 +87,7 @@ class DiscoverState extends State<DiscoverScreen> {
           )),
     );
   }
+
   List<TermInfo> tags;
 
   getTagList() async {
@@ -109,10 +107,12 @@ class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> getSelected(String text) {
     List<TermInfo> res = new List();
     for (int i = 0; i < tags.length; i++) {
-
-      print(tags[i].text==null?"null":tags[i].text);
+      print(tags[i].text == null ? "null" : tags[i].text);
       //print(text+" "+text.replaceAll('#', ''));
-      if (tags[i]!=null && tags[i].text!=null && text.length > 1 && tags[i].text.contains(text.substring(1))) {
+      if (tags[i] != null &&
+          tags[i].text != null &&
+          text.length > 1 &&
+          tags[i].text.contains(text.substring(1))) {
         print(tags[i].text);
 
         res.add(tags[i]);
@@ -120,8 +120,9 @@ class DiscoverState extends State<DiscoverScreen> {
     }
     return res;
   }
+
   doSearch(String text) async {
-    if (text.length>0 && text[0]=="#") {
+    if (text.length > 0 && text[0] == "#") {
       print("by tag!");
       List<TermInfo> res = getSelected(text);
       if (res.length > 0) {
@@ -144,80 +145,63 @@ class DiscoverState extends State<DiscoverScreen> {
           total = 1;
         });
       }
-
     } else {
       terms = new List();
       loadBySearch(text);
     }
   }
 
-  loadWithTag(TermInfo tag) async
-  {
-    List<TermInfo> tags = new List();
-    tags.add(tag);
-    var filter = new TermFilter('', tags: tags);
+  loadWithTag(TermInfo tag) async {
+    if (tag!=null && !TermInfo.contains(searchTags, tag)) {
+      searchTags.add(tag);
+    }
+    var filter = new TermFilter('', tags: searchTags);
     var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
     print(result.items.toList().toString());
-    if (result.total > 0)
-    {
+    if (result.total > 0) {
       total = result.total;
 
       terms = new List();
-      for (int i = 0; i < result.total; i++)
-      {
-        try
-        {
-          setState(()
-          {
+      for (int i = 0; i < result.total; i++) {
+        try {
+          setState(() {
             terms.add(result.items[i]);
           });
-        } catch (e)
-        {}
+        } catch (e) {}
       }
-    } else if (result.total == 0)
-    {
+    } else if (result.total == 0) {
       TermInfo t = TermInfo.fromJson(notFound);
 
-      setState(()
-      {
+      setState(() {
         terms = new List();
         terms.add(t);
         total = 1;
       });
     }
   }
+
   loadBySearch(String t) async {
-    if(t.length==0)
-      {
-        fetchPage();
-      }
-    else
-    {
+    if (t.length == 0) {
+      fetchPage();
+    } else {
       var filter = new TermFilter(t);
       var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
       print(result.items.toList().toString());
-      if (result.total > 0)
-      {
+      if (result.total > 0) {
         total = result.total;
 
         terms = new List();
-        for (int i = 0; i < result.total; i++)
-        {
-          try
-          {
-            setState(()
-            {
+        for (int i = 0; i < result.total; i++) {
+          try {
+            setState(() {
               terms.add(result.items[i]);
             });
-          } catch (e)
-          {}
+          } catch (e) {}
         }
-      } else if (result.total == 0)
-      {
+      } else if (result.total == 0) {
         TermInfo t = TermInfo.fromJson(notFound);
 
-        setState(()
-        {
+        setState(() {
           terms = new List();
           terms.add(t);
           total = 1;
@@ -233,6 +217,8 @@ class DiscoverState extends State<DiscoverScreen> {
     var result =
         await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
 
+    print("loaded");
+    loading = false;
     //print(result.toString());
     setState(() {
       total = result.total;
@@ -293,13 +279,117 @@ class DiscoverState extends State<DiscoverScreen> {
   }
 
   Widget makeListView() {
-    return new ListView.builder(
-        controller: scrollController,
-        itemCount: terms.length,
-        itemBuilder: (BuildContext context, int index) {
-          return new TermView(
-            term: terms[index],onSearch: loadWithTag,
-          );
+    return NotificationListener<ScrollNotification>(
+        child: ListView(
+          //shrinkWrap: true,
+          children: <Widget>[
+            currentTags(),
+            new ListView.builder(
+                controller: scrollController,
+                shrinkWrap: true,
+                itemCount: terms.length,
+                itemBuilder: (BuildContext context, int index) {
+                  return new TermView(
+                    term: terms[index],
+                    onSearch: loadWithTag,
+                  );
+                }),
+            new MyObservableWidget(key: key),
+          ],
+        ),
+        onNotification: (ScrollNotification scroll) {
+          var currentContext = key.currentContext;
+          if (currentContext == null) return false;
+
+          var renderObject = currentContext.findRenderObject();
+          RenderAbstractViewport viewport =
+              RenderAbstractViewport.of(renderObject);
+          var offsetToRevealBottom =
+              viewport.getOffsetToReveal(renderObject, 1.0);
+          var offsetToRevealTop = viewport.getOffsetToReveal(renderObject, 0.0);
+
+          //Если маркер находится в поле видимости, попытаться подтянуть данные
+          if (offsetToRevealBottom.offset > scroll.metrics.pixels ||
+              scroll.metrics.pixels > offsetToRevealTop.offset) {
+            //end of list is out of view
+          } else {
+            //end of the list is visible - time to load new content
+            //print("end for sure");
+
+            //Пытаться загрузить, только если сейчас не грузит
+            //Я уже 1 раз так сервер уронил
+            if (!loading) {
+              print("load..");
+              loading = true;
+              fetchPage();
+            }
+          }
+
+          return false;
         });
+  }
+
+  Widget currentTags() {
+    List<Widget> children = new List();
+    for (int i = 0; i < searchTags.length; i++) {
+      children.add(Container(
+        padding: EdgeInsets.all(3),
+        child: new Container(
+          padding: EdgeInsets.all(5),
+          child: Container(
+            //height: 40,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  "#"+searchTags[i].text,
+                  style: TextStyle(fontSize: 16, color: Colors.blueAccent),
+                ),
+                Padding(padding: EdgeInsets.all(2),),
+                InkWell(
+                  child: Icon(
+                    Icons.clear,
+                    size: 23,
+                    color: Colors.redAccent,
+                  ),
+
+                  onTap: () {
+
+                    print("dsa");
+                    setState(() {
+                      TermInfo.remove(searchTags, searchTags[i]);
+                      if(searchTags.length==0)
+                        {
+                          print("empty");
+                          terms = new List();
+                          fetchPage();
+                        }
+                      else
+                        {
+                          print("refresh");
+
+                          loadWithTag(null);
+                        }
+                    });
+                  },
+                ),
+              ],
+            ),
+          ),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(5),
+              color: Colors.grey[200],
+              boxShadow: <BoxShadow>[
+                BoxShadow(color: Colors.grey[400], blurRadius: 4)
+              ]),
+        ),
+      ));
+    }
+    return Center(
+        child: Container(
+      child: Wrap(
+        children: children,
+      ),
+    ));
   }
 }

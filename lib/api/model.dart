@@ -188,6 +188,27 @@ class TermInfo {
       print(url.toString()+' - not connected '+e.message.toString());
     }
   }
+
+  bool equals(TermInfo l) {
+    return l.uid == this.uid;
+  }
+  static bool contains(List<TermInfo> l, TermInfo t)
+  {
+    for(int i=0;i<l.length;i++)
+    {
+      if(t.equals(l[i]))
+        return true;
+    }
+    return false;
+  }
+  static remove(List<TermInfo> l, TermInfo t)
+  {
+    for(int i=0;i<l.length;i++)
+    {
+      if(t.equals(l[i]))
+        l.removeAt(i);
+    }
+  }
 }
 bool isIdiom(List<TermInfo> tags)
 {
