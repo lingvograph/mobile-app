@@ -46,6 +46,7 @@ class DiscoverState extends State<DiscoverScreen> {
   GlobalKey<State> key = new GlobalKey();
   bool loading = false;
   List<TermInfo> searchTags;
+  TermFilter globalFilter;
 
   get appState {
     return appData.appState;
@@ -121,6 +122,31 @@ class DiscoverState extends State<DiscoverScreen> {
     return res;
   }
 
+  //TODO REFACTOR THIS
+  Future<int> getTermsAndAppend(
+      int start, int offset, TermFilter filter) async {
+    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
+    if (result.total > 0) {
+      total += result.total;
+
+      for (int i = 0; i < result.total; i++) {
+        try {
+          setState(() {
+            terms.add(result.items[i]);
+          });
+        } catch (e) {}
+      }
+      return 1;
+    } else
+      return 0;
+  }
+
+  Future<int> loadAndFlush(int start, int offset, TermFilter filter) async {
+    terms = new List();
+    total = 0;
+    return getTermsAndAppend(start, offset, filter);
+  }
+
   doSearch(String text) async {
     if (text.length > 0 && text[0] == "#") {
       print("by tag!");
@@ -136,6 +162,8 @@ class DiscoverState extends State<DiscoverScreen> {
             });
           } catch (e) {}
         }
+        searchTags = res;
+        getTermsAndAppend(0, 5, new TermFilter('', tags: searchTags));
       } else if (res.length == 0) {
         TermInfo t = TermInfo.fromJson(notFound);
 
@@ -146,30 +174,20 @@ class DiscoverState extends State<DiscoverScreen> {
         });
       }
     } else {
+      searchTags = new List();
       terms = new List();
       loadBySearch(text);
     }
   }
 
   loadWithTag(TermInfo tag) async {
-    if (tag!=null && !TermInfo.contains(searchTags, tag)) {
+    if (tag != null && !TermInfo.contains(searchTags, tag)) {
       searchTags.add(tag);
     }
     var filter = new TermFilter('', tags: searchTags);
-    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
-    print(result.items.toList().toString());
-    if (result.total > 0) {
-      total = result.total;
 
-      terms = new List();
-      for (int i = 0; i < result.total; i++) {
-        try {
-          setState(() {
-            terms.add(result.items[i]);
-          });
-        } catch (e) {}
-      }
-    } else if (result.total == 0) {
+    var code = await loadAndFlush(0, 5, filter);
+    if (code == 0) {
       TermInfo t = TermInfo.fromJson(notFound);
 
       setState(() {
@@ -342,35 +360,31 @@ class DiscoverState extends State<DiscoverScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 Text(
-                  "#"+searchTags[i].text,
+                  "#" + searchTags[i].text,
                   style: TextStyle(fontSize: 16, color: Colors.blueAccent),
                 ),
-                Padding(padding: EdgeInsets.all(2),),
+                Padding(
+                  padding: EdgeInsets.all(2),
+                ),
                 InkWell(
                   child: Icon(
                     Icons.clear,
                     size: 23,
                     color: Colors.redAccent,
                   ),
-
                   onTap: () {
-
                     print("dsa");
-                    setState(() {
-                      TermInfo.remove(searchTags, searchTags[i]);
-                      if(searchTags.length==0)
-                        {
-                          print("empty");
-                          terms = new List();
-                          fetchPage();
-                        }
-                      else
-                        {
-                          print("refresh");
 
-                          loadWithTag(null);
-                        }
-                    });
+                    TermInfo.remove(searchTags, searchTags[i]);
+                    if (searchTags.length == 0) {
+                      print("empty");
+                      terms = new List();
+                      fetchPage();
+                    } else {
+                      print("refresh");
+
+                      loadWithTag(null);
+                    }
                   },
                 ),
               ],
