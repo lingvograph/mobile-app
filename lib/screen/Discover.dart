@@ -163,8 +163,11 @@ class DiscoverState extends State<DiscoverScreen> {
           } catch (e) {}
         }
         searchTags = res;
-        getTermsAndAppend(0, 5, new TermFilter('', tags: searchTags));
+        TermFilter filter = new TermFilter('', tags: searchTags);
+        globalFilter = filter;
+        getTermsAndAppend(0, 5, filter);
       } else if (res.length == 0) {
+        globalFilter = null;
         TermInfo t = TermInfo.fromJson(notFound);
 
         setState(() {
@@ -174,6 +177,7 @@ class DiscoverState extends State<DiscoverScreen> {
         });
       }
     } else {
+      globalFilter = null;
       searchTags = new List();
       terms = new List();
       loadBySearch(text);
@@ -185,11 +189,11 @@ class DiscoverState extends State<DiscoverScreen> {
       searchTags.add(tag);
     }
     var filter = new TermFilter('', tags: searchTags);
-
+    globalFilter = filter;
     var code = await loadAndFlush(0, 5, filter);
     if (code == 0) {
       TermInfo t = TermInfo.fromJson(notFound);
-
+      globalFilter = null;
       setState(() {
         terms = new List();
         terms.add(t);
@@ -200,9 +204,12 @@ class DiscoverState extends State<DiscoverScreen> {
 
   loadBySearch(String t) async {
     if (t.length == 0) {
+      searchTags = new List();
+      globalFilter = null;
       fetchPage();
     } else {
       var filter = new TermFilter(t);
+      globalFilter = filter;
       var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
       print(result.items.toList().toString());
       if (result.total > 0) {
@@ -231,7 +238,7 @@ class DiscoverState extends State<DiscoverScreen> {
 
   /*create new method */
   fetchPage() async {
-    var filter = new TermFilter("");
+    var filter = globalFilter==null?new TermFilter(""):globalFilter;
     var result =
         await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
 
