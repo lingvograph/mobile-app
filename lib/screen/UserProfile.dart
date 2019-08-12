@@ -48,6 +48,7 @@ class _ProfileState extends State<UserProfile> {
           width: 130,
           height: 130,
           decoration: new BoxDecoration(
+              border: new Border.all(color: Colors.blueAccent,width: 2),
               shape: BoxShape.circle,
               image: new DecorationImage(
                   fit: BoxFit.fill,

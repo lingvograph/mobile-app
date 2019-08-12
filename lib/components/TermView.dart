@@ -42,6 +42,8 @@ class _TermState extends State<TermView> {
   double width;
   double imgH;
 
+  Color textColor = Colors.blue[900];
+
   AppState get appState {
     return appData.appState;
   }
@@ -71,6 +73,32 @@ class _TermState extends State<TermView> {
     }
   }
 
+  Widget getTags() {
+    List<Widget> tags = new List();
+    for (int i = 0; i < term.tags.length; i++) {
+      tags.add(Container(
+        padding: EdgeInsets.all(1),
+        child: Container(
+          decoration: BoxDecoration(
+              border: new Border.all(color: Colors.blueAccent),
+              borderRadius: BorderRadius.circular(4)),
+          child: Text(
+            term.tags[i].text.length > 3
+                ? term.tags[i].text.substring(0, 3) + '.'
+                : term.tags[i].text,
+            style: TextStyle(color: Colors.blueAccent, fontSize: 17),
+          ),
+          padding: EdgeInsets.all(2),
+        ),
+      ));
+    }
+    return Container(
+      child: Row(
+        children: tags,
+      ),
+    );
+  }
+
   Widget makeCompactView(BuildContext context) {
     var firstLang = appState.user?.firstLang ?? 'ru';
     var text1 = term.text ?? '';
@@ -84,7 +112,8 @@ class _TermState extends State<TermView> {
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisSize: MainAxisSize.max,
         children: <Widget>[
           Container(
             padding: EdgeInsets.all(3),
@@ -101,6 +130,9 @@ class _TermState extends State<TermView> {
                     Text(text1,
                         style:
                             TextStyle(fontSize: 19, color: Colors.blue[600])),
+                    Padding(
+                      padding: EdgeInsets.all(2),
+                    ),
                     Text("@" + term.lang,
                         style:
                             TextStyle(fontSize: 19, color: Colors.blue[800])),
@@ -128,6 +160,7 @@ class _TermState extends State<TermView> {
                     Padding(
                       padding: EdgeInsets.all(2),
                     ),
+                    getTags(),
                     IconButton(
                       icon: Icon(
                         Icons.play_arrow,
@@ -138,7 +171,7 @@ class _TermState extends State<TermView> {
                       onPressed: () {
                         playSound();
                       },
-                    )
+                    ),
                   ],
                 ),
               ],
@@ -185,7 +218,7 @@ class _TermState extends State<TermView> {
                       ? new Text(text1.substring(0, 15) + "...",
                           style: termTextStyle)
                       : new Text(text1, style: termTextStyle),
-                )
+                ),
               ],
             )),
       ]),
@@ -242,120 +275,150 @@ class _TermState extends State<TermView> {
           )
         : Container();
     var firstAudio = firstOrElse(term.audio.items, MediaInfo.empty);
-    var termInfo = term.audio.total > 0
-        ? Row(
-            children: <Widget>[
-              Container(
-                width: 30,
-                child: IconWithShadow(
-                    color: Colors.grey[200],
-                    child: FontAwesomeIcons.eye,
-                    left: 1.5,
-                    top: 1.5),
+    var views = Column(
+      children: <Widget>[
+        Container(
+          width: 30,
+          child: Icon(
+            FontAwesomeIcons.eye,
+            color: Colors.blue[800],
+            size: 20,
+          ),
+        ),
+        Text(
+          firstAudio.views.toString() + " views",
+          style: TextStyle(color: textColor),
+        )
+      ],
+    );
+    var likes = Column(
+      children: <Widget>[
+        InkWell(
+            child: Container(
+              width: 30,
+              child: Icon(
+                FontAwesomeIcons.thumbsUp,
+                color: Colors.blue[900],
+                size: 20,
               ),
-              Padding(
-                padding: EdgeInsets.all(2),
-              ),
-              Text(
-                firstAudio.views.toString(),
-                style: termTextStyleInfo,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 20),
-              ),
-              InkWell(
-                  child: IconWithShadow(
-                      color: Colors.grey[200],
-                      child: FontAwesomeIcons.thumbsUp,
-                      left: 1.5,
-                      top: 1.5),
-                  onTap: () {
-                    debugPrint(firstAudio.uid);
-                    like(appState.user.uid, firstAudio.uid);
-                  }),
-              Text(
-                firstAudio.likes.toString(),
-                style: termTextStyleInfo,
-              ),
-              Padding(
-                padding: EdgeInsets.only(left: 20),
-              ),
-              InkWell(
-                  child: IconWithShadow(
-                      color: Colors.grey[200],
-                      child: FontAwesomeIcons.thumbsDown,
-                      left: 1.5,
-                      top: 1.5),
-                  onTap: () {
-                    dislike(appState.user.uid, firstAudio.uid);
-                  }),
-              Text(
-                firstAudio.dislikes.toString(),
-                style: termTextStyleInfo,
-              ),
-            ],
-          )
-        : Container();
-    var termInfoField = Positioned(
-        left: 200, top: 150, child: widget.tappable ? termInfo : Text(""));
-    var showTagsIcon = term.tags.length > 0
-        ? Positioned(
-            top: 160,
-            left: 10,
-            child: InkWell(
-              child: IconWithShadow(
-                child: Icons.more_horiz,
-                top: 1,
-                left: 1,
-                size: 50,
-                color: Colors.grey[200],
-              ),
-              onTap: expandTags,
             ),
-          )
-        : Container();
+            onTap: () {
+              debugPrint(firstAudio.uid);
+              like(appState.user.uid, firstAudio.uid);
+            }),
+        Text(
+          firstAudio.likes.toString() + " likes",
+          style: TextStyle(color: textColor),
+        )
+      ],
+    );
+    var dislikes = Column(
+      children: <Widget>[
+        InkWell(
+            child: Container(
+              width: 30,
+              child: Icon(
+                FontAwesomeIcons.thumbsDown,
+                color: Colors.blue[900],
+                size: 20,
+              ),
+            ),
+            onTap: () {
+              dislike(appState.user.uid, firstAudio.uid);
+            }),
+        Text(
+          firstAudio.dislikes.toString() + " dislikes",
+          style: TextStyle(color: textColor),
+        )
+      ],
+    );
+
     var dotsIndicators = Container(
       alignment: Alignment(0, 1),
       child: Row(children: dots, mainAxisAlignment: MainAxisAlignment.center),
     );
-    var tagsView = AnimatedContainer(
+    var tagsView = Container(
       alignment: Alignment(0, 0),
-      child: Wrap(children: term.tags.map((t) => tagFromTerm(t)).toList()),
-      duration: Duration(milliseconds: 300),
-      height: tagsBarHeight,
-      width: 200,
-      decoration: BoxDecoration(
-          color: Colors.grey[100],
-          borderRadius: BorderRadius.circular(5),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.black54, offset: Offset(1, 1), blurRadius: 5)
-          ]),
+      child: Row(children: term.tags.map((t) => tagFromTerm(t)).toList()),
+
+      ///duration: Duration(milliseconds: 300),
     );
     return Padding(
       padding: EdgeInsets.only(left: 5, right: 5, top: 10),
-      child: Column(children: <Widget>[
-        Container(
-            constraints: new BoxConstraints.expand(
-              height: 200.0,
-            ),
-            decoration: BoxDecoration(boxShadow: <BoxShadow>[
-              BoxShadow(color: Colors.grey[500], blurRadius: 5)
-            ]),
-            child: Stack(
-              // TODO improve position of subtitles
+      child: Container(
+        decoration: BoxDecoration(
+            border: new Border.all(color: Colors.grey[500]),
+            borderRadius: BorderRadius.circular(5)),
+        child: Column(children: <Widget>[
+          Container(
+              constraints: new BoxConstraints.expand(
+                height: 200.0,
+              ),
+              decoration: BoxDecoration(
+                boxShadow: <BoxShadow>[
+                  //BoxShadow(color: Colors.grey[500], blurRadius: 5)
+                ],
+              ),
+              child: Stack(
+                // TODO improve position of subtitles
+                children: <Widget>[
+                  new InkWell(onTap: imageOnTap, child: slider),
+                  termText1,
+                  termTranscript,
+                  iconPlayAudio,
+                  //termInfoField,
+                  //showTagsIcon,
+                  dotsIndicators
+                ],
+              )),
+          Container(
+            decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(3),
+                boxShadow: <BoxShadow>[
+                  BoxShadow(
+                      color: Colors.grey[400],
+                      offset: Offset(1, 1),
+                      blurRadius: 5)
+                ]),
+            child: Column(
               children: <Widget>[
-                new InkWell(onTap: imageOnTap, child: slider),
-                termText1,
-                termTranscript,
-                iconPlayAudio,
-                termInfoField,
-                showTagsIcon,
-                dotsIndicators
+                Padding(
+                  padding: EdgeInsets.all(2),
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(3),
+                    ),
+                    views,
+                    Padding(
+                      padding: EdgeInsets.all(3),
+                    ),
+                    likes,
+                    Padding(
+                      padding: EdgeInsets.all(3),
+                    ),
+                    dislikes
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.all(3),
+                ),
+                Row(
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.all(3),
+                    ),
+                    tagsView
+                  ],
+                ),
               ],
-            )),
-        tagsView
-      ]),
+            ),
+          ),
+        ]),
+      ),
     );
   }
 
@@ -366,11 +429,8 @@ class _TermState extends State<TermView> {
         child: Container(
             padding: EdgeInsets.all(3),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(4),
-                color: Colors.grey[200],
-                boxShadow: <BoxShadow>[
-                  BoxShadow(color: Colors.grey[400], blurRadius: 2)
-                ]),
+                border: new Border.all(color: Colors.blueAccent),
+                borderRadius: BorderRadius.circular(4)),
             child: Text(
               "#" + (t.text ?? "") + " ",
               style: TextStyle(color: Colors.blue),
@@ -395,7 +455,8 @@ class _TermState extends State<TermView> {
       if (term.audio.items.isNotEmpty) {
         view(appState.user.uid, term.audio.items[0].uid);
       }
-      Navigator.push(context, MaterialPageRoute(builder: (context) => TermDetail(term.uid)));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => TermDetail(term.uid)));
     }
   }
 
@@ -451,12 +512,11 @@ class _TermState extends State<TermView> {
 
   loadImg(String url) {
     var img;
-    if(url == null)
-      {
-        img = CachedNetworkImageProvider(
-            "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
-        return img;
-      }
+    if (url == null) {
+      img = CachedNetworkImageProvider(
+          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
+      return img;
+    }
     img = new CachedNetworkImageProvider(url, errorListener: () {
       print("failed");
       img = CachedNetworkImageProvider(
@@ -469,18 +529,17 @@ class _TermState extends State<TermView> {
     print(visual.url);
 
     var img = new Container(
-      padding: new EdgeInsets.only(left: 16.0, right: 16.0),
+      padding: new EdgeInsets.only(left: 10.0, right: 10.0),
       decoration: new BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-        border: new Border.all(color: Colors.grey, width: 2),
+        //borderRadius: BorderRadius.circular(10),
+        //border: new Border.all(color: Colors.grey, width: 2),
         image: new DecorationImage(
           image: loadImg(visual.url),
           fit: BoxFit.cover,
         ),
       ),
     );
-    if(visual.url==null)
-      return img;
+    if (visual.url == null) return img;
     return visual.url.toString().contains("www.youtube.com")
         ? Container(
             child: YoutubePlayer(

@@ -78,7 +78,7 @@ class _LoginState extends State<LoginForm> {
   Widget build(BuildContext context) {
     final Size screenSize = MediaQuery.of(context).size;
 
-    final username = new InputFieldDecoration(
+    final username = new Container(
         child: TextFormField(
       onSaved: (String value) {
         setState(() {
@@ -86,13 +86,16 @@ class _LoginState extends State<LoginForm> {
         });
       },
       decoration: InputDecoration(
-        hintText: 'you@example.com',
-        labelText: 'Username or email address',
-      ),
+          hintText: 'you@example.com',
+          labelText: 'Username or email address',
+          border: new OutlineInputBorder(
+            borderRadius: new BorderRadius.circular(25.0),
+            borderSide: new BorderSide(),
+          )),
       validator: Validators.username,
-    ));
+    ),);
 
-    final password = new InputFieldDecoration(
+    final password = new Container(
         child: TextFormField(
       onSaved: (String value) {
         setState(() {
@@ -101,9 +104,12 @@ class _LoginState extends State<LoginForm> {
       },
       obscureText: true, // password
       decoration: InputDecoration(
-        hintText: 'Password',
-        labelText: 'Enter your password',
-      ),
+          hintText: 'Password',
+          labelText: 'Enter your password',
+          border: new OutlineInputBorder(
+            borderRadius: new BorderRadius.circular(25.0),
+            borderSide: new BorderSide(color: Colors.blueAccent),
+          )),
       validator: Validators.password,
     ));
 
@@ -126,6 +132,7 @@ class _LoginState extends State<LoginForm> {
       key: _formKey,
       child: ListView(
         children: <Widget>[
+          new Padding(padding: EdgeInsets.all(7)),
           username,
           new Padding(padding: EdgeInsets.all(7)),
           password,
