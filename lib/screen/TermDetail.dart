@@ -162,7 +162,7 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedTranslations(TermInfo visualTerm) {
     List<Widget> translationView = new List();
     for (int i = 0; i < visualTerm.translations.length; i++) {
-      print(visualTerm.translations[i].lang);
+      //print(visualTerm.translations[i].lang);
       if(visualTerm.translations[i].lang == dropdownValue)
         {
           translationView.add(TermView(

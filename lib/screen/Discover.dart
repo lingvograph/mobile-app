@@ -108,13 +108,13 @@ class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> getSelected(String text) {
     List<TermInfo> res = new List();
     for (int i = 0; i < tags.length; i++) {
-      print(tags[i].text == null ? "null" : tags[i].text);
+      //print(tags[i].text == null ? "null" : tags[i].text);
       //print(text+" "+text.replaceAll('#', ''));
       if (tags[i] != null &&
           tags[i].text != null &&
           text.length > 1 &&
           tags[i].text.contains(text.substring(1))) {
-        print(tags[i].text);
+        //print(tags[i].text);
 
         res.add(tags[i]);
       }
@@ -149,7 +149,7 @@ class DiscoverState extends State<DiscoverScreen> {
 
   doSearch(String text) async {
     if (text.length > 0 && text[0] == "#") {
-      print("by tag!");
+      //print("by tag!");
       List<TermInfo> res = getSelected(text);
       if (res.length > 0) {
         total = res.length;
@@ -211,7 +211,7 @@ class DiscoverState extends State<DiscoverScreen> {
       var filter = new TermFilter(t);
       globalFilter = filter;
       var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
-      print(result.items.toList().toString());
+      //print(result.items.toList().toString());
       if (result.total > 0) {
         total = result.total;
 
@@ -242,13 +242,13 @@ class DiscoverState extends State<DiscoverScreen> {
     var result =
         await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
 
-    print("loaded");
+    //print("loaded");
     loading = false;
     //print(result.toString());
     setState(() {
       total = result.total;
       terms.addAll(result.items);
-      print(total.toString());
+      //print(total.toString());
       if (total == 0) {
         searchString = "";
         terms.clear();
@@ -344,7 +344,7 @@ class DiscoverState extends State<DiscoverScreen> {
             //Пытаться загрузить, только если сейчас не грузит
             //Я уже 1 раз так сервер уронил
             if (!loading) {
-              print("load..");
+              //print("load..");
               loading = true;
               fetchPage();
             }
@@ -380,15 +380,15 @@ class DiscoverState extends State<DiscoverScreen> {
                     color: Colors.redAccent,
                   ),
                   onTap: () {
-                    print("dsa");
+                    //print("dsa");
 
                     TermInfo.remove(searchTags, searchTags[i]);
                     if (searchTags.length == 0) {
-                      print("empty");
+                      //print("empty");
                       terms = new List();
                       fetchPage();
                     } else {
-                      print("refresh");
+                      //print("refresh");
 
                       loadWithTag(null);
                     }

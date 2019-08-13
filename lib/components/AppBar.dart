@@ -50,12 +50,12 @@ class SearchBtnState extends State<SearchBtn> {
                     searchText = text;
                     if (searchText.length > 0)
                       {
-                        print("search......");
+                        //print("search......");
                         onSearch(searchText);
 
                       }
                     if (searchText.length>0 && searchText[0]=="#") {
-                      print('dies');
+                      //print('dies');
                       setState(() {
                         textColor = Colors.blue;
                       });

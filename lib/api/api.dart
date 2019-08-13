@@ -142,7 +142,7 @@ Future<dynamic> query(String query) async {
 Future<MediaInfo> upload(String path, String contentType, dynamic body) async {
   var result =
       await postData('/api/file/$path', body, contentType: contentType);
-  print(result.toString());
+  //print(result.toString());
   return MediaInfo.fromJson(result);
 }
 
@@ -237,6 +237,6 @@ Future<TermInfo> fetchVisualList(String termUid, int offset, int limit) async {
   final results = await query(qs);
   final total = results['count'][0]['total'];
   final term = results['terms'][0] as Map<String, dynamic>;
-  print(term.toString());
+  //print(term.toString());
   return TermInfo.fromJson(term, visualTotal: total);
 }

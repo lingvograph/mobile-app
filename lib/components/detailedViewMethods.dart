@@ -104,7 +104,7 @@ void openCamera(TermInfo term) async {
     //maxWidth: 50.0,
   );
   if (cameraFile != null) {
-    print("You selected camera image : " + cameraFile.path);
+    //print("You selected camera image : " + cameraFile.path);
     uploadPhoto(cameraFile, term);
   } else {
     print("no data");
@@ -120,7 +120,7 @@ void openGalery(TermInfo term) async {
     // maxWidth: 50.0,
   );
   if (galleryFile != null) {
-    print("You selected gallery image : " + galleryFile.path);
+    //print("You selected gallery image : " + galleryFile.path);
     uploadPhoto(galleryFile, term);
   } else {
     print("no data");
@@ -140,7 +140,7 @@ void uploadPhoto(File f, TermInfo term) async {
   var res = await upload("$remotePath", 'visual/jpeg', bytes);
   TermUpdate tup = new TermUpdate();
   tup.imageUid = res.uid;
-  print(tup.imageUid);
+  //print(tup.imageUid);
   var res2 = await upadteTerm(term.uid, tup);
-  print(res2.toString());
+  //print(res2.toString());
 }

@@ -1,6 +1,19 @@
+import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:memoapp/api/api_utils.dart';
 import 'package:memoapp/utils.dart';
 import 'dart:io';
+import 'dart:async';
+import 'dart:convert';
+
+import 'package:http/http.dart';
+import 'package:http_auth/http_auth.dart';
+import 'package:memoapp/api/termquery.dart';
+import 'package:memoapp/api/api_utils.dart';
+import 'package:memoapp/api/model.dart';
+
+import 'api.dart';
+import 'package:html/parser.dart' show parse;
+import 'package:html/dom.dart';
 
 class ListResult<T> {
   List<T> items;
@@ -123,7 +136,7 @@ class TermInfo {
 
   TermInfo.fromJson(Map<String, dynamic> json,
       {int audioTotal = 0, int visualTotal = 0}) {
-    print(json.toString());
+    //print(json.toString());
     //print(json.keys.toList().toString());
     uid = json['uid'];
     lang = json['lang'];
@@ -147,31 +160,18 @@ class TermInfo {
     // TODO review block below
     if(tags.length>0)
       print(tags[0].text.toString()+" "+text);
-    if (visual.total == 0) {
-      if (tags.length>0 && isIdiom(tags)) {
-        List<MediaInfo> m = new List();
-        m.add(new MediaInfo(
-            url:
-                "https://s3.envato.com/files/bbae20eb-841d-4c3e-a319-2564266bd641/inline_image_preview.jpg"));
-        visual = new ListResult<MediaInfo>(m, 1);
-      } else {
-        List<MediaInfo> m = new List();
-        m.add(new MediaInfo(
-            url:
-                "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg"));
-        visual = new ListResult<MediaInfo>(m, 1);
-      }
-    }
-    /*Временно буду заменять этот недоступный fa.jpg на картинку из интернета, слишком много пустых незагруженных картинок получается*/
 
-    for(int i=0;i<visual.total;i++)
-      {
-        //checkIfImageAvailible(visual.items[i].url);
-        if(visual.items[i].url == "https://imgplaceholder.com/420x320/ff7f7f/333333/fa-image")
-          {
-            visual.items[i].url = "https://t4.ftcdn.net/jpg/02/20/78/47/240_F_220784725_xK7PvAEVAZZ8M6Nv4ZvenIxBr7gTCaEz.jpg";
-          }
-      }
+    //Если нет картинки то засунуть рандомную картинку с ресурса в сети, по этому адресу вернётся случайная картинка
+    if (visual.total == 0) {
+
+        List<MediaInfo> m = new List();
+        m.add(new MediaInfo(
+            url:
+                "https://source.unsplash.com/collection/256789"));
+        visual = new ListResult<MediaInfo>(m, 1);
+
+    }
+
   }
 
   /* not connected Failed host lookup: (путь до картинки). Что-то я делаю не так, google.com лукапается нормально

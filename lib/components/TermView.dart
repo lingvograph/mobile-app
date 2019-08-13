@@ -303,7 +303,7 @@ class _TermState extends State<TermView> {
               ),
             ),
             onTap: () {
-              debugPrint(firstAudio.uid);
+              //debugPrint(firstAudio.uid);
               like(appState.user.uid, firstAudio.uid);
             }),
         Text(
@@ -436,7 +436,7 @@ class _TermState extends State<TermView> {
               style: TextStyle(color: Colors.blue),
             )),
         onTap: () {
-          print(t.uid.toString());
+          //print(t.uid.toString());
           widget.onSearch(t);
         },
       ),
@@ -490,8 +490,7 @@ class _TermState extends State<TermView> {
     var images = term.visual.items;
     if (images.isEmpty) {
       images = new List<MediaInfo>();
-      final placeholderURL =
-          'https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg';
+      final placeholderURL = 'https://source.unsplash.com/collection/256789';
       images.add(new MediaInfo(url: placeholderURL));
     }
     return images.length == 1
@@ -510,23 +509,35 @@ class _TermState extends State<TermView> {
             items: images.map((t) => makeImage(t, context)).toList());
   }
 
-  loadImg(String url) {
-    var img;
-    if (url == null) {
-      img = CachedNetworkImageProvider(
-          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
-      return img;
-    }
-    img = new CachedNetworkImageProvider(url, errorListener: () {
-      print("failed");
-      img = CachedNetworkImageProvider(
-          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
+  //Момент появления адвкой магии
+  //Код, который был найден в файле NetworkImage, удалет кэш данной картинки
+  //Как раз то, что надо в данном случае, так как кэшировать рандомную картинку НЕ НАДО, ну может и надо, но не так как это делает Image
+  void evict(NetworkImage provider) async {
+    provider.evict().then<void>((bool success) {
+      if (success) debugPrint('removed image!');
     });
-    return img;
+  }
+
+  loadImg(String url) {
+    NetworkImage img;
+    if (url == null) {
+      img = NetworkImage("https://source.unsplash.com/collection/190727");
+
+      return img;
+    } else {
+      if (url.contains("unsplash.com")) {
+        img = NetworkImage(url);
+        evict(img);
+        return img;
+      } else {
+        img = NetworkImage(url);
+        return img;
+      }
+    }
   }
 
   Widget makeImage(MediaInfo visual, BuildContext context) {
-    print(visual.url);
+    //print(visual.url);
 
     var img = new Container(
       padding: new EdgeInsets.only(left: 10.0, right: 10.0),
