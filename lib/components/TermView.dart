@@ -1,6 +1,8 @@
 import 'package:audioplayer/audioplayer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_advanced_networkimage/provider.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/AppState.dart';
@@ -12,11 +14,16 @@ import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:youtube_player/youtube_player.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
+
+import 'cni.dart';
 
 /*Ультимативный typedef*/
 typedef SearchCallback = void Function(TermInfo termForSearch);
 
 class TermView extends StatefulWidget {
+
+  static String randomImageUrl = "https://picsum.photos/600/?blur";
   SearchCallback onSearch;
 
   TermView(
@@ -41,7 +48,6 @@ class _TermState extends State<TermView> {
   double maxTagHeight = 30;
   double width;
   double imgH;
-
   Color textColor = Colors.blue[900];
 
   AppState get appState {
@@ -60,6 +66,7 @@ class _TermState extends State<TermView> {
 
   @override
   Widget build(BuildContext context) {
+
     width = MediaQuery.of(context).size.width;
 
     if (widget.viewMode == 1) {
@@ -490,7 +497,7 @@ class _TermState extends State<TermView> {
     var images = term.visual.items;
     if (images.isEmpty) {
       images = new List<MediaInfo>();
-      final placeholderURL = 'https://source.unsplash.com/collection/256789';
+      final placeholderURL = 'https://picsum.photos/600';
       images.add(new MediaInfo(url: placeholderURL));
     }
     return images.length == 1
@@ -512,27 +519,33 @@ class _TermState extends State<TermView> {
   //Момент появления адвкой магии
   //Код, который был найден в файле NetworkImage, удалет кэш данной картинки
   //Как раз то, что надо в данном случае, так как кэшировать рандомную картинку НЕ НАДО, ну может и надо, но не так как это делает Image
-  void evict(NetworkImage provider) async {
+  void evict(CachedNetworkImageProvider provider) {
     provider.evict().then<void>((bool success) {
       if (success) debugPrint('removed image!');
     });
   }
 
   loadImg(String url) {
-    NetworkImage img;
-    if (url == null) {
-      img = NetworkImage("https://source.unsplash.com/collection/190727");
+    if (url.contains("unsplash.com") || url.contains("picsum")) {
+      print("spec "+url);
+      ImageProvider img;
+
+      img = CMA(
+        url,
+        useDiskCache: false,
+        disableMemoryCache: false,
+        retryLimit: 1,
+        timeoutDuration: Duration(seconds: 30),
+      );
+
+      //img = NonCachedNetworkImageProvider("https://picsum.photos/600", cacheManager: base);
 
       return img;
     } else {
-      if (url.contains("unsplash.com")) {
-        img = NetworkImage(url);
-        evict(img);
-        return img;
-      } else {
-        img = NetworkImage(url);
-        return img;
-      }
+      CachedNetworkImageProvider img;
+
+      img = CachedNetworkImageProvider(url);
+      return img;
     }
   }
 
@@ -549,6 +562,7 @@ class _TermState extends State<TermView> {
           fit: BoxFit.cover,
         ),
       ),
+      //child: loadImg(visual.url),
     );
     if (visual.url == null) return img;
     return visual.url.toString().contains("www.youtube.com")

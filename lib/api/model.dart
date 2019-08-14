@@ -1,5 +1,6 @@
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
 import 'package:memoapp/api/api_utils.dart';
+import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/utils.dart';
 import 'dart:io';
 import 'dart:async';
@@ -158,8 +159,8 @@ class TermInfo {
     var visualItems = mapList(json, 'visual', (t) => MediaInfo.fromJson(t));
     visual = new ListResult<MediaInfo>(visualItems, visualTotal);
     // TODO review block below
-    if(tags.length>0)
-      print(tags[0].text.toString()+" "+text);
+    //if(tags.length>0)
+    //  print(tags[0].text.toString()+" "+text);
 
     //Если нет картинки то засунуть рандомную картинку с ресурса в сети, по этому адресу вернётся случайная картинка
     if (visual.total == 0) {
@@ -167,7 +168,7 @@ class TermInfo {
         List<MediaInfo> m = new List();
         m.add(new MediaInfo(
             url:
-                "https://source.unsplash.com/collection/256789"));
+                TermView.randomImageUrl));
         visual = new ListResult<MediaInfo>(m, 1);
 
     }
