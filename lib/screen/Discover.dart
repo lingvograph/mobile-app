@@ -238,7 +238,7 @@ class DiscoverState extends State<DiscoverScreen> {
 
   /*create new method */
   fetchPage() async {
-    var filter = globalFilter==null?new TermFilter(""):globalFilter;
+    var filter = globalFilter == null ? new TermFilter("") : globalFilter;
     var result =
         await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
 
@@ -249,7 +249,6 @@ class DiscoverState extends State<DiscoverScreen> {
       total = result.total;
       terms.addAll(result.items);
       //print(total.toString());
-
     });
   }
 
@@ -303,14 +302,17 @@ class DiscoverState extends State<DiscoverScreen> {
         child: ListView(
           //shrinkWrap: true,
           children: <Widget>[
-            currentTags(),
+            //currentTags(),
             new ListView.builder(
                 controller: scrollController,
                 shrinkWrap: true,
-                itemCount: terms.length,
+                itemCount: terms.length + 1,
                 itemBuilder: (BuildContext context, int index) {
+                  if (index == 0) {
+                    return currentTags();
+                  }
                   return new TermView(
-                    term: terms[index],
+                    term: terms[index - 1],
                     onSearch: loadWithTag,
                   );
                 }),
@@ -375,7 +377,6 @@ class DiscoverState extends State<DiscoverScreen> {
                   ),
                   onTap: () {
                     //print("dsa");
-
                     TermInfo.remove(searchTags, searchTags[i]);
                     if (searchTags.length == 0) {
                       //print("empty");

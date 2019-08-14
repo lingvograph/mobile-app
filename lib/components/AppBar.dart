@@ -15,6 +15,8 @@ class SearchBtn extends StatefulWidget {
 }
 
 class SearchBtnState extends State<SearchBtn> {
+
+  var txt = TextEditingController();
   bool mode = true;
   double width = 0;
   Color c = Colors.black;
@@ -42,6 +44,7 @@ class SearchBtnState extends State<SearchBtn> {
             child: Stack(
               children: <Widget>[
                 new TextField(
+                  controller: txt,
                   style: TextStyle(color: textColor),
                   //decoration: const InputDecoration(labelText: 'Name'),
                   keyboardType: TextInputType.text,
@@ -143,6 +146,7 @@ class SearchBtnState extends State<SearchBtn> {
                   c = Colors.red;
                   mode = !mode;
                 } else if (!mode) {
+                  txt.text = "";
                   width = 0;
                   c = Colors.black;
                   mode = !mode;
@@ -153,7 +157,7 @@ class SearchBtnState extends State<SearchBtn> {
           ),
           crossFadeState:
               mode ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-          duration: Duration(milliseconds: 300),
+          duration: Duration(milliseconds: 100),
           firstCurve: Curves.elasticInOut,
           secondCurve: Curves.elasticInOut,
         ),
@@ -167,7 +171,7 @@ class SearchBtnState extends State<SearchBtn> {
 
 buildAppBar(BuildContext context, SearchCallback search) {
   return AppBar(
-    title: Text('Learn'),
+    title: Text('MemoApp'),
     actions: <Widget>[SearchBtn(search)],
 
     //bottom: PreferredSize(child: Container(padding:EdgeInsets.all(20),width: 140,child: Column(children: <Widget>[Text("SDSD")],),)),

@@ -161,7 +161,7 @@ class _TermState extends State<TermView> {
                     Padding(
                       padding: EdgeInsets.all(2),
                     ),
-                    Text("[" + trans + "]",
+                    Text(trans.length>0?"[" + trans + "]":"",
                         style:
                             TextStyle(fontSize: 18, color: Colors.blue[800])),
                     Padding(
@@ -218,13 +218,13 @@ class _TermState extends State<TermView> {
                 new InkWell(
                     onTap: imageOnTap,
                     child: makeImage(term.visual.items[0], context)),
-                Positioned(
-                  top: 30,
-                  left: 12,
-                  child: text1.length > 15
-                      ? new Text(text1.substring(0, 15) + "...",
+                Positioned(width: 180 ,
+                  top: 25,
+                  left: 10,
+                  child: text1.length > 20
+                      ? new Text(text1.substring(0, 20) + "...",
                           style: termTextStyle)
-                      : new Text(text1, style: termTextStyle),
+                      : Wrap(children: <Widget>[new Text(text1, style: termTextStyle)],),
                 ),
               ],
             )),
@@ -288,7 +288,7 @@ class _TermState extends State<TermView> {
           width: 30,
           child: Icon(
             FontAwesomeIcons.eye,
-            color: Colors.blue[800],
+            color: Colors.blueAccent,
             size: 20,
           ),
         ),
@@ -305,7 +305,7 @@ class _TermState extends State<TermView> {
               width: 30,
               child: Icon(
                 FontAwesomeIcons.thumbsUp,
-                color: Colors.blue[900],
+                color: Colors.blueAccent,
                 size: 20,
               ),
             ),
@@ -326,7 +326,7 @@ class _TermState extends State<TermView> {
               width: 30,
               child: Icon(
                 FontAwesomeIcons.thumbsDown,
-                color: Colors.blue[900],
+                color: Colors.blueAccent,
                 size: 20,
               ),
             ),
@@ -463,7 +463,7 @@ class _TermState extends State<TermView> {
         view(appState.user.uid, term.audio.items[0].uid);
       }
       Navigator.push(context,
-          MaterialPageRoute(builder: (context) => TermDetail(term.uid)));
+          MaterialPageRoute(builder: (context) => TermDetail(term.uid, )));
     }
   }
 

@@ -126,7 +126,10 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedDefinitionOf(TermInfo visualTerm) {
     List<Widget> definitionOf = new List();
     for (int i = 0; i < visualTerm.definitionOf.length; i++) {
-      definitionOf.add(TermView(term: visualTerm.definitionOf[i]));
+      if (visualTerm.definitionOf[i].lang == dropdownValue)
+      {
+        definitionOf.add(TermView(term: visualTerm.definitionOf[i]));
+      }
     }
 
     makeTermListView(definitionOf, 6);
@@ -135,7 +138,9 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedDefinition(TermInfo visualTerm) {
     List<Widget> definition = new List();
     for (int i = 0; i < visualTerm.definition.length; i++) {
-      definition.add(TermView(term: visualTerm.definition[i]));
+      if (visualTerm.definition[i].lang == dropdownValue) {
+        definition.add(TermView(term: visualTerm.definition[i]));
+      }
     }
 
     makeTermListView(definition, 5);
@@ -144,7 +149,9 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedRelated(TermInfo visualTerm) {
     List<Widget> relatedTo = new List();
     for (int i = 0; i < visualTerm.relatedTo.length; i++) {
-      relatedTo.add(TermView(term: visualTerm.relatedTo[i]));
+      if (visualTerm.relatedTo[i].lang == dropdownValue) {
+        relatedTo.add(TermView(term: visualTerm.relatedTo[i]));
+      }
     }
 
     makeTermListView(relatedTo, 4);
@@ -153,7 +160,12 @@ class TermDetailState extends State<TermDetail> {
   void makeDetailedInOther(TermInfo visualTerm) {
     List<Widget> inOther = new List();
     for (int i = 0; i < visualTerm.isInOtherTerms.length; i++) {
-      inOther.add(TermView(term: visualTerm.isInOtherTerms[i]));
+      if (visualTerm.isInOtherTerms[i].lang == dropdownValue) {
+        inOther.add(TermView(
+          term: visualTerm.isInOtherTerms[i],
+          viewMode: viewMode,
+        ));
+      }
     }
 
     makeTermListView(inOther, 3);
@@ -163,14 +175,12 @@ class TermDetailState extends State<TermDetail> {
     List<Widget> translationView = new List();
     for (int i = 0; i < visualTerm.translations.length; i++) {
       //print(visualTerm.translations[i].lang);
-      if(visualTerm.translations[i].lang == dropdownValue)
-        {
-          translationView.add(TermView(
-            term: visualTerm.translations[i],
-            viewMode: viewMode,
-          ));
-        }
-
+      if (visualTerm.translations[i].lang == dropdownValue) {
+        translationView.add(TermView(
+          term: visualTerm.translations[i],
+          viewMode: viewMode,
+        ));
+      }
     }
 
     makeTermListView(translationView, 2);
@@ -203,15 +213,13 @@ class TermDetailState extends State<TermDetail> {
           ],
         );
       }
+    } else {
+      pages[pageIndex] = Column(
+        children: <Widget>[
+          getControll(),
+        ],
+      );
     }
-    else
-      {
-        pages[pageIndex] = Column(
-          children: <Widget>[
-            getControll(),
-          ],
-        );
-      }
   }
 
   void makeDetailedAudios(TermInfo ti) {
@@ -337,25 +345,25 @@ class TermDetailState extends State<TermDetail> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: <Widget>[
-      DropdownButton<String>(
-      value: dropdownValue,
-        onChanged: (String newValue) {
-          setState(() {
-            dropdownValue = newValue;
-            tabInflateMethods[currentPage.round()](term);
-
-          });
-        },
-        items: <String>['en', 'ru', 'fr']
-            .map<DropdownMenuItem<String>>((String value) {
-          return DropdownMenuItem<String>(
-            value: value,
-            child: Text(value),
-          );
-        })
-            .toList(),
-      ),
-          Padding(padding: EdgeInsets.all(5),),
+          DropdownButton<String>(
+            value: dropdownValue,
+            onChanged: (String newValue) {
+              setState(() {
+                dropdownValue = newValue;
+                tabInflateMethods[currentPage.round()](term);
+              });
+            },
+            items: <String>['en', 'ru', 'fr']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          ),
+          Padding(
+            padding: EdgeInsets.all(5),
+          ),
           IconButton(
             icon: Icon(
               Icons.featured_play_list,
