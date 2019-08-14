@@ -28,6 +28,7 @@ class CMA extends AdvancedNetworkImage
 {
   String uid;
   CMA(String url,
+      this.uid,
   {scale: 1.0,
   header,
   useDiskCache,
@@ -64,7 +65,7 @@ class CMA extends AdvancedNetworkImage
       preProcessing:preProcessing,
       postProcessing:postProcessing,
       disableMemoryCache:disableMemoryCache,
-      printError:printError){uid = (new Uuid()).v4();}
+      printError:printError){}
 
 
 

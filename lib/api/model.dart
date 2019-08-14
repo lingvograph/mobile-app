@@ -11,6 +11,7 @@ import 'package:http_auth/http_auth.dart';
 import 'package:memoapp/api/termquery.dart';
 import 'package:memoapp/api/api_utils.dart';
 import 'package:memoapp/api/model.dart';
+import 'package:uuid/uuid.dart';
 
 import 'api.dart';
 import 'package:html/parser.dart' show parse;
@@ -166,7 +167,7 @@ class TermInfo {
     if (visual.total == 0) {
 
         List<MediaInfo> m = new List();
-        m.add(new MediaInfo(
+        m.add(new MediaInfo(uid: new Uuid().v4(),
             url:
                 TermView.randomImageUrl));
         visual = new ListResult<MediaInfo>(m, 1);

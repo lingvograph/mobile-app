@@ -249,12 +249,7 @@ class DiscoverState extends State<DiscoverScreen> {
       total = result.total;
       terms.addAll(result.items);
       //print(total.toString());
-      if (total == 0) {
-        searchString = "";
-        terms.clear();
-        fetchPage();
-        //terms.add(new TermInfo(text: "Nothing found", uid: "0x0"));
-      }
+
     });
   }
 
@@ -339,7 +334,6 @@ class DiscoverState extends State<DiscoverScreen> {
             //end of list is out of view
           } else {
             //end of the list is visible - time to load new content
-            //print("end for sure");
 
             //Пытаться загрузить, только если сейчас не грузит
             //Я уже 1 раз так сервер уронил

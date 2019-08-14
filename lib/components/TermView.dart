@@ -23,7 +23,7 @@ typedef SearchCallback = void Function(TermInfo termForSearch);
 
 class TermView extends StatefulWidget {
 
-  static String randomImageUrl = "https://picsum.photos/600/?blur";
+  static String randomImageUrl = "https://picsum.photos/400/?blur";
   SearchCallback onSearch;
 
   TermView(
@@ -525,24 +525,25 @@ class _TermState extends State<TermView> {
     });
   }
 
-  loadImg(String url) {
+  loadImg(MediaInfo visual) {
+    var url = visual.url;
     if (url.contains("unsplash.com") || url.contains("picsum")) {
       print("spec "+url);
       ImageProvider img;
 
       img = CMA(
         url,
+        visual.uid,
         useDiskCache: false,
         disableMemoryCache: false,
         retryLimit: 1,
         timeoutDuration: Duration(seconds: 30),
       );
 
-      //img = NonCachedNetworkImageProvider("https://picsum.photos/600", cacheManager: base);
 
       return img;
     } else {
-      CachedNetworkImageProvider img;
+      ImageProvider img;
 
       img = CachedNetworkImageProvider(url);
       return img;
@@ -558,7 +559,7 @@ class _TermState extends State<TermView> {
         //borderRadius: BorderRadius.circular(10),
         //border: new Border.all(color: Colors.grey, width: 2),
         image: new DecorationImage(
-          image: loadImg(visual.url),
+          image: loadImg(visual),
           fit: BoxFit.cover,
         ),
       ),
