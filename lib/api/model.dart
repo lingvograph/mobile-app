@@ -134,6 +134,9 @@ class TermInfo {
   List<TermInfo> relatedTo;
   List<TermInfo> definition;
   List<TermInfo> definitionOf;
+  List<TermInfo> synonyms;
+  List<TermInfo> antonyms;
+
 
 
   TermInfo.fromJson(Map<String, dynamic> json,
@@ -150,8 +153,11 @@ class TermInfo {
 
     isInOtherTerms = mapList(json, 'in', (t) => TermInfo.fromJson(t));
     relatedTo = mapList(json, 'related', (t) => TermInfo.fromJson(t));
-    definition = mapList(json, 'def', (t) => TermInfo.fromJson(t));
-    definitionOf = mapList(json, 'def_of', (t) => TermInfo.fromJson(t));
+    definition = mapList(json, 'definition', (t) => TermInfo.fromJson(t));
+    definitionOf = mapList(json, 'definition_of', (t) => TermInfo.fromJson(t));
+    synonyms = mapList(json, 'synonyms', (t) => TermInfo.fromJson(t));
+    antonyms = mapList(json, 'antonym', (t) => TermInfo.fromJson(t));
+
 
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));

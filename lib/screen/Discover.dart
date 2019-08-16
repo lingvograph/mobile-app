@@ -125,7 +125,7 @@ class DiscoverState extends State<DiscoverScreen> {
   //TODO REFACTOR THIS
   Future<int> getTermsAndAppend(
       int start, int offset, TermFilter filter) async {
-    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
+    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
     if (result.total > 0) {
       total += result.total;
 
@@ -210,7 +210,7 @@ class DiscoverState extends State<DiscoverScreen> {
     } else {
       var filter = new TermFilter(t);
       globalFilter = filter;
-      var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
+      var result = await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
       //print(result.items.toList().toString());
       if (result.total > 0) {
         total = result.total;
@@ -240,7 +240,7 @@ class DiscoverState extends State<DiscoverScreen> {
   fetchPage() async {
     var filter = globalFilter == null ? new TermFilter("") : globalFilter;
     var result =
-        await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
+        await appData.lingvo.fetchTerms(terms.length, 5, filter: filter, lang: "en");
 
     //print("loaded");
     loading = false;

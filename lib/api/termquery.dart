@@ -8,7 +8,7 @@ bool isWord(String s) {
   return exp.hasMatch(s);
 }
 
-enum TermQueryKind { termList, audioList, visualList }
+enum KIND { term, termList, audioList, visualList }
 
 class TermFilter {
   String searchString;
@@ -21,20 +21,91 @@ class TermFilter {
 }
 
 class TermQuery {
-  TermQueryKind kind = TermQueryKind.termList;
-  String firstLang;
+  KIND kind = KIND.termList;
+  String lang;
   String termUid; // for single term request
   TermFilter filter;
   Pagination range;
   bool detailed = false;
+  bool onlyTags = false;
+  var params = ["", ""];
+  var relationMap = {
+    'translated_as': {
+      'label': 'Translations',
+      'count': 'translated_as_count',
+    },
+    'definition': {
+      'label': 'Definitions',
+      'count': 'definition_count',
+      'reverseEdge': 'definition_of',
+    },
+    'definition_of': {
+      'label': 'Definition for',
+      'count': 'definition_of_count',
+    },
+    'in': {
+      'label': 'Used in',
+      'count': 'in_count',
+    },
+    'related': {
+      'label': 'Related Terms',
+      'count': 'related_count',
+    },
+    'synonym': {
+      'label': 'Synonyms',
+      'count': 'synonym_count',
+    },
+    'antonym': {
+      'label': 'Antonyms',
+      'count': 'antonym_count',
+    },
+  };
+  static var TAG = '''tag {
+    uid
+    text
+    lang
+    transcript@ru
+    transcript@en
+  }''';
+
+  static var TERM_BODY = ''''{
+    uid
+    text
+    lang
+    transcript@ru
+    transcript@en
+    created_at
+    created_by {
+      uid
+      name
+    }
+    ${TAG}
+  }''';
+
+  static var FILE_BODY = ''''{
+    uid
+    url
+    source
+    content_type
+    views: count(see)
+    likes: count(like)
+    dislikes: count(dislike)
+    created_at
+    created_by {
+    uid
+    name
+  }
+  ${TAG}
+  }''';
 
   TermQuery(
-      {this.kind,
-      this.firstLang,
+      {this.kind = KIND.termList,
+      this.lang,
       this.termUid,
       this.filter,
       this.range,
-      this.detailed = false}) {
+      this.detailed = false,
+      this.onlyTags = false}) {
     if (this.filter == null) {
       this.filter = new TermFilter('');
     }
@@ -42,31 +113,62 @@ class TermQuery {
 
   // TODO filter known words
   // TODO order audio, visual by popularity
-  makeQuery() {
-    final matchFn =
-        termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : 'has(Term)';
-    final isTermList = kind == TermQueryKind.termList;
+  makeTermQuery() {
+    //Выглядит правдоподобно
+    if (kind == null || !KIND.values.contains(kind)) {
+      throw new Exception("invalid kind ${kind.toString()}");
+    }
+    if (kind == KIND.term && termUid == null) {
+      throw new Exception('termUid is required');
+    }
+    var hasTermType = 'has(Term)';
 
-    final audioRange = kind == TermQueryKind.audioList
-        ? '(${range.toString()})'
-        : '(first: 1)';
-    final visualRange = kind == TermQueryKind.visualList
-        ? '(${range.toString()})'
-        : '(first: 10)';
+    var isTerm = kind == 'term';
+
+    final matchFn =
+        termUid != null && termUid.isNotEmpty ? 'uid($termUid)' : hasTermType;
+
+    final isTermList = kind == KIND.termList;
+
+    var hasTagType = isTermList && onlyTags ? 'has(Tag)' : '';
+
+    final audioRange =
+        kind == KIND.audioList ? '(${range.toString()})' : '(first: 1)';
+    final visualRange =
+        kind == KIND.visualList ? '(${range.toString()})' : '(first: 10)';
     final termRange = isTermList ? ', ${range.toString()}' : '';
 
     final brace = (String s) => '($s)';
     final searchFilter = makeSearchFilter();
-    final langFilter = 'not eq(lang, "$firstLang")';
-    //Тут можно сделать AND и тогда тэги при поиске будут "умножаться", не знаю как технически правильней
+    final langFilter = lang != null ? 'eq(lang, "${lang}")' : '';
+
     final tagFilter = filter.tags.isNotEmpty
         ? brace(filter.tags.map((t) => 'uid_in(tag, ${t.uid})').join(' or '))
         : '';
 
-    final filterExpr = ['has(Term)', langFilter, tagFilter, searchFilter]
-        .where((s) => s != null && s.isNotEmpty)
-        .join(' and ');
+    final filterExpr = [
+      hasTermType,
+      hasTagType,
+      langFilter,
+      tagFilter,
+      searchFilter
+    ].where((s) => s != null && s.isNotEmpty).join(' and ');
     final termFilter = isTermList ? '@filter($filterExpr)' : '';
+
+    const fileEdges = ['audio', 'visual'];
+    var makeEdge = (String name) {
+      var isFile = fileEdges.contains(name);
+      var myrange = kind == name ? '(${range})' : '(first: 10)';
+      var body = isFile ? FILE_BODY : TERM_BODY;
+      return '${name} ${myrange} ${body}';
+    };
+
+    var args = params.map((k) => '${k}: string').join();
+    //var totals = isTerm ? allEdgeKeys.map(k => makeTotal(k)).join('\n') : '';
+    var paramQuery = args != null ? 'query terms(${args}) ' : '';
+    print(paramQuery);
+
+    //var allEdgeKeys = new Map.from(relationMap)..addAll(fileEdges);
 
     final visualInfo = """
           visual $visualRange {
@@ -113,25 +215,15 @@ class TermQuery {
           }
           """;
 
-    final detailedInfo = detailed
-        ? """
-        translated_as {
-          $termBody
-        }
-        in{
-          $termBody
-        }
-        related{
-          $termBody
-        }
-        def{
-          $termBody
-        }
-        def_of{
-          $termBody
-        }"""
-        : "";
+    var bodyFromEdge = (String name, var val) {
+      print(name);
+      return '${name} {$termBody} ';
+    };
 
+    var detailedInfo = "";
+    var concatEdges = detailed
+        ? relationMap.forEach((k, v) => {detailedInfo += bodyFromEdge(k, v) + '\n'})
+        : "";
 
     final q = """{
       terms(func: $matchFn$termRange) $termFilter {
@@ -174,20 +266,26 @@ class TermQuery {
   }
 
   String makeSearchFilter() {
-    if (kind != TermQueryKind.termList) {
+    if (kind != KIND.termList) {
       return '';
     }
 
-    final str = (filter.searchString ?? '').trim();
-    if (str.isEmpty) {
+    final searchString = (filter.searchString ?? '').trim();
+
+    if (searchString.isEmpty) {
       return '';
     }
 
     // too small word fails with 'regular expression is too wide-ranging and can't be executed efficiently'
-    final regexp =
-        isWord(str) && str.length >= 3 ? 'regexp(text, /$str.*/i)' : '';
-    final anyoftext = 'anyoftext(text, "$str")';
+    var useRegexp = isWord(searchString) && searchString.length >= 3;
+    final regexp = useRegexp ? 'regexp(text, /$searchString.*/i)' : '';
+    final anyoftext = 'anyoftext(text, "$searchString")';
     final exprs = [anyoftext, regexp].where((s) => s.isNotEmpty).toList();
+    params[0] = searchString;
+    if (useRegexp) {
+      params[1] = '${searchString}.*';
+    }
+
     if (exprs.length > 1) {
       return '(${exprs.join(' or ')})';
     }
@@ -196,11 +294,13 @@ class TermQuery {
 
   String countBy() {
     switch (kind) {
-      case TermQueryKind.termList:
+      case KIND.term:
         return 'uid';
-      case TermQueryKind.audioList:
+      case KIND.termList:
+        return 'uid';
+      case KIND.audioList:
         return 'audio';
-      case TermQueryKind.visualList:
+      case KIND.visualList:
         return 'visual';
     }
   }

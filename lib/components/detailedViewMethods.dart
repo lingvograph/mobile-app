@@ -37,6 +37,7 @@ List<EdgeSelectorData> title = [
   new EdgeSelectorData("Audio", Colors.blue[200], "audio"),
   new EdgeSelectorData("Visual", Colors.blue[400], "visual"),
   new EdgeSelectorData("Translations", Colors.blueAccent, "translated_as"),
+  new EdgeSelectorData("Synonyms", Colors.blue[500], "synonyms"),
   new EdgeSelectorData("Is in other", Colors.blue[300], "in"),
   new EdgeSelectorData("Related to", Colors.blue[500], "related"),
   new EdgeSelectorData("Defenition", Colors.blue[700], "def"),

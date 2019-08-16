@@ -75,6 +75,7 @@ class TermDetailState extends State<TermDetail> {
     tabInflateMethods.add(makeDetailedAudios);
     tabInflateMethods.add(makeDetailedPictures);
     tabInflateMethods.add(makeDetailedTranslations);
+    tabInflateMethods.add(makeDetailedSynonyms);
     tabInflateMethods.add(makeDetailedInOther);
     tabInflateMethods.add(makeDetailedRelated);
     tabInflateMethods.add(makeDetailedDefinition);
@@ -111,12 +112,13 @@ class TermDetailState extends State<TermDetail> {
         ),
       );
     }
-    //кнопки для контроля масштаба термов
 
+    //TODO refactor this all
     makeDetailedAudios(visualTerm);
     makeDetailedPictures(visualTerm);
 
     makeDetailedTranslations(visualTerm);
+    makeDetailedSynonyms(visualTerm);
     makeDetailedInOther(visualTerm);
     makeDetailedRelated(visualTerm);
     makeDetailedDefinition(visualTerm);
@@ -132,7 +134,7 @@ class TermDetailState extends State<TermDetail> {
       }
     }
 
-    makeTermListView(definitionOf, 6);
+    makeTermListView(definitionOf, 7);
   }
 
   void makeDetailedDefinition(TermInfo visualTerm) {
@@ -143,7 +145,7 @@ class TermDetailState extends State<TermDetail> {
       }
     }
 
-    makeTermListView(definition, 5);
+    makeTermListView(definition, 6);
   }
 
   void makeDetailedRelated(TermInfo visualTerm) {
@@ -154,7 +156,7 @@ class TermDetailState extends State<TermDetail> {
       }
     }
 
-    makeTermListView(relatedTo, 4);
+    makeTermListView(relatedTo, 5);
   }
 
   void makeDetailedInOther(TermInfo visualTerm) {
@@ -168,7 +170,21 @@ class TermDetailState extends State<TermDetail> {
       }
     }
 
-    makeTermListView(inOther, 3);
+    makeTermListView(inOther, 4);
+  }
+
+  void makeDetailedSynonyms(TermInfo visualTerm) {
+    List<Widget> synonymsView = new List();
+    for (int i = 0; i < visualTerm.synonyms.length; i++) {
+      if (visualTerm.synonyms[i].lang == dropdownValue) {
+        synonymsView.add(TermView(
+          term: visualTerm.synonyms[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(synonymsView, 3);
   }
 
   void makeDetailedTranslations(TermInfo visualTerm) {

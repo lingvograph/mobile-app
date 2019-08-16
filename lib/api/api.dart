@@ -205,11 +205,11 @@ Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
     {TermFilter filter}) async {
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
-      kind: TermQueryKind.termList,
-      firstLang: firstLang,
+      kind: KIND.termList,
+      lang: firstLang,
       range: range,
       filter: filter);
-  var qs = q.makeQuery();
+  var qs = q.makeTermQuery();
   var results = await query(qs);
   var total = results['count'][0]['total'];
   var terms = results['terms'] as List<dynamic>;
@@ -221,8 +221,8 @@ Future<TermInfo> fetchAudioList(String termUid, int offset, int limit) async {
 
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
-      kind: TermQueryKind.audioList, termUid: termUid, range: range);
-  final qs = q.makeQuery();
+      kind: KIND.audioList, termUid: termUid, range: range);
+  final qs = q.makeTermQuery();
   final results = await query(qs);
   final total = results['count'][0]['total'];
   final term = results['terms'][0] as Map<String, dynamic>;
@@ -232,8 +232,8 @@ Future<TermInfo> fetchVisualList(String termUid, int offset, int limit) async {
 
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
-      kind: TermQueryKind.visualList, termUid: termUid, range: range, detailed: true);
-  final qs = q.makeQuery();
+      kind: KIND.visualList, termUid: termUid, range: range, detailed: true);
+  final qs = q.makeTermQuery();
   final results = await query(qs);
   final total = results['count'][0]['total'];
   final term = results['terms'][0] as Map<String, dynamic>;

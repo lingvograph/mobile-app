@@ -16,7 +16,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:youtube_player/youtube_player.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-import 'cni.dart';
+import 'nonCachedImage.dart';
 
 /*Ультимативный typedef*/
 typedef SearchCallback = void Function(TermInfo termForSearch);
@@ -528,10 +528,10 @@ class _TermState extends State<TermView> {
   loadImg(MediaInfo visual) {
     var url = visual.url;
     if (url.contains("unsplash.com") || url.contains("picsum")) {
-      print("spec "+url);
+      //print("spec "+url);
       ImageProvider img;
 
-      img = CMA(
+      img = NonCachedImage(
         url,
         visual.uid,
         useDiskCache: false,

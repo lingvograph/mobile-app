@@ -24,10 +24,10 @@ import 'package:uuid/uuid.dart';
 //Отключтл сохрание в файл, потому что оно идёт по урлу, но оставил по памяти, и изменил оператор сравнения, теперь он работает по uuid
 //Забавный эффект был без всяких кэширований, картинки продолжали non-stop загружаться пока эмулятор не начинал тормозить
 
-class CMA extends AdvancedNetworkImage
+class NonCachedImage extends AdvancedNetworkImage
 {
   String uid;
-  CMA(String url,
+  NonCachedImage(String url,
       this.uid,
   {scale: 1.0,
   header,
@@ -74,7 +74,7 @@ class CMA extends AdvancedNetworkImage
   bool operator ==(other) {
     // TODO: implement ==
     if (other.runtimeType != runtimeType) return false;
-    final CMA typedOther = other;
+    final NonCachedImage typedOther = other;
     return uid == typedOther.uid;
   }
 

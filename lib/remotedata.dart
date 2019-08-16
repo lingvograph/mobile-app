@@ -9,9 +9,9 @@ import 'package:memoapp/interfaces.dart';
 class RealLingvoService implements ILingvoService {
   @override
   Future<ListResult<TermInfo>> fetchTerms(int offset, int limit,
-      {TermFilter filter = null}) async {
+      {TermFilter filter = null, String lang}) async {
     var appState = appData.appState;
-    var firstLang = appState.user.firstLang;
+    var firstLang = lang ?? appState.user.firstLang;
     return api.fetchTerms(firstLang, offset, limit, filter: filter);
   }
 }
