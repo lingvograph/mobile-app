@@ -41,7 +41,7 @@ class TermDetailState extends State<TermDetail> {
   //total loaded audios/visuals
   int totalLoadedAudios = 0;
   int totalLoadedVisuals = 0;
-  String dropdownValue = 'ru';
+  String dropdownValue = 'en';
 
   final int loadOffset = 5;
 
@@ -290,7 +290,7 @@ class TermDetailState extends State<TermDetail> {
               pages[currentPage.round()],
               //cp,
               new MyObservableWidget(key: key),
-              RadialAddButton,
+              //RadialAddButton,
             ],
           ),
           onNotification: (ScrollNotification scroll) {

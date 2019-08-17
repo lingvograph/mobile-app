@@ -53,7 +53,7 @@ class TernDetailedViewInflateMethods {
   List<Widget> pages;
   int viewMode=1;
   Function getControll, getAudiosPage;
-  String dropdownValue;
+  String dropdownValue="en";
   TernDetailedViewInflateMethods({this.pages, this.getControll, this.getAudiosPage}) {}
 
   void fillInflateMethos(List<Function(TermInfo)> tabInflateMethods) {
@@ -153,7 +153,7 @@ class TernDetailedViewInflateMethods {
                           border:
                               new Border.all(color: Colors.grey[400], width: 2),
                           image: new DecorationImage(
-                            image: loadImg(visualTerm.visual.items[i].url),
+                            image: TermView.loadImg(visualTerm.visual.items[i]),
                             fit: BoxFit.cover,
                           ),
                         ),

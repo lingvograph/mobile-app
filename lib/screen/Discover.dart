@@ -34,6 +34,8 @@ var audioPlayer = new AudioPlayer();
 
 // main screen with terms
 class DiscoverScreen extends StatefulWidget {
+  TermFilter filter;
+  DiscoverScreen({this.filter}){}
   @override
   State<StatefulWidget> createState() => DiscoverState();
 }
@@ -56,6 +58,12 @@ class DiscoverState extends State<DiscoverScreen> {
   void initState() {
     super.initState();
     searchTags = new List();
+
+    if(widget.filter!=null)
+      {
+        globalFilter = widget.filter;
+        searchTags.add(globalFilter.tags[0]);
+      }
     tags = new List();
 
     fetchPage();
@@ -376,10 +384,11 @@ class DiscoverState extends State<DiscoverScreen> {
                     color: Colors.redAccent,
                   ),
                   onTap: () {
-                    //print("dsa");
+                    print("remove "+searchTags[i].text);
                     TermInfo.remove(searchTags, searchTags[i]);
                     if (searchTags.length == 0) {
                       //print("empty");
+                      globalFilter = null;
                       terms = new List();
                       fetchPage();
                     } else {

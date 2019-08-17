@@ -8,8 +8,10 @@ import 'package:memoapp/AppData.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
+import 'package:memoapp/api/termquery.dart';
 import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
+import 'package:memoapp/screen/Discover.dart';
 import 'package:memoapp/screen/TermDetail.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -40,6 +42,31 @@ class TermView extends StatefulWidget {
   //2 - semi-compact view
   //3 - compact view(only text)
   int viewMode;
+
+  static loadImg(MediaInfo visual) {
+    var url = visual.url;
+    if (url.contains("unsplash.com") || url.contains("picsum")) {
+      //print("spec "+url);
+      ImageProvider img;
+
+      img = NonCachedImage(
+        url,
+        visual.uid,
+        useDiskCache: false,
+        disableMemoryCache: false,
+        retryLimit: 1,
+        timeoutDuration: Duration(seconds: 30),
+      );
+
+
+      return img;
+    } else {
+      ImageProvider img;
+
+      img = CachedNetworkImageProvider(url);
+      return img;
+    }
+  }
 }
 
 class _TermState extends State<TermView> {
@@ -444,7 +471,20 @@ class _TermState extends State<TermView> {
             )),
         onTap: () {
           //print(t.uid.toString());
-          widget.onSearch(t);
+
+          if(widget.onSearch==null)
+            {
+              List<TermInfo> tags = new List();
+              tags.add(t);
+              TermFilter tf = new TermFilter("", tags: tags);
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => DiscoverScreen(filter: tf)));
+            }
+          else
+            {
+              widget.onSearch(t);
+
+            }
         },
       ),
     );
@@ -525,30 +565,7 @@ class _TermState extends State<TermView> {
     });
   }
 
-  loadImg(MediaInfo visual) {
-    var url = visual.url;
-    if (url.contains("unsplash.com") || url.contains("picsum")) {
-      //print("spec "+url);
-      ImageProvider img;
 
-      img = NonCachedImage(
-        url,
-        visual.uid,
-        useDiskCache: false,
-        disableMemoryCache: false,
-        retryLimit: 1,
-        timeoutDuration: Duration(seconds: 30),
-      );
-
-
-      return img;
-    } else {
-      ImageProvider img;
-
-      img = CachedNetworkImageProvider(url);
-      return img;
-    }
-  }
 
   Widget makeImage(MediaInfo visual, BuildContext context) {
     //print(visual.url);
@@ -559,7 +576,7 @@ class _TermState extends State<TermView> {
         //borderRadius: BorderRadius.circular(10),
         //border: new Border.all(color: Colors.grey, width: 2),
         image: new DecorationImage(
-          image: loadImg(visual),
+          image: TermView.loadImg(visual),
           fit: BoxFit.cover,
         ),
       ),
