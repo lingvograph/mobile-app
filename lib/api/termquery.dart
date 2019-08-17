@@ -82,7 +82,7 @@ class TermQuery {
     ${TAG}
   }''';
 
-  static var FILE_BODY = ''''{
+  static var FILE_BODY = '''{
     uid
     url
     source

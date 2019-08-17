@@ -63,6 +63,7 @@ class TermDetailState extends State<TermDetail> {
   //Список функций в порядке меню, используется для вызова обновления при смене режима просмотра(компакт, средний, полный)
   List<Function(TermInfo)> tabInflateMethods;
 
+  TernDetailedViewInflateMethods stateSaver;
   get appState {
     return appData.appState;
   }
@@ -70,235 +71,16 @@ class TermDetailState extends State<TermDetail> {
   @override
   void initState() {
     super.initState();
-    fetchData();
     tabInflateMethods = new List();
-    tabInflateMethods.add(makeDetailedAudios);
-    tabInflateMethods.add(makeDetailedPictures);
-    tabInflateMethods.add(makeDetailedTranslations);
-    tabInflateMethods.add(makeDetailedSynonyms);
-    tabInflateMethods.add(makeDetailedInOther);
-    tabInflateMethods.add(makeDetailedRelated);
-    tabInflateMethods.add(makeDetailedDefinition);
-    tabInflateMethods.add(makeDetailedDefinitionOf);
-  }
-
-  void initPages(TermInfo visualTerm) {
     pages = new List(title.length);
-    //visualTerm.audio = term.audio;
-    //term = visualTerm;
-    //начальная инициализация сообщением, информирующем об отсутствии данных
-    for (int i = 0; i < title.length; i++) {
-      pages[i] = Align(
-        child: Container(
-          width: 200,
-          child: Column(
-            children: <Widget>[
-              Text(
-                " No Content for ",
-                style: TextStyle(fontSize: 20, color: Colors.blue[800]),
-              ),
-              Text(
-                title[i].edgeName + "",
-                style: TextStyle(fontSize: 20, color: Colors.blue[600]),
-              ),
-            ],
-          ),
-          alignment: Alignment(0, 0),
-          padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
-          decoration: BoxDecoration(
-              color: Colors.grey[200],
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: <BoxShadow>[BoxShadow(blurRadius: 5)]),
-        ),
-      );
-    }
 
-    //TODO refactor this all
-    makeDetailedAudios(visualTerm);
-    makeDetailedPictures(visualTerm);
+    stateSaver = new TernDetailedViewInflateMethods(pages: pages, getControll: getPageControlWidget, getAudiosPage: getAudiosPage);
+    fetchData();
 
-    makeDetailedTranslations(visualTerm);
-    makeDetailedSynonyms(visualTerm);
-    makeDetailedInOther(visualTerm);
-    makeDetailedRelated(visualTerm);
-    makeDetailedDefinition(visualTerm);
-    makeDetailedDefinitionOf(visualTerm);
+    stateSaver.fillInflateMethos(tabInflateMethods);
   }
 
-  void makeDetailedDefinitionOf(TermInfo visualTerm) {
-    List<Widget> definitionOf = new List();
-    for (int i = 0; i < visualTerm.definitionOf.length; i++) {
-      if (visualTerm.definitionOf[i].lang == dropdownValue)
-      {
-        definitionOf.add(TermView(term: visualTerm.definitionOf[i]));
-      }
-    }
 
-    makeTermListView(definitionOf, 7);
-  }
-
-  void makeDetailedDefinition(TermInfo visualTerm) {
-    List<Widget> definition = new List();
-    for (int i = 0; i < visualTerm.definition.length; i++) {
-      if (visualTerm.definition[i].lang == dropdownValue) {
-        definition.add(TermView(term: visualTerm.definition[i]));
-      }
-    }
-
-    makeTermListView(definition, 6);
-  }
-
-  void makeDetailedRelated(TermInfo visualTerm) {
-    List<Widget> relatedTo = new List();
-    for (int i = 0; i < visualTerm.relatedTo.length; i++) {
-      if (visualTerm.relatedTo[i].lang == dropdownValue) {
-        relatedTo.add(TermView(term: visualTerm.relatedTo[i]));
-      }
-    }
-
-    makeTermListView(relatedTo, 5);
-  }
-
-  void makeDetailedInOther(TermInfo visualTerm) {
-    List<Widget> inOther = new List();
-    for (int i = 0; i < visualTerm.isInOtherTerms.length; i++) {
-      if (visualTerm.isInOtherTerms[i].lang == dropdownValue) {
-        inOther.add(TermView(
-          term: visualTerm.isInOtherTerms[i],
-          viewMode: viewMode,
-        ));
-      }
-    }
-
-    makeTermListView(inOther, 4);
-  }
-
-  void makeDetailedSynonyms(TermInfo visualTerm) {
-    List<Widget> synonymsView = new List();
-    for (int i = 0; i < visualTerm.synonyms.length; i++) {
-      if (visualTerm.synonyms[i].lang == dropdownValue) {
-        synonymsView.add(TermView(
-          term: visualTerm.synonyms[i],
-          viewMode: viewMode,
-        ));
-      }
-    }
-
-    makeTermListView(synonymsView, 3);
-  }
-
-  void makeDetailedTranslations(TermInfo visualTerm) {
-    List<Widget> translationView = new List();
-    for (int i = 0; i < visualTerm.translations.length; i++) {
-      //print(visualTerm.translations[i].lang);
-      if (visualTerm.translations[i].lang == dropdownValue) {
-        translationView.add(TermView(
-          term: visualTerm.translations[i],
-          viewMode: viewMode,
-        ));
-      }
-    }
-
-    makeTermListView(translationView, 2);
-  }
-
-  void makeTermListView(List<Widget> children, int pageIndex) {
-    if (children.length > 0) {
-      if (viewMode == 2) {
-        pages[pageIndex] = new Column(
-          children: <Widget>[
-            getControll(),
-            GridView.count(
-              primary: false,
-              shrinkWrap: true,
-              // Create a grid with 2 columns. If you change the scrollDirection to
-              // horizontal, this would produce 2 rows.
-              crossAxisCount: 2,
-              // Generate 100 Widgets that display their index in the List
-              children: children,
-            ),
-          ],
-        );
-      } else {
-        pages[pageIndex] = Column(
-          children: <Widget>[
-            getControll(),
-            Column(
-              children: children,
-            )
-          ],
-        );
-      }
-    } else {
-      pages[pageIndex] = Column(
-        children: <Widget>[
-          getControll(),
-        ],
-      );
-    }
-  }
-
-  void makeDetailedAudios(TermInfo ti) {
-    pages[0] = getAudiosPage();
-  }
-
-  void makeDetailedPictures(TermInfo visualTerm) {
-    List<Widget> pictures = new List();
-
-    for (int i = 0; i < visualTerm.visual.total; i++) {
-      try {
-        visualTerm.visual.items[i].url.contains('youtube')
-            ? pictures.add(Container())
-            : pictures.add(InkWell(
-                onTap: () {
-                  print("TAPPPPPPP");
-                },
-                child: Column(
-                  children: <Widget>[
-                    Padding(
-                      child: Container(
-                        height: 200,
-                        padding: new EdgeInsets.only(left: 16.0, right: 16.0),
-                        decoration: new BoxDecoration(
-                          boxShadow: <BoxShadow>[BoxShadow(blurRadius: 10)],
-                          borderRadius: BorderRadius.circular(5),
-                          border:
-                              new Border.all(color: Colors.grey[400], width: 2),
-                          image: new DecorationImage(
-                            image: loadImg(visualTerm.visual.items[i].url),
-                            fit: BoxFit.cover,
-                          ),
-                        ),
-                      ),
-                      padding: EdgeInsets.all(7),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(1),
-                    )
-                  ],
-                ),
-              ));
-      } catch (e) {
-        pictures.add(Container());
-      }
-    }
-
-    if (pictures.length > 0) {
-      pages[1] = new Column(
-        children: pictures,
-      );
-    }
-  }
-
-  loadImg(String url) {
-    var img;
-    img = new CachedNetworkImageProvider(url, errorListener: () {
-      print("failed");
-      img = CachedNetworkImageProvider(
-          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
-    });
-    return img;
-  }
 
   fetchData() async {
     var result = await fetchAudioList(id, totalLoadedAudios, loadOffset);
@@ -308,7 +90,7 @@ class TermDetailState extends State<TermDetail> {
     term = visualTerm;
     totalLoadedVisuals = term.visual.items.length;
     setState(() {
-      initPages(visualTerm);
+      stateSaver.initEmptyPages(visualTerm);
     });
   }
 
@@ -355,7 +137,8 @@ class TermDetailState extends State<TermDetail> {
 
   var currentPage = 0.0;
 
-  Widget getControll() {
+  //
+  Widget getPageControlWidget() {
     return Container(
       padding: EdgeInsets.only(right: 20),
       child: Row(
@@ -364,7 +147,10 @@ class TermDetailState extends State<TermDetail> {
           DropdownButton<String>(
             value: dropdownValue,
             onChanged: (String newValue) {
+
               setState(() {
+                stateSaver.dropdownValue = newValue;
+                stateSaver.viewMode = viewMode;
                 dropdownValue = newValue;
                 tabInflateMethods[currentPage.round()](term);
               });
@@ -388,6 +174,7 @@ class TermDetailState extends State<TermDetail> {
             onPressed: () {
               setState(() {
                 viewMode = 1;
+                stateSaver.viewMode = viewMode;
               });
               tabInflateMethods[currentPage.round()](term);
             },
@@ -400,6 +187,8 @@ class TermDetailState extends State<TermDetail> {
             onPressed: () {
               setState(() {
                 viewMode = 2;
+                stateSaver.viewMode = viewMode;
+
               });
               tabInflateMethods[currentPage.round()](term);
             },
@@ -412,6 +201,8 @@ class TermDetailState extends State<TermDetail> {
             onPressed: () {
               setState(() {
                 viewMode = 3;
+                stateSaver.viewMode = viewMode;
+
               });
               tabInflateMethods[currentPage.round()](term);
             },

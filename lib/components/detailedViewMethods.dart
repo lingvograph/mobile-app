@@ -7,6 +7,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:memoapp/api/api.dart';
@@ -15,6 +16,7 @@ import 'package:memoapp/screen/TermDetail.dart';
 import 'package:uuid/uuid.dart';
 
 import '../AppData.dart';
+import 'TermView.dart';
 
 //Элемент горизонтально списка в меню делтального просмотра
 class EdgeSelectorData {
@@ -27,22 +29,274 @@ class EdgeSelectorData {
   //Код(строка), по которому будет происходить запрос ребра(EDGE)
   String code;
 
-  EdgeSelectorData(String n, Color c, String co) {
+  EdgeSelectorData(String n, Color c) {
     this.edgeName = n;
     this.backColor = c;
-    this.code = co;
   }
 }
+
 List<EdgeSelectorData> title = [
-  new EdgeSelectorData("Audio", Colors.blue[200], "audio"),
-  new EdgeSelectorData("Visual", Colors.blue[400], "visual"),
-  new EdgeSelectorData("Translations", Colors.blueAccent, "translated_as"),
-  new EdgeSelectorData("Synonyms", Colors.blue[500], "synonyms"),
-  new EdgeSelectorData("Is in other", Colors.blue[300], "in"),
-  new EdgeSelectorData("Related to", Colors.blue[500], "related"),
-  new EdgeSelectorData("Defenition", Colors.blue[700], "def"),
-  new EdgeSelectorData("Defenition of", Colors.blue, "def_of"),
+  new EdgeSelectorData("Audio", Colors.blue[200]),
+  new EdgeSelectorData("Visual", Colors.blue[400]),
+  new EdgeSelectorData("Translations", Colors.blueAccent),
+  new EdgeSelectorData("Synonyms", Colors.blue[500]),
+  new EdgeSelectorData("Is in other", Colors.blue[300]),
+  new EdgeSelectorData("Related to", Colors.blue[500]),
+  new EdgeSelectorData("Defenition", Colors.blue[700]),
+  new EdgeSelectorData("Defenition of", Colors.blue),
 ];
+
+
+//Попытка разгрузить код detailed тёрма, эдакий класс на много функций, которые можно вынести
+//Понятия не имею как это дело оптимизировать, когда обращение к специфическим полям идёт
+class TernDetailedViewInflateMethods {
+  List<Widget> pages;
+  int viewMode=1;
+  Function getControll, getAudiosPage;
+  String dropdownValue;
+  TernDetailedViewInflateMethods({this.pages, this.getControll, this.getAudiosPage}) {}
+
+  void fillInflateMethos(List<Function(TermInfo)> tabInflateMethods) {
+
+    tabInflateMethods.add(makeDetailedAudios);
+    tabInflateMethods.add(makeDetailedPictures);
+    tabInflateMethods.add(makeDetailedTranslations);
+    tabInflateMethods.add(makeDetailedSynonyms);
+    tabInflateMethods.add(makeDetailedInOther);
+    tabInflateMethods.add(makeDetailedRelated);
+    tabInflateMethods.add(makeDetailedDefinition);
+    tabInflateMethods.add(makeDetailedDefinitionOf);
+  }
+
+  void initAllPages(TermInfo visualTerm) {
+    makeDetailedAudios(visualTerm);
+    makeDetailedPictures(visualTerm);
+
+    makeDetailedTranslations(visualTerm);
+    makeDetailedSynonyms(visualTerm);
+    makeDetailedInOther(visualTerm);
+    makeDetailedRelated(visualTerm);
+    makeDetailedDefinition(visualTerm);
+    makeDetailedDefinitionOf(visualTerm);
+  }
+
+  loadImg(String url) {
+    var img;
+    img = new CachedNetworkImageProvider(url, errorListener: () {
+      print("failed");
+      img = CachedNetworkImageProvider(
+          "https://i1.wp.com/thefrontline.org.uk/wp-content/uploads/2018/10/placeholder.jpg");
+    });
+    return img;
+  }
+
+  void makeTermListView(List<Widget> children, int pageIndex) {
+    if (children.length > 0) {
+      if (viewMode == 2) {
+        pages[pageIndex] = new Column(
+          children: <Widget>[
+            getControll(),
+            GridView.count(
+              primary: false,
+              shrinkWrap: true,
+              // Create a grid with 2 columns. If you change the scrollDirection to
+              // horizontal, this would produce 2 rows.
+              crossAxisCount: 2,
+              // Generate 100 Widgets that display their index in the List
+              children: children,
+            ),
+          ],
+        );
+      } else {
+        pages[pageIndex] = Column(
+          children: <Widget>[
+            getControll(),
+            Column(
+              children: children,
+            )
+          ],
+        );
+      }
+    } else {
+      pages[pageIndex] = Column(
+        children: <Widget>[
+          getControll(),
+        ],
+      );
+    }
+  }
+
+  void makeDetailedAudios(TermInfo ti) {
+    pages[0] = getAudiosPage();
+  }
+
+  void makeDetailedPictures(TermInfo visualTerm) {
+    List<Widget> pictures = new List();
+
+    for (int i = 0; i < visualTerm.visual.total; i++) {
+      try {
+        visualTerm.visual.items[i].url.contains('youtube')
+            ? pictures.add(Container())
+            : pictures.add(InkWell(
+                onTap: () {
+                  print("TAPPPPPPP");
+                },
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      child: Container(
+                        height: 200,
+                        padding: new EdgeInsets.only(left: 16.0, right: 16.0),
+                        decoration: new BoxDecoration(
+                          boxShadow: <BoxShadow>[BoxShadow(blurRadius: 10)],
+                          borderRadius: BorderRadius.circular(5),
+                          border:
+                              new Border.all(color: Colors.grey[400], width: 2),
+                          image: new DecorationImage(
+                            image: loadImg(visualTerm.visual.items[i].url),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                      padding: EdgeInsets.all(7),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(1),
+                    )
+                  ],
+                ),
+              ));
+      } catch (e) {
+        pictures.add(Container());
+      }
+    }
+
+    if (pictures.length > 0) {
+      pages[1] = new Column(
+        children: pictures,
+      );
+    }
+  }
+
+  void makeDetailedDefinitionOf(TermInfo visualTerm) {
+    List<Widget> definitionOf = new List();
+    for (int i = 0; i < visualTerm.definitionOf.length; i++) {
+      if (visualTerm.definitionOf[i].lang == dropdownValue) {
+        definitionOf.add(TermView(
+          term: visualTerm.definitionOf[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(definitionOf, 7);
+  }
+
+  void makeDetailedDefinition(TermInfo visualTerm) {
+    List<Widget> definition = new List();
+    for (int i = 0; i < visualTerm.definition.length; i++) {
+      if (visualTerm.definition[i].lang == dropdownValue) {
+        definition.add(TermView(
+          term: visualTerm.definition[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(definition, 6);
+  }
+
+  void makeDetailedRelated(TermInfo visualTerm) {
+    List<Widget> relatedTo = new List();
+    for (int i = 0; i < visualTerm.relatedTo.length; i++) {
+      if (visualTerm.relatedTo[i].lang == dropdownValue) {
+        relatedTo.add(TermView(
+          term: visualTerm.relatedTo[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(relatedTo, 5);
+  }
+
+  void makeDetailedInOther(TermInfo visualTerm) {
+    List<Widget> inOther = new List();
+    for (int i = 0; i < visualTerm.isInOtherTerms.length; i++) {
+      if (visualTerm.isInOtherTerms[i].lang == dropdownValue) {
+        inOther.add(TermView(
+          term: visualTerm.isInOtherTerms[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(inOther, 4);
+  }
+
+  void makeDetailedSynonyms(TermInfo visualTerm) {
+    List<Widget> synonymsView = new List();
+    for (int i = 0; i < visualTerm.synonyms.length; i++) {
+      if (visualTerm.synonyms[i].lang == dropdownValue) {
+        synonymsView.add(TermView(
+          term: visualTerm.synonyms[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(synonymsView, 3);
+  }
+
+  void makeDetailedTranslations(TermInfo visualTerm) {
+    List<Widget> translationView = new List();
+    for (int i = 0; i < visualTerm.translations.length; i++) {
+      //print(visualTerm.translations[i].lang);
+      if (visualTerm.translations[i].lang == dropdownValue) {
+        translationView.add(TermView(
+          term: visualTerm.translations[i],
+          viewMode: viewMode,
+        ));
+      }
+    }
+
+    makeTermListView(translationView, 2);
+  }
+
+  void initEmptyPages(TermInfo visualTerm) {
+    //visualTerm.audio = term.audio;
+    //term = visualTerm;
+    //начальная инициализация сообщением, информирующем об отсутствии данных
+    for (int i = 0; i < title.length; i++) {
+      pages[i] = Align(
+        child: Container(
+          width: 200,
+          child: Column(
+            children: <Widget>[
+              Text(
+                " No Content for ",
+                style: TextStyle(fontSize: 20, color: Colors.blue[800]),
+              ),
+              Text(
+                title[i].edgeName + "",
+                style: TextStyle(fontSize: 20, color: Colors.blue[600]),
+              ),
+            ],
+          ),
+          alignment: Alignment(0, 0),
+          padding: EdgeInsets.only(top: 10, bottom: 10, left: 5, right: 5),
+          decoration: BoxDecoration(
+              color: Colors.grey[200],
+              borderRadius: BorderRadius.circular(14),
+              boxShadow: <BoxShadow>[BoxShadow(blurRadius: 5)]),
+        ),
+      );
+    }
+
+    //TODO refactor this all
+    initAllPages(visualTerm);
+  }
+}
 
 class HorizontalEdgeMenu extends StatelessWidget {
   var currentPage;
@@ -63,7 +317,8 @@ class HorizontalEdgeMenu extends StatelessWidget {
             100 * sqrt(delta * (delta > 0 ? 1 : -1)) * (delta > 0 ? 1 : -1) -
             title[i].edgeName.length / 2 * 10,
         //textDirection: TextDirection.rtl,
-        child: Transform.scale(scale: 1-delta * (delta > 0 ? 1 : -1)/10,
+        child: Transform.scale(
+          scale: 1 - delta * (delta > 0 ? 1 : -1) / 10,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8.0),
             child: Container(
@@ -96,6 +351,7 @@ class HorizontalEdgeMenu extends StatelessWidget {
         ));
   }
 }
+
 void openCamera(TermInfo term) async {
   File cameraFile;
   print("camera open!");
