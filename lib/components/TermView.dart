@@ -24,7 +24,6 @@ import 'nonCachedImage.dart';
 typedef SearchCallback = void Function(TermInfo termForSearch);
 
 class TermView extends StatefulWidget {
-
   static String randomImageUrl = "https://picsum.photos/400/?blur";
   SearchCallback onSearch;
 
@@ -58,7 +57,6 @@ class TermView extends StatefulWidget {
         timeoutDuration: Duration(seconds: 30),
       );
 
-
       return img;
     } else {
       ImageProvider img;
@@ -77,6 +75,8 @@ class _TermState extends State<TermView> {
   double imgH;
   Color textColor = Colors.blue[900];
 
+  var trans = "";
+
   AppState get appState {
     return appData.appState;
   }
@@ -89,11 +89,13 @@ class _TermState extends State<TermView> {
   void initState() {
     // TODO: implement initState
     super.initState();
+    trans = widget.term.transcript != null && widget.term.transcript.length > 0
+        ? widget.term.transcript[0].text
+        : "";
   }
 
   @override
   Widget build(BuildContext context) {
-
     width = MediaQuery.of(context).size.width;
 
     if (widget.viewMode == 1) {
@@ -110,20 +112,22 @@ class _TermState extends State<TermView> {
   Widget getTags() {
     List<Widget> tags = new List();
     for (int i = 0; i < term.tags.length; i++) {
-      tags.add(Container(
-        padding: EdgeInsets.all(1),
+      tags.add(InkWell(
         child: Container(
-          decoration: BoxDecoration(
-              border: new Border.all(color: Colors.blueAccent),
-              borderRadius: BorderRadius.circular(4)),
-          child: Text(
-            term.tags[i].text.length > 3
-                ? term.tags[i].text.substring(0, 3) + '.'
-                : term.tags[i].text,
-            style: TextStyle(color: Colors.blueAccent, fontSize: 17),
+          padding: EdgeInsets.all(1),
+          child: Container(
+            decoration: BoxDecoration(
+                border: new Border.all(color: Colors.blueAccent),
+                borderRadius: BorderRadius.circular(4)),
+            child: Text(
+              term.tags[i].text.length > 3
+                  ? term.tags[i].text.substring(0, 3) + '.'
+                  : term.tags[i].text,
+              style: TextStyle(color: Colors.blueAccent, fontSize: 17),
+            ),
+            padding: EdgeInsets.all(2),
           ),
-          padding: EdgeInsets.all(2),
-        ),
+        ),onTap: (){tagtap(term.tags[i]);},
       ));
     }
     return Container(
@@ -142,7 +146,6 @@ class _TermState extends State<TermView> {
                 .map((t) => t.text),
             '') ??
         '';
-    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
     return Padding(
       padding: EdgeInsets.only(left: 10, right: 10, top: 20),
       child: Row(
@@ -161,9 +164,16 @@ class _TermState extends State<TermView> {
               children: <Widget>[
                 Row(
                   children: <Widget>[
-                    Text(text1,
-                        style:
-                            TextStyle(fontSize: 19, color: Colors.blue[600])),
+                    InkWell(
+                      child: Text(text1,
+                          style:
+                              TextStyle(fontSize: 19, color: Colors.blue[600])),
+                      onTap: () {
+                        print("kurwa");
+
+                        pushTermRoute(term.uid);
+                      },
+                    ),
                     Padding(
                       padding: EdgeInsets.all(2),
                     ),
@@ -188,7 +198,7 @@ class _TermState extends State<TermView> {
                     Padding(
                       padding: EdgeInsets.all(2),
                     ),
-                    Text(trans.length>0?"[" + trans + "]":"",
+                    Text(trans.length > 0 ? "[" + trans + "]" : "",
                         style:
                             TextStyle(fontSize: 18, color: Colors.blue[800])),
                     Padding(
@@ -226,7 +236,6 @@ class _TermState extends State<TermView> {
                 .map((t) => t.text),
             '') ??
         '';
-    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
     return Container(
       width: 200,
       height: 180,
@@ -245,13 +254,18 @@ class _TermState extends State<TermView> {
                 new InkWell(
                     onTap: imageOnTap,
                     child: makeImage(term.visual.items[0], context)),
-                Positioned(width: 180 ,
+                Positioned(
+                  width: 180,
                   top: 25,
                   left: 10,
                   child: text1.length > 20
                       ? new Text(text1.substring(0, 20) + "...",
                           style: termTextStyle)
-                      : Wrap(children: <Widget>[new Text(text1, style: termTextStyle)],),
+                      : Wrap(
+                          children: <Widget>[
+                            new Text(text1, style: termTextStyle)
+                          ],
+                        ),
                 ),
               ],
             )),
@@ -263,6 +277,7 @@ class _TermState extends State<TermView> {
     imgH = width / 2;
     maxTagHeight = 50 * term.tags.length.toDouble() / 3;
     var firstLang = appState.user?.firstLang ?? 'ru';
+    print(firstLang);
     var text1 = term.text ?? '';
     var text2 = firstOrElse(
             term.translations
@@ -270,7 +285,6 @@ class _TermState extends State<TermView> {
                 .map((t) => t.text),
             '') ??
         '';
-    var trans = firstByKey(term.transcript, firstLang, true) ?? '';
     var slider = makeSlider(context);
 
     var dots = initDots();
@@ -287,9 +301,8 @@ class _TermState extends State<TermView> {
     var termTranscript = Positioned(
       left: 10,
       top: 55,
-      child: trans.isEmpty
-          ? Text("")
-          : new Text(text2 + ' [' + trans + ']', style: transcriptStyle),
+      child: new Text(text2 + (trans.length > 0 ? (' [' + trans + ']') : ''),
+          style: transcriptStyle),
     );
     var iconPlayAudio = term.audio.total > 0
         ? Positioned(
@@ -472,22 +485,24 @@ class _TermState extends State<TermView> {
         onTap: () {
           //print(t.uid.toString());
 
-          if(widget.onSearch==null)
-            {
-              List<TermInfo> tags = new List();
-              tags.add(t);
-              TermFilter tf = new TermFilter("", tags: tags);
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => DiscoverScreen(filter: tf)));
-            }
-          else
-            {
-              widget.onSearch(t);
-
-            }
+          tagtap(t);
         },
       ),
     );
+  }
+
+  void tagtap(TermInfo t) {
+    if (widget.onSearch == null) {
+      List<TermInfo> tags = new List();
+      tags.add(t);
+      TermFilter tf = new TermFilter("", tags: tags);
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => DiscoverScreen(filter: tf)));
+    } else {
+      widget.onSearch(t);
+    }
   }
 
   void expandTags() {
@@ -496,14 +511,27 @@ class _TermState extends State<TermView> {
     });
   }
 
+  void pushTermRoute(String uid)
+  {
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => TermDetail(
+              uid,
+            )));
+  }
   void imageOnTap() {
     if (widget.tappable) {
       // TODO view visual, not audio
       if (term.audio.items.isNotEmpty) {
         view(appState.user.uid, term.audio.items[0].uid);
       }
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => TermDetail(term.uid, )));
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+              builder: (context) => TermDetail(
+                    term.uid,
+                  )));
     }
   }
 
@@ -564,8 +592,6 @@ class _TermState extends State<TermView> {
       if (success) debugPrint('removed image!');
     });
   }
-
-
 
   Widget makeImage(MediaInfo visual, BuildContext context) {
     //print(visual.url);

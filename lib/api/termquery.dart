@@ -30,10 +30,7 @@ class TermQuery {
   bool onlyTags = false;
   var params = ["", ""];
   var relationMap = {
-    'translated_as': {
-      'label': 'Translations',
-      'count': 'translated_as_count',
-    },
+
     'definition': {
       'label': 'Definitions',
       'count': 'definition_count',
@@ -193,8 +190,7 @@ class TermQuery {
     final termBody = """uid
           text
           lang  
-          transcript@ru
-          transcript@en
+          transcription
           $shortVisualInfo
           tag {
             uid
@@ -230,8 +226,7 @@ class TermQuery {
         uid
         text
         lang
-        transcript@ru
-        transcript@en
+        transcription {$termBody}
         tag {
           uid
           text
@@ -239,6 +234,7 @@ class TermQuery {
           transcript@ru
           transcript@en
         }
+        translated_as {$termBody}
         $detailedInfo
         $visualInfo
         

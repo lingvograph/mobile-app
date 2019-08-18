@@ -125,7 +125,7 @@ class TermInfo {
   String text;
 
   // transcriptions in different languages
-  Map<String, String> transcript;
+  List<TermInfo> transcript;
   List<TermInfo> translations;
   ListResult<MediaInfo> audio;
   ListResult<MediaInfo> visual;
@@ -147,7 +147,7 @@ class TermInfo {
     lang = json['lang'];
     text = json['text'];
 
-    transcript = multilangText(json, 'transcript');
+    transcript =mapList(json, 'transcription', (t) => TermInfo.fromJson(t));
     tags = mapList(json, 'tag', (t) => TermInfo.fromJson(t));
     translations = mapList(json, 'translated_as', (t) => TermInfo.fromJson(t));
 
