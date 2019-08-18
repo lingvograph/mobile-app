@@ -127,6 +127,9 @@ Future<dynamic> getData(String methodPath) async {
 
 Future<UserInfo> fetchCurrentUser() async {
   var results = await getData('/api/me');
+  //var q = '''user{}''';
+
+  //var result = await query(q);
   return UserInfo.fromJson(results);
 }
 
@@ -158,7 +161,7 @@ class TermUpdate {
 
 // TODO actually these connections should be approved, this can be done using temporary edge like audio_unverified, image_unverified
 /// Allows to connect given term to audio or image
-Future<dynamic> upadteTerm(String termUid, TermUpdate input) {
+Future<dynamic> updateTerm(String termUid, TermUpdate input) {
   var nquads = [
     NQuad.format(termUid, 'audio', input.audioUid),
     NQuad.format(termUid, 'visual', input.imageUid),
@@ -205,10 +208,7 @@ Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
     {TermFilter filter}) async {
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
-      kind: KIND.termList,
-      lang: firstLang,
-      range: range,
-      filter: filter);
+      kind: KIND.termList, lang: firstLang, range: range, filter: filter);
   var qs = q.makeTermQuery();
   var results = await query(qs);
   var total = results['count'][0]['total'];
@@ -218,18 +218,16 @@ Future<ListResult<TermInfo>> fetchTerms(String firstLang, int offset, int limit,
 }
 
 Future<TermInfo> fetchAudioList(String termUid, int offset, int limit) async {
-
   final range = new Pagination(offset, limit);
-  final q = new TermQuery(
-      kind: KIND.audioList, termUid: termUid, range: range);
+  final q = new TermQuery(kind: KIND.audioList, termUid: termUid, range: range);
   final qs = q.makeTermQuery();
   final results = await query(qs);
   final total = results['count'][0]['total'];
   final term = results['terms'][0] as Map<String, dynamic>;
   return TermInfo.fromJson(term, audioTotal: total);
 }
-Future<TermInfo> fetchVisualList(String termUid, int offset, int limit) async {
 
+Future<TermInfo> fetchVisualList(String termUid, int offset, int limit) async {
   final range = new Pagination(offset, limit);
   final q = new TermQuery(
       kind: KIND.visualList, termUid: termUid, range: range, detailed: true);

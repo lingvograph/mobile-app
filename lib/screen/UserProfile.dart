@@ -1,6 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
+import 'package:memoapp/api/api.dart';
+import 'package:memoapp/api/model.dart';
 import 'package:memoapp/locale.dart';
 
 import '../AppState.dart';
@@ -12,13 +14,16 @@ class UserProfile extends StatefulWidget {
 
 class _ProfileState extends State<UserProfile> {
   Widget currentProfileWindow;
+  var firstLangVal = appData.appState.user.firstLang;
+
+  var targetLangVal = 'en';
 
   initState() {
     super.initState();
-    if(appData.appState.user.email.contains("@gmail"))
-      {
-        appData.appState.user.firstName = appData.appState.user.email.replaceAll('@gmail.com', "");
-      }
+    if (appData.appState.user.email.contains("@gmail")) {
+      appData.appState.user.firstName =
+          appData.appState.user.email.replaceAll('@gmail.com', "");
+    }
     currentProfileWindow = new UserAchievments();
   }
 
@@ -45,50 +50,126 @@ class _ProfileState extends State<UserProfile> {
   @override
   Widget build(BuildContext context) {
     var userAvatar = Container(
-          width: 130,
-          height: 130,
-          decoration: new BoxDecoration(
-              border: new Border.all(color: Colors.blueAccent,width: 2),
-              shape: BoxShape.circle,
-              image: new DecorationImage(
-                  fit: BoxFit.fill,
-                  image: CachedNetworkImageProvider(appData.appState.user.avatar))));
+        width: 130,
+        height: 130,
+        decoration: new BoxDecoration(
+            border: new Border.all(color: Colors.blueAccent, width: 2),
+            shape: BoxShape.circle,
+            image: new DecorationImage(
+                fit: BoxFit.fill,
+                image:
+                    CachedNetworkImageProvider(appData.appState.user.avatar))));
     var userName = Container(
-        padding: EdgeInsets.only(top: 10),
-        child: new Text(
-          appData.appState.user.firstName+" "+appData.appState.user.lastName,
-          style: TextStyle(fontSize: 20,color: Colors.blueAccent),
-        ),
-      );
+      padding: EdgeInsets.only(top: 10),
+      child: new Text(
+        appData.appState.user.firstName + " " + appData.appState.user.lastName,
+        style: TextStyle(fontSize: 20, color: Colors.blueAccent),
+      ),
+    );
     var tabsSelector = new Row(
+      children: <Widget>[
+        ProfileTabSelector(
+          picture: Icon(Icons.contacts),
+          color: Colors.grey[200],
+          onTap: openStatistics,
+        ),
+        ProfileTabSelector(
+          picture: Icon(Icons.settings),
+          color: Colors.grey[300],
+          onTap: openAchievements,
+        ),
+        ProfileTabSelector(
+          picture: Icon(Icons.clear),
+          color: Colors.grey[400],
+          onTap: openContent,
+        ),
+      ],
+    );
+    return new ListView(children: <Widget>[
+      Padding(
+        padding: EdgeInsets.all(7),
+      ),
+      Center(child: userAvatar),
+      Center(child: userName),
+      Row(
         children: <Widget>[
-          ProfileTabSelector(
-            picture: Icon(Icons.contacts),
-            color: Colors.grey[200],
-            onTap: openStatistics,
+          Padding(
+            padding: EdgeInsets.all(2),
           ),
-          ProfileTabSelector(
-            picture: Icon(Icons.settings),
-            color: Colors.grey[300],
-            onTap: openAchievements,
+          Text(
+            "First Lang.",
+            style: TextStyle(color: Colors.blueAccent, fontSize: 18),
           ),
-          ProfileTabSelector(
-            picture: Icon(Icons.clear),
-            color: Colors.grey[400],
-            onTap: openContent,
+          Padding(
+            padding: EdgeInsets.all(2),
           ),
+          DropdownButton<String>(
+            value: firstLangVal,
+            onChanged: (String newValue) {
+              setState(() {
+                firstLangVal = newValue;
+              });
+              postFirstLang(firstLangVal);
+            },
+            items: <String>['en', 'ru']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          )
         ],
-      );
-    return new Column(children: <Widget>[
-      Padding(padding: EdgeInsets.all(7),),
-      userAvatar,
-      userName,
+      ),
+      Row(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(2),
+          ),
+          Text(
+            "Target Lang.",
+            style: TextStyle(color: Colors.blueAccent, fontSize: 18),
+          ),
+          Padding(
+            padding: EdgeInsets.all(2),
+          ),
+          DropdownButton<String>(
+            value: targetLangVal,
+            onChanged: (String newValue) {
+              setState(() {
+                targetLangVal = newValue;
+              });
+              postTargetLang(targetLangVal);
+            },
+            items: <String>['en', 'ru']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          )
+        ],
+      ),
       Padding(
         padding: EdgeInsets.all(10),
       ),
-      tabsSelector,
-      currentProfileWindow,
+      //tabsSelector,
+      //currentProfileWindow,
     ]);
+  }
+
+  void postFirstLang(String firstLangVal) async {
+    var uid = appData.appState.user.uid;
+    //Да жри же ты этот лэнг..
+    //Сожрал ))
+    var resp = await postData('/api/data/user/'+uid, {"first_lang":firstLangVal}, verb: HttpVerb.put);
+    print(resp.toString());
+  }
+  void postTargetLang(String targetLang) async {
+    var uid = appData.appState.user.uid;
+    var resp = await postData('/api/data/user/'+uid, {"target_lang":targetLang}, verb: HttpVerb.put);
+    print(resp.toString());
   }
 }
 

@@ -398,6 +398,6 @@ void uploadPhoto(File f, TermInfo term) async {
   TermUpdate tup = new TermUpdate();
   tup.imageUid = res.uid;
   //print(tup.imageUid);
-  var res2 = await upadteTerm(term.uid, tup);
+  var res2 = await updateTerm(term.uid, tup);
   //print(res2.toString());
 }

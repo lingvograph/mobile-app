@@ -178,7 +178,7 @@ class _RecordState extends State<RecordAudioWidget> {
     TermUpdate tup = new TermUpdate();
     tup.imageUid = res.uid;
     print(tup.imageUid);
-    var res2 = await upadteTerm(widget.term.uid, tup);
+    var res2 = await updateTerm(widget.term.uid, tup);
     print(res2.toString());
 
   }

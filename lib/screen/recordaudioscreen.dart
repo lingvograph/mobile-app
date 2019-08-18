@@ -186,7 +186,7 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
     TermUpdate tup = new TermUpdate();
     tup.audioUid = res.uid;
     print(tup.imageUid);
-    var res2 = await upadteTerm(widget.term.uid, tup);
+    var res2 = await updateTerm(widget.term.uid, tup);
     print(res2.toString());
   }
 
