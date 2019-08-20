@@ -9,6 +9,7 @@ import 'package:memoapp/AppState.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:memoapp/api/termquery.dart';
+import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
@@ -19,26 +20,23 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:youtube_player/youtube_player.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 
-/*Ультимативный typedef*/
 
-typedef SearchCallback = void Function(TermInfo termForSearch);
+class DetailedAudioScreen extends StatefulWidget {
+  MediaInfo audio;
 
-class DetailedImage extends StatefulWidget {
-  MediaInfo image;
-
-  DetailedImage(this.image) {}
+  DetailedAudioScreen(this.audio) {}
 
   _DetailedState createState() => _DetailedState();
 }
 
-class _DetailedState extends State<DetailedImage> {
+class _DetailedState extends State<DetailedAudioScreen> {
   List<TermView> terms;
 
   void getTerms() async {
     //List<TermInfo> termsData;
-    TermFilter filter = new TermFilter('', visualUid: widget.image.uid);
+    TermFilter filter = new TermFilter('', audioUid: widget.audio.uid);
     var result =
-        await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
+    await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
     print(result.items.length);
 
     for (int i = 0; i < result.total; i++) {
@@ -66,29 +64,14 @@ class _DetailedState extends State<DetailedImage> {
     // TODO: implement build
     return Scaffold(
         appBar: AppBar(
-          title: Text("Detail Visual"),
+          title: Text("Detail Audio"),
         ),
         body: Container(
             padding: EdgeInsets.all(5),
             child: ListView(
               children: <Widget>[
                 Container(
-                  child: Container(
-                    height: 200,
-                    //padding: new EdgeInsets.only(left: 3.0, right: 3.0),
-                    decoration: new BoxDecoration(
-                      boxShadow: <BoxShadow>[
-                        BoxShadow(blurRadius: 2, color: Colors.grey[500])
-                      ],
-                      borderRadius: BorderRadius.circular(5),
-                      border: new Border.all(color: Colors.grey[400], width: 2),
-                      image: new DecorationImage(
-                        image: TermView.loadImg(widget.image),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                  ),
-                  //padding: EdgeInsets.all(7),
+                  child: LoadedAudio(widget.audio,null, 'en'),
                 ),
                 Padding(
                   padding: EdgeInsets.all(5),
@@ -102,8 +85,8 @@ class _DetailedState extends State<DetailedImage> {
                     Container(
                         padding: EdgeInsets.all(2),
                         child: Text(
-                          widget.image.author != null
-                              ? widget.image.author.name
+                          widget.audio.author != null
+                              ? widget.audio.author.name
                               : 'generated',
                           style: TextStyle(color: Colors.blueAccent),
                         ),
@@ -119,11 +102,11 @@ class _DetailedState extends State<DetailedImage> {
                     Container(
                         padding: EdgeInsets.all(2),
                         child: Text(
-                          widget.image.source != null &&
-                                  widget.image.source.length > 0
-                              ? widget.image.source
-                              : widget.image.url.substring(
-                                  0, widget.image.url.indexOf("/", 8)),
+                          widget.audio.source != null &&
+                              widget.audio.source.length > 0
+                              ? widget.audio.source
+                              : widget.audio.url.substring(
+                              0, widget.audio.url.indexOf("/", 8)),
                           style: TextStyle(color: Colors.blueAccent),
                         ),
                         decoration: BoxDecoration(
@@ -135,7 +118,7 @@ class _DetailedState extends State<DetailedImage> {
                 Padding(
                   padding: EdgeInsets.all(5),
                 ),
-                Center(child: Text(terms.length>0?"Terms using this image ":"", style: TextStyle(fontSize: 18,color: Colors.blue[800])),),
+                Center(child: Text(terms.length>0?"Terms using this audio ":"", style: TextStyle(fontSize: 18,color: Colors.blue[800])),),
                 Column(
                   children: terms,
                 )

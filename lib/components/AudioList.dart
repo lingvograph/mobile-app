@@ -5,6 +5,7 @@ import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:flutter/rendering.dart';
+import 'package:memoapp/screen/detailedAudioScreen.dart';
 
 // TODO make it scrollable
 
@@ -19,8 +20,6 @@ class AudioList extends StatefulWidget {
 }
 
 class _AudioListState extends State<AudioList> {
-
-
   TermInfo get term {
     return widget.term;
   }
@@ -49,7 +48,6 @@ class _AudioListState extends State<AudioList> {
               new Column(
                 children: audios,
               ),
-
               Padding(
                 padding: EdgeInsets.all(10),
               ),
@@ -141,7 +139,13 @@ class LoadedAudio extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        Text("Spelled user "),
+        InkWell(
+          child: Text("Spelled user "),
+          onTap: () {
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => DetailedAudioScreen(audio)));
+          },
+        ),
         Text(
           audio.author.name,
           style: TextStyle(color: Colors.blueAccent),

@@ -11,12 +11,13 @@ bool isWord(String s) {
 enum KIND { term, termList, audioList, visualList }
 
 class TermFilter {
-  String visualUid;
+  String visualUid, audioUid;
 
   String searchString;
   List<TermInfo> tags;
 
-  TermFilter(String searchString, {List<TermInfo> tags, this.visualUid}) {
+  TermFilter(String searchString,
+      {List<TermInfo> tags, this.visualUid, this.audioUid}) {
     this.searchString = (searchString ?? '').trim();
     this.tags = tags ?? new List<TermInfo>();
   }
@@ -146,13 +147,15 @@ class TermQuery {
         : '';
     final visualFilter =
         filter.visualUid != null ? 'uid_in(visual, ${filter.visualUid})' : '';
-
+    final audioFilter =
+        filter.audioUid != null ? 'uid_in(audio, ${filter.audioUid})' : '';
     final filterExpr = [
       hasTermType,
       hasTagType,
       langFilter,
       tagFilter,
       visualFilter,
+      audioFilter,
       searchFilter
     ].where((s) => s != null && s.isNotEmpty).join(' and ');
     final termFilter = isTermList ? '@filter($filterExpr)' : '';
@@ -207,7 +210,6 @@ class TermQuery {
             transcript@en
           }
           audio $audioRange {
-          
             uid
             url
             source
