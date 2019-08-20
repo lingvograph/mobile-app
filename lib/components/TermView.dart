@@ -13,6 +13,7 @@ import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/screen/Discover.dart';
 import 'package:memoapp/screen/TermDetail.dart';
+import 'package:memoapp/screen/detailedImageScreen.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:youtube_player/youtube_player.dart';
@@ -127,7 +128,10 @@ class _TermState extends State<TermView> {
             ),
             padding: EdgeInsets.all(2),
           ),
-        ),onTap: (){tagtap(term.tags[i]);},
+        ),
+        onTap: () {
+          tagtap(term.tags[i]);
+        },
       ));
     }
     return Container(
@@ -252,7 +256,7 @@ class _TermState extends State<TermView> {
               // TODO improve position of subtitles
               children: <Widget>[
                 new InkWell(
-                    onTap: imageOnTap,
+                    onTap: termOnTap,
                     child: makeImage(term.visual.items[0], context)),
                 Positioned(
                   width: 180,
@@ -301,8 +305,21 @@ class _TermState extends State<TermView> {
     var termTranscript = Positioned(
       left: 10,
       top: 55,
-      child: new Text(text2 + (trans.length > 0 ? (' [' + trans + ']') : ''),
-          style: transcriptStyle),
+      child: Row(
+        children: <Widget>[
+          new Text(text2, style: transcriptStyle),
+          InkWell(
+            onTap: () {
+              if (widget.term.transcript != null &&
+                  widget.term.transcript.length > 0) {
+                pushTermRoute(term.transcript[0].uid);
+              }
+            },
+            child: Text(trans.length > 0 ? (' [' + trans + ']') : '',
+                style: transcriptStyle),
+          ),
+        ],
+      ),
     );
     var iconPlayAudio = term.audio.total > 0
         ? Positioned(
@@ -409,7 +426,7 @@ class _TermState extends State<TermView> {
               child: Stack(
                 // TODO improve position of subtitles
                 children: <Widget>[
-                  new InkWell(onTap: imageOnTap, child: slider),
+                  slider,
                   termText1,
                   termTranscript,
                   iconPlayAudio,
@@ -496,10 +513,8 @@ class _TermState extends State<TermView> {
       List<TermInfo> tags = new List();
       tags.add(t);
       TermFilter tf = new TermFilter("", tags: tags);
-      Navigator.push(
-          context,
-          MaterialPageRoute(
-              builder: (context) => DiscoverScreen(filter: tf)));
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => DiscoverScreen(filter: tf)));
     } else {
       widget.onSearch(t);
     }
@@ -511,16 +526,16 @@ class _TermState extends State<TermView> {
     });
   }
 
-  void pushTermRoute(String uid)
-  {
+  void pushTermRoute(String uid) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => TermDetail(
-              uid,
-            )));
+                  uid,
+                )));
   }
-  void imageOnTap() {
+
+  void termOnTap() {
     if (widget.tappable) {
       // TODO view visual, not audio
       if (term.audio.items.isNotEmpty) {
@@ -584,29 +599,32 @@ class _TermState extends State<TermView> {
             items: images.map((t) => makeImage(t, context)).toList());
   }
 
-  //Момент появления адвкой магии
-  //Код, который был найден в файле NetworkImage, удалет кэш данной картинки
-  //Как раз то, что надо в данном случае, так как кэшировать рандомную картинку НЕ НАДО, ну может и надо, но не так как это делает Image
-  void evict(CachedNetworkImageProvider provider) {
-    provider.evict().then<void>((bool success) {
-      if (success) debugPrint('removed image!');
-    });
-  }
-
   Widget makeImage(MediaInfo visual, BuildContext context) {
     //print(visual.url);
 
-    var img = new Container(
-      padding: new EdgeInsets.only(left: 10.0, right: 10.0),
-      decoration: new BoxDecoration(
-        //borderRadius: BorderRadius.circular(10),
-        //border: new Border.all(color: Colors.grey, width: 2),
-        image: new DecorationImage(
-          image: TermView.loadImg(visual),
-          fit: BoxFit.cover,
+    var img = InkWell(
+      child: new Container(
+        padding: new EdgeInsets.only(left: 10.0, right: 10.0),
+        decoration: new BoxDecoration(
+          //borderRadius: BorderRadius.circular(10),
+          //border: new Border.all(color: Colors.grey, width: 2),
+          image: new DecorationImage(
+            image: TermView.loadImg(visual),
+            fit: BoxFit.cover,
+          ),
         ),
+        //child: loadImg(visual.url),
       ),
-      //child: loadImg(visual.url),
+      onTap: () {
+        if (!widget.tappable) {
+          print("kurwa");
+
+          Navigator.push(context,
+              MaterialPageRoute(builder: (context) => DetailedImage(visual)));
+        } else {
+          termOnTap();
+        }
+      },
     );
     if (visual.url == null) return img;
     return visual.url.toString().contains("www.youtube.com")

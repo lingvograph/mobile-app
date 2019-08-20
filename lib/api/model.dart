@@ -51,7 +51,6 @@ class UserInfo {
   String firstName, lastName;
   String email;
   UserInfo.fromJson(Map<String, dynamic> json) {
-    print(json.toString());
     uid = json['uid'];
     name = json['name'];
     firstLang = getOrElse(json, 'first_lang', 'ru');
@@ -62,24 +61,19 @@ class UserInfo {
     firstName = getOrElse(json, 'first_name', '');
     lastName = getOrElse(json, 'last_name', '');
     email = getOrElse(json, 'email', '');
-    //getLang();
   }
 
   Map<String, dynamic> toJson() => {
-        'first_Lang':firstLang,
         'uid': name,
         'name': name,
         'first_lang': firstLang,
+        'target_lang': firstLang,
         'gender': gender,
         'country': country,
         'avatar' : avatar
       };
 
-  void getLang() async
-  {
-    var result = await getData("/api/data/user/"+this.uid);
-    print(result);
-  }
+
 }
 
 class MediaInfo {

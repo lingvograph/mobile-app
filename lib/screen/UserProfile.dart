@@ -14,12 +14,14 @@ class UserProfile extends StatefulWidget {
 
 class _ProfileState extends State<UserProfile> {
   Widget currentProfileWindow;
-  var firstLangVal = appData.appState.user.firstLang;
-
-  var targetLangVal = 'en';
+  var targetLangVal;
+  var firstLangVal;
 
   initState() {
     super.initState();
+    firstLangVal = appData.appState.user.firstLang;
+    targetLangVal = appData.appState.user.targetLang;
+
     if (appData.appState.user.email.contains("@gmail")) {
       appData.appState.user.firstName =
           appData.appState.user.email.replaceAll('@gmail.com', "");
@@ -164,11 +166,13 @@ class _ProfileState extends State<UserProfile> {
     //Да жри же ты этот лэнг..
     //Сожрал ))
     var resp = await postData('/api/data/user/'+uid, {"first_lang":firstLangVal}, verb: HttpVerb.put);
-    print(resp.toString());
+    appData.appState.user.firstLang = firstLangVal;
   }
   void postTargetLang(String targetLang) async {
     var uid = appData.appState.user.uid;
     var resp = await postData('/api/data/user/'+uid, {"target_lang":targetLang}, verb: HttpVerb.put);
+    appData.appState.user.targetLang = targetLang;
+
     print(resp.toString());
   }
 }

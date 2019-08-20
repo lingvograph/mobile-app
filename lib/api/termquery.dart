@@ -11,10 +11,12 @@ bool isWord(String s) {
 enum KIND { term, termList, audioList, visualList }
 
 class TermFilter {
+  String visualUid;
+
   String searchString;
   List<TermInfo> tags;
 
-  TermFilter(String searchString, {List<TermInfo> tags}) {
+  TermFilter(String searchString, {List<TermInfo> tags, this.visualUid}) {
     this.searchString = (searchString ?? '').trim();
     this.tags = tags ?? new List<TermInfo>();
   }
@@ -30,7 +32,6 @@ class TermQuery {
   bool onlyTags = false;
   var params = ["", ""];
   var relationMap = {
-
     'definition': {
       'label': 'Definitions',
       'count': 'definition_count',
@@ -95,14 +96,15 @@ class TermQuery {
   ${TAG}
   }''';
 
-  TermQuery(
-      {this.kind = KIND.termList,
-      this.lang,
-      this.termUid,
-      this.filter,
-      this.range,
-      this.detailed = false,
-      this.onlyTags = false}) {
+  TermQuery({
+    this.kind = KIND.termList,
+    this.lang,
+    this.termUid,
+    this.filter,
+    this.range,
+    this.detailed = false,
+    this.onlyTags = false,
+  }) {
     if (this.filter == null) {
       this.filter = new TermFilter('');
     }
@@ -142,12 +144,15 @@ class TermQuery {
     final tagFilter = filter.tags.isNotEmpty
         ? brace(filter.tags.map((t) => 'uid_in(tag, ${t.uid})').join(' or '))
         : '';
+    final visualFilter =
+        filter.visualUid != null ? 'uid_in(visual, ${filter.visualUid})' : '';
 
     final filterExpr = [
       hasTermType,
       hasTagType,
       langFilter,
       tagFilter,
+      visualFilter,
       searchFilter
     ].where((s) => s != null && s.isNotEmpty).join(' and ');
     final termFilter = isTermList ? '@filter($filterExpr)' : '';
@@ -169,6 +174,7 @@ class TermQuery {
 
     final visualInfo = """
           visual $visualRange {
+          uid
           url
           source
           content_type
@@ -183,6 +189,7 @@ class TermQuery {
         }""";
     final shortVisualInfo = """
           visual $visualRange {
+          uid
           url
           source
           content_type
@@ -200,6 +207,7 @@ class TermQuery {
             transcript@en
           }
           audio $audioRange {
+          
             uid
             url
             source
@@ -218,7 +226,8 @@ class TermQuery {
 
     var detailedInfo = "";
     var concatEdges = detailed
-        ? relationMap.forEach((k, v) => {detailedInfo += bodyFromEdge(k, v) + '\n'})
+        ? relationMap
+            .forEach((k, v) => {detailedInfo += bodyFromEdge(k, v) + '\n'})
         : "";
 
     final q = """{
