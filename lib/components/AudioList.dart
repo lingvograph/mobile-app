@@ -5,6 +5,7 @@ import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:flutter/rendering.dart';
+import 'package:memoapp/screen/UserProfile.dart';
 import 'package:memoapp/screen/detailedAudioScreen.dart';
 
 // TODO make it scrollable
@@ -142,14 +143,24 @@ class LoadedAudio extends StatelessWidget {
         InkWell(
           child: Text("Spelled user "),
           onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => DetailedAudioScreen(audio)));
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => DetailedAudioScreen(audio)));
           },
         ),
-        Text(
-          audio.author.name,
-          style: TextStyle(color: Colors.blueAccent),
-        ),
+        InkWell(
+            child: Text(
+              audio.author.name,
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+            onTap: () {
+              print(audio.author.avatar);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UserProfile(audio.author)));
+            }),
         // TODO consider display icons
         Text(
           " (${audio.author.gender.length > 0 ? audio.author.gender : "Alien"}, ${audio.author.country.length > 0 ? audio.author.country : "Mars"})",

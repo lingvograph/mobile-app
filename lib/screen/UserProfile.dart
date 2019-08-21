@@ -3,11 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
+import 'package:memoapp/components/nonCachedImage.dart';
 import 'package:memoapp/locale.dart';
 
 import '../AppState.dart';
 
 class UserProfile extends StatefulWidget {
+  UserInfo user;
+
+  UserProfile(this.user) {}
+
   @override
   _ProfileState createState() => _ProfileState();
 }
@@ -16,15 +21,24 @@ class _ProfileState extends State<UserProfile> {
   Widget currentProfileWindow;
   var targetLangVal;
   var firstLangVal;
+  bool isCurrentUser;
 
   initState() {
     super.initState();
-    firstLangVal = appData.appState.user.firstLang;
-    targetLangVal = appData.appState.user.targetLang;
+    isCurrentUser =
+        widget.user != null && widget.user.uid == appData.appState.user.uid;
+    firstLangVal =
+        isCurrentUser ? appData.appState.user.firstLang : widget.user.firstLang;
+    targetLangVal = isCurrentUser
+        ? appData.appState.user.targetLang
+        : widget.user.targetLang;
 
     if (appData.appState.user.email.contains("@gmail")) {
       appData.appState.user.firstName =
           appData.appState.user.email.replaceAll('@gmail.com', "");
+    }
+    if (!isCurrentUser && widget.user.email.contains("@gmail")) {
+      widget.user.firstName = widget.user.email.replaceAll('@gmail.com', "");
     }
     currentProfileWindow = new UserAchievments();
   }
@@ -49,6 +63,13 @@ class _ProfileState extends State<UserProfile> {
     });
   }
 
+  String verifyAvatarUrl(String url) {
+    if (url != null && url.length > 0) {
+      return url;
+    } else
+      return "https://api.adorable.io/avatars/random";
+  }
+
   @override
   Widget build(BuildContext context) {
     var userAvatar = Container(
@@ -59,12 +80,28 @@ class _ProfileState extends State<UserProfile> {
             shape: BoxShape.circle,
             image: new DecorationImage(
                 fit: BoxFit.fill,
-                image:
-                    CachedNetworkImageProvider(appData.appState.user.avatar))));
+                image: NonCachedImage(
+                  isCurrentUser
+                      ? verifyAvatarUrl(appData.appState.user.avatar)
+                      : verifyAvatarUrl(widget.user.avatar),
+                  isCurrentUser
+                      ? verifyAvatarUrl(appData.appState.user.uid)
+                      : verifyAvatarUrl(widget.user.uid),
+                  useDiskCache: false,
+                  disableMemoryCache: true,
+                  retryLimit: 1,
+                ))));
     var userName = Container(
       padding: EdgeInsets.only(top: 10),
       child: new Text(
-        appData.appState.user.firstName + " " + appData.appState.user.lastName,
+        isCurrentUser
+            ? (appData.appState.user.firstName +
+                " " +
+                appData.appState.user.lastName)
+            : (widget.user.firstName +
+                " " +
+                widget.user.lastName +
+                widget.user.name),
         style: TextStyle(fontSize: 20, color: Colors.blueAccent),
       ),
     );
@@ -87,7 +124,57 @@ class _ProfileState extends State<UserProfile> {
         ),
       ],
     );
-    return new ListView(children: <Widget>[
+    var firstLangShow = isCurrentUser
+        ? DropdownButton<String>(
+            value: firstLangVal,
+            onChanged: (String newValue) {
+              setState(() {
+                firstLangVal = newValue;
+              });
+              postFirstLang(firstLangVal);
+            },
+            items: <String>['en', 'ru']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          )
+        : Container(
+            child: Text(
+              firstLangVal,
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+            decoration: BoxDecoration(
+                border: new Border.all(color: Colors.blueAccent, width: 2),
+                borderRadius: BorderRadius.circular(5)));
+    var targetLangShow = isCurrentUser
+        ? DropdownButton<String>(
+            value: targetLangVal,
+            onChanged: (String newValue) {
+              setState(() {
+                targetLangVal = newValue;
+              });
+              postTargetLang(targetLangVal);
+            },
+            items: <String>['en', 'ru']
+                .map<DropdownMenuItem<String>>((String value) {
+              return DropdownMenuItem<String>(
+                value: value,
+                child: Text(value),
+              );
+            }).toList(),
+          )
+        : Container(
+            child: Text(
+              targetLangVal,
+              style: TextStyle(color: Colors.blueAccent),
+            ),
+            decoration: BoxDecoration(
+                border: new Border.all(color: Colors.blueAccent, width: 2),
+                borderRadius: BorderRadius.circular(5)));
+    var body = new ListView(children: <Widget>[
       Padding(
         padding: EdgeInsets.all(7),
       ),
@@ -105,22 +192,7 @@ class _ProfileState extends State<UserProfile> {
           Padding(
             padding: EdgeInsets.all(2),
           ),
-          DropdownButton<String>(
-            value: firstLangVal,
-            onChanged: (String newValue) {
-              setState(() {
-                firstLangVal = newValue;
-              });
-              postFirstLang(firstLangVal);
-            },
-            items: <String>['en', 'ru']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          )
+          firstLangShow
         ],
       ),
       Row(
@@ -135,22 +207,7 @@ class _ProfileState extends State<UserProfile> {
           Padding(
             padding: EdgeInsets.all(2),
           ),
-          DropdownButton<String>(
-            value: targetLangVal,
-            onChanged: (String newValue) {
-              setState(() {
-                targetLangVal = newValue;
-              });
-              postTargetLang(targetLangVal);
-            },
-            items: <String>['en', 'ru']
-                .map<DropdownMenuItem<String>>((String value) {
-              return DropdownMenuItem<String>(
-                value: value,
-                child: Text(value),
-              );
-            }).toList(),
-          )
+          targetLangShow
         ],
       ),
       Padding(
@@ -159,18 +216,31 @@ class _ProfileState extends State<UserProfile> {
       //tabsSelector,
       //currentProfileWindow,
     ]);
+    return isCurrentUser
+        ? body
+        : Scaffold(
+            appBar: AppBar(
+              title: Text("Profile"),
+            ),
+            body: body,
+          );
   }
 
   void postFirstLang(String firstLangVal) async {
     var uid = appData.appState.user.uid;
     //Да жри же ты этот лэнг..
     //Сожрал ))
-    var resp = await postData('/api/data/user/'+uid, {"first_lang":firstLangVal}, verb: HttpVerb.put);
+    var resp = await postData(
+        '/api/data/user/' + uid, {"first_lang": firstLangVal},
+        verb: HttpVerb.put);
     appData.appState.user.firstLang = firstLangVal;
   }
+
   void postTargetLang(String targetLang) async {
     var uid = appData.appState.user.uid;
-    var resp = await postData('/api/data/user/'+uid, {"target_lang":targetLang}, verb: HttpVerb.put);
+    var resp = await postData(
+        '/api/data/user/' + uid, {"target_lang": targetLang},
+        verb: HttpVerb.put);
     appData.appState.user.targetLang = targetLang;
 
     print(resp.toString());

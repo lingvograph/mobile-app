@@ -301,7 +301,7 @@ class DiscoverState extends State<DiscoverScreen> {
     return [
       makeListView(),
       RecordAudioWidget(),
-      new UserProfile(),
+      new UserProfile(appData.appState.user),
     ].toList();
   }
 
