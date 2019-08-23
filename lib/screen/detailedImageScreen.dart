@@ -14,6 +14,7 @@ import 'package:memoapp/components/iconWithShadow.dart';
 import 'package:memoapp/components/styles.dart';
 import 'package:memoapp/screen/Discover.dart';
 import 'package:memoapp/screen/TermDetail.dart';
+import 'package:memoapp/screen/UserProfile.dart';
 import 'package:memoapp/utils.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:youtube_player/youtube_player.dart';
@@ -39,12 +40,12 @@ class _DetailedState extends State<DetailedImage> {
     TermFilter filter = new TermFilter('', visualUid: widget.image.uid);
     var result =
         await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
-    print(result.items.length);
+    //print(result.items.length);
 
     for (int i = 0; i < result.total; i++) {
       try {
         setState(() {
-          print(result.items[i].text);
+          //print(result.items[i].text);
           terms.add(TermView(
             term: result.items[i],
           ));
@@ -90,6 +91,50 @@ class _DetailedState extends State<DetailedImage> {
                   ),
                   //padding: EdgeInsets.all(7),
                 ),
+                Row(
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.thumbsUp,
+                            size: 20,
+                          ),
+                          onPressed: () async {
+                            try {
+                              var res = await like(
+                                  appData.appState.user.uid, widget.image.uid);
+                              print(res);
+                            } catch (err) {
+                              // TODO display error snackbar
+                            }
+                          },
+                        ),
+                        Text("likes: " + widget.image.likes.toString()),
+                      ],
+                    ),
+                    Column(
+                      children: <Widget>[
+                        IconButton(
+                          icon: Icon(
+                            FontAwesomeIcons.thumbsDown,
+                            size: 20,
+                          ),
+                          onPressed: () async {
+                            try {
+                              var res = await dislike(
+                                  appData.appState.user.uid, widget.image.uid);
+                              print(res);
+                            } catch (err) {
+                              // TODO display error snackbar
+                            }
+                          },
+                        ),
+                        Text("likes: " + widget.image.dislikes.toString()),
+                      ],
+                    )
+                  ],
+                ),
                 Padding(
                   padding: EdgeInsets.all(5),
                 ),
@@ -99,18 +144,29 @@ class _DetailedState extends State<DetailedImage> {
                       "made by ",
                       style: TextStyle(fontSize: 17),
                     ),
-                    Container(
-                        padding: EdgeInsets.all(2),
-                        child: Text(
-                          widget.image.author != null
-                              ? widget.image.author.name
-                              : 'generated',
-                          style: TextStyle(color: Colors.blueAccent),
-                        ),
-                        decoration: BoxDecoration(
-                            border: new Border.all(
-                                color: Colors.blueAccent, width: 2),
-                            borderRadius: BorderRadius.circular(5)))
+                    InkWell(
+                      child: Container(
+                          padding: EdgeInsets.all(2),
+                          child: Text(
+                            widget.image.author != null
+                                ? widget.image.author.name
+                                : 'generated',
+                            style: TextStyle(color: Colors.blueAccent),
+                          ),
+                          decoration: BoxDecoration(
+                              border: new Border.all(
+                                  color: Colors.blueAccent, width: 2),
+                              borderRadius: BorderRadius.circular(5))),
+                      onTap: () {
+                        if (widget.image.author != null) {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      UserProfile(widget.image.author)));
+                        }
+                      },
+                    )
                   ],
                 ),
                 Row(
@@ -135,7 +191,10 @@ class _DetailedState extends State<DetailedImage> {
                 Padding(
                   padding: EdgeInsets.all(5),
                 ),
-                Center(child: Text(terms.length>0?"Terms using this image ":"", style: TextStyle(fontSize: 18,color: Colors.blue[800])),),
+                Center(
+                  child: Text(terms.length > 0 ? "Terms using this image " : "",
+                      style: TextStyle(fontSize: 18, color: Colors.blue[800])),
+                ),
                 Column(
                   children: terms,
                 )

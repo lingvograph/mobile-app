@@ -13,6 +13,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
 import 'package:memoapp/screen/TermDetail.dart';
+import 'package:memoapp/screen/detailedImageScreen.dart';
 import 'package:uuid/uuid.dart';
 
 import '../AppData.dart';
@@ -46,18 +47,19 @@ List<EdgeSelectorData> title = [
   new EdgeSelectorData("Defenition of", Colors.blue),
 ];
 
-
 //Попытка разгрузить код detailed тёрма, эдакий класс на много функций, которые можно вынести
 //Понятия не имею как это дело оптимизировать, когда обращение к специфическим полям идёт
-class TernDetailedViewInflateMethods {
+class TermDetailedViewInflateMethods {
+  BuildContext context;
   List<Widget> pages;
-  int viewMode=1;
+  int viewMode = 1;
   Function getControll, getAudiosPage;
-  String dropdownValue="en";
-  TernDetailedViewInflateMethods({this.pages, this.getControll, this.getAudiosPage}) {}
+  String dropdownValue = "en";
+
+  TermDetailedViewInflateMethods(
+      {this.pages, this.getControll, this.getAudiosPage, this.context}) {}
 
   void fillInflateMethos(List<Function(TermInfo)> tabInflateMethods) {
-
     tabInflateMethods.add(makeDetailedAudios);
     tabInflateMethods.add(makeDetailedPictures);
     tabInflateMethods.add(makeDetailedTranslations);
@@ -139,7 +141,12 @@ class TernDetailedViewInflateMethods {
             ? pictures.add(Container())
             : pictures.add(InkWell(
                 onTap: () {
-                  print("TAPPPPPPP");
+                  //print("TAPPPPPPP "+visualTerm.visual.items[i].url);
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                              DetailedImage(visualTerm.visual.items[i])));
                 },
                 child: Column(
                   children: <Widget>[

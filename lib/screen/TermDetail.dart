@@ -63,7 +63,7 @@ class TermDetailState extends State<TermDetail> {
   //Список функций в порядке меню, используется для вызова обновления при смене режима просмотра(компакт, средний, полный)
   List<Function(TermInfo)> tabInflateMethods;
 
-  TernDetailedViewInflateMethods stateSaver;
+  TermDetailedViewInflateMethods stateSaver;
   get appState {
     return appData.appState;
   }
@@ -74,7 +74,7 @@ class TermDetailState extends State<TermDetail> {
     tabInflateMethods = new List();
     pages = new List(title.length);
 
-    stateSaver = new TernDetailedViewInflateMethods(pages: pages, getControll: getPageControlWidget, getAudiosPage: getAudiosPage);
+    stateSaver = new TermDetailedViewInflateMethods(pages: pages, getControll: getPageControlWidget, getAudiosPage: getAudiosPage);
     fetchData();
 
     stateSaver.fillInflateMethos(tabInflateMethods);
@@ -214,6 +214,7 @@ class TermDetailState extends State<TermDetail> {
 
   @override
   Widget build(BuildContext context) {
+    stateSaver.context = context;
     if (term == null) {
       return Loading();
     }

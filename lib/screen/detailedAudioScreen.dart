@@ -37,12 +37,12 @@ class _DetailedState extends State<DetailedAudioScreen> {
     TermFilter filter = new TermFilter('', audioUid: widget.audio.uid);
     var result =
     await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
-    print(result.items.length);
+    //print(result.items.length);
 
     for (int i = 0; i < result.total; i++) {
       try {
         setState(() {
-          print(result.items[i].text);
+          //print(result.items[i].text);
           terms.add(TermView(
             term: result.items[i],
           ));

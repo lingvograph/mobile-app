@@ -185,9 +185,9 @@ class _RecordAudioScreen extends State<RecordAudioScreen> {
     var res = await upload("$remotePath", 'aduio/mpeg', bytes);
     TermUpdate tup = new TermUpdate();
     tup.audioUid = res.uid;
-    print(tup.imageUid);
+    //print(tup.imageUid);
     var res2 = await updateTerm(widget.term.uid, tup);
-    print(res2.toString());
+    //print(res2.toString());
   }
 
   @override

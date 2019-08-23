@@ -173,7 +173,7 @@ class _TermState extends State<TermView> {
                           style:
                               TextStyle(fontSize: 19, color: Colors.blue[600])),
                       onTap: () {
-                        print("kurwa");
+                        //print("kurwa");
 
                         pushTermRoute(term.uid);
                       },
@@ -281,7 +281,7 @@ class _TermState extends State<TermView> {
     imgH = width / 2;
     maxTagHeight = 50 * term.tags.length.toDouble() / 3;
     var firstLang = appState.user?.firstLang ?? 'ru';
-    print(firstLang);
+    //print(firstLang);
     var text1 = term.text ?? '';
     var text2 = firstOrElse(
             term.translations
@@ -617,7 +617,7 @@ class _TermState extends State<TermView> {
       ),
       onTap: () {
         if (!widget.tappable) {
-          print("kurwa");
+          //print("kurwa");
 
           Navigator.push(context,
               MaterialPageRoute(builder: (context) => DetailedImage(visual)));

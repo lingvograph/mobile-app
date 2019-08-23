@@ -171,7 +171,7 @@ class TermQuery {
     var args = params.map((k) => '${k}: string').join();
     //var totals = isTerm ? allEdgeKeys.map(k => makeTotal(k)).join('\n') : '';
     var paramQuery = args != null ? 'query terms(${args}) ' : '';
-    print(paramQuery);
+    //print(paramQuery);
 
     //var allEdgeKeys = new Map.from(relationMap)..addAll(fileEdges);
 
@@ -222,7 +222,7 @@ class TermQuery {
           """;
 
     var bodyFromEdge = (String name, var val) {
-      print(name);
+      //print(name);
       return '${name} {$termBody} ';
     };
 
