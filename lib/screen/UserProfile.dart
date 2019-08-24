@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
+import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/nonCachedImage.dart';
 import 'package:memoapp/locale.dart';
 
@@ -22,6 +23,8 @@ class _ProfileState extends State<UserProfile> {
   var targetLangVal;
   var firstLangVal;
   bool isCurrentUser;
+  List<MediaInfo> audio;
+  List<TermInfo> terms;
 
   initState() {
     super.initState();
@@ -41,6 +44,9 @@ class _ProfileState extends State<UserProfile> {
       widget.user.firstName = widget.user.email.replaceAll('@gmail.com', "");
     }
     currentProfileWindow = new UserAchievments();
+
+    mks();
+
   }
 
   void openAchievements() {
@@ -70,6 +76,77 @@ class _ProfileState extends State<UserProfile> {
       return "https://api.adorable.io/avatars/random";
   }
 
+  void makeAudios(List<String> audioUids) async {
+    for (int i = 0; i < audioUids.length; i++) {
+      String q = """{
+      audio(func: uid(${audioUids[i]})) {
+            uid
+            url
+            source
+            content_type
+            views: count(see)
+            likes: count(like)
+            dislikes: count(dislike)
+      }
+    }
+    """;
+      var resp = await query(q);
+      setState(() {
+        audio.add(new MediaInfo.fromJson(resp));
+      });
+      //print(resp);
+    }
+  }
+
+  List<Widget> makeAudiosBox()
+  {
+    List<Widget> res = new List();
+    for (int i = 0; i < audio.length; i++)
+      {
+        res.add(LoadedAudio(audio[i],null, 'en'));
+      }
+    return res;
+  }
+  void mks() async {
+    audio = new List();
+    terms = new List();
+    List<String> audioUids = new List();
+    List<String> visualUids = new List();
+    List<String> termUids = new List();
+
+    //What a shaitan
+    print("build");
+    String q = """{
+      users(func: uid(${appData.appState.user.uid})) {
+        uid
+        like {
+          uid
+          url
+        }
+      }
+    }
+    """;
+    var resp = await query(q);
+    //print(resp['users'][0]);
+    var likes = resp['users'][0]['like'];
+    for (int i = 0; i < likes.length; i++) {
+      if (likes[i]['url'].toString().contains('.mp3')) {
+        //audio.add(new MediaInfo.fromJson(likes[i]));
+        audioUids.add(likes[i]['uid']);
+      }
+      if (likes[i]['url'].toString().contains('.jpg')) {
+        //audio.add(new MediaInfo.fromJson(likes[i]));
+        visualUids.add(likes[i]['uid']);
+      } else {
+        termUids.add(likes[i]['uid']);
+      }
+      //print(likes[i]);
+    }
+
+    makeAudios(audioUids);
+  }
+
+
   @override
   Widget build(BuildContext context) {
     var userAvatar = Container(
@@ -80,7 +157,7 @@ class _ProfileState extends State<UserProfile> {
             shape: BoxShape.circle,
             image: new DecorationImage(
                 fit: BoxFit.fill,
-                image: NonCachedImage(
+                image: !isCurrentUser?NonCachedImage(
                   isCurrentUser
                       ? verifyAvatarUrl(appData.appState.user.avatar)
                       : verifyAvatarUrl(widget.user.avatar),
@@ -90,7 +167,9 @@ class _ProfileState extends State<UserProfile> {
                   useDiskCache: false,
                   disableMemoryCache: true,
                   retryLimit: 1,
-                ))));
+                ):CachedNetworkImageProvider(isCurrentUser
+                    ? verifyAvatarUrl(appData.appState.user.avatar)
+                    : verifyAvatarUrl(widget.user.avatar)))));
     var userName = Container(
       padding: EdgeInsets.only(top: 10),
       child: new Text(
@@ -215,6 +294,7 @@ class _ProfileState extends State<UserProfile> {
       ),
       //tabsSelector,
       //currentProfileWindow,
+      Column(children: audio.length>0?makeAudiosBox():new List<Widget>(),),
     ]);
     return isCurrentUser
         ? body

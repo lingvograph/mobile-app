@@ -82,6 +82,9 @@ class AppState implements AuthStateListener {
       _apiToken != null &&
       _apiToken.length > 0;
 
+  get isLoggingIn =>
+          _apiToken != null &&
+          _apiToken.length > 0;
   @override
   void onChanged(bool isLoggedIn) {
     if (isLoggedIn) {
@@ -91,7 +94,7 @@ class AppState implements AuthStateListener {
     }
   }
 
-  onLogin(BuildContext context, String token) async {
+  onLogin(BuildContext context, String token, ) async {
     apiToken = token;
     user = await fetchCurrentUser();
     Navigator.of(context).pushReplacementNamed('/home');

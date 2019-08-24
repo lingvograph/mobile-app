@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/AppData.dart';
+import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/screen/Discover.dart';
 import 'package:memoapp/screen/Login.dart';
 
@@ -22,6 +23,10 @@ class _RootState extends State<RootScreen> implements AuthStateListener {
     if (state.isLoggedIn) {
       return DiscoverScreen();
     }
+    if(state.isLoggingIn)
+      {
+        return Loading();
+      }
     return LoginScreen();
   }
 

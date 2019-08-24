@@ -3,6 +3,7 @@ import 'package:memoapp/api/api.dart';
 import 'package:memoapp/AppState.dart';
 import 'package:memoapp/components/InputFieldDecoration.dart';
 import 'package:memoapp/AppData.dart';
+import 'package:memoapp/components/Loading.dart';
 import 'package:memoapp/oauth_login.dart';
 
 // TODO loading indicator
@@ -37,6 +38,8 @@ class _LoginState extends State<LoginForm> {
   final LoginState data = new LoginState();
   final GlobalKey<FormState> _formKey = new GlobalKey<FormState>();
 
+  bool isLoggingIn = false;
+
   void submit() async {
     final form = _formKey.currentState;
     if (!form.validate()) {
@@ -63,37 +66,52 @@ class _LoginState extends State<LoginForm> {
   }
 
   loginVk() {
+    setState(() {
+      isLoggingIn = true;
+    });
     oauthLogin(context, 'vk');
   }
 
   loginGoogle() {
+    setState(() {
+      isLoggingIn = true;
+    });
     oauthLogin(context, 'google');
   }
 
   loginFacebook() {
+    setState(() {
+      isLoggingIn = true;
+    });
+
     oauthLogin(context, 'facebook');
   }
 
   @override
   Widget build(BuildContext context) {
+    print(appState.apiToken);
+    if (isLoggingIn) {
+      return Loading();
+    }
     final Size screenSize = MediaQuery.of(context).size;
 
     final username = new Container(
-        child: TextFormField(
-      onSaved: (String value) {
-        setState(() {
-          data.username = value;
-        });
-      },
-      decoration: InputDecoration(
-          hintText: 'you@example.com',
-          labelText: 'Username or email address',
-          border: new OutlineInputBorder(
-            borderRadius: new BorderRadius.circular(25.0),
-            borderSide: new BorderSide(),
-          )),
-      validator: Validators.username,
-    ),);
+      child: TextFormField(
+        onSaved: (String value) {
+          setState(() {
+            data.username = value;
+          });
+        },
+        decoration: InputDecoration(
+            hintText: 'you@example.com',
+            labelText: 'Username or email address',
+            border: new OutlineInputBorder(
+              borderRadius: new BorderRadius.circular(25.0),
+              borderSide: new BorderSide(),
+            )),
+        validator: Validators.username,
+      ),
+    );
 
     final password = new Container(
         child: TextFormField(

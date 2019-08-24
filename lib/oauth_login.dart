@@ -38,9 +38,10 @@ oauthLogin(BuildContext ctx, String provider) async {
   var token = await onToken.stream.first;
 
   await subscription.cancel();
+  appData.appState.onLogin(ctx, token);
+
   await plugin.close();
 
-  appData.appState.onLogin(ctx, token);
 
   return token;
 }
