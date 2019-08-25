@@ -8,6 +8,7 @@ import 'package:memoapp/components/AudioList.dart';
 import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/nonCachedImage.dart';
 import 'package:memoapp/locale.dart';
+import 'package:memoapp/screen/detailedImageScreen.dart';
 
 import '../AppState.dart';
 
@@ -27,6 +28,7 @@ class _ProfileState extends State<UserProfile> {
   var firstLangVal;
   bool isCurrentUser;
   List<MediaInfo> audio;
+  List<MediaInfo> visual;
   List<TermInfo> terms;
   int currentTab = 1;
 
@@ -55,8 +57,6 @@ class _ProfileState extends State<UserProfile> {
   void openAchievements() {
     this.setState(() {
       currentProfileWindow = new UserAchievments();
-      print(SR.passwordValidation);
-      print(appData.appState.apiToken);
     });
   }
 
@@ -106,7 +106,7 @@ class _ProfileState extends State<UserProfile> {
       //TermFilter tf = TermF
       TermQuery tq = TermQuery(kind: KIND.term, termUid: termUids[i]);
       var res = await query(tq.makeTermQuery());
-      print(res);
+      //print(res);
       setState(() {
         terms.add(new TermInfo.fromJson(res['terms'][0]));
       });
@@ -132,16 +132,74 @@ class _ProfileState extends State<UserProfile> {
     return res;
   }
 
+  void makeVisuals(List<String> visualUids) async {
+    for (int i = 0; i < visualUids.length; i++) {
+      String q = """{
+      visual (func: uid(${visualUids[i]})) {
+          uid
+          url
+          source
+          content_type
+          views: count(see)
+          likes: count(like)
+          dislikes: count(dislike)
+          created_at
+          created_by {
+            uid
+            name
+          }
+      }
+    }
+    """;
+      var resp = await query(q);
+      setState(() {
+        visual.add(new MediaInfo.fromJson(resp['visual'][0]));
+      });
+      //print(resp);
+    }
+  }
+
+  List<Widget> makeVisualsBox() {
+    List<Widget> res = new List();
+    for (int i = 0; i < visual.length; i++) {
+      print(visual[i].url);
+      res.add(InkWell(
+        child: Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Container(
+            height: 200,
+            //padding: new EdgeInsets.only(left: 3.0, right: 3.0),
+            decoration: new BoxDecoration(
+              boxShadow: <BoxShadow>[
+                BoxShadow(blurRadius: 2, color: Colors.grey[500])
+              ],
+              borderRadius: BorderRadius.circular(5),
+              border: new Border.all(color: Colors.grey[400], width: 2),
+              image: new DecorationImage(
+                image: TermView.loadImg(visual[i]),
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+        ),
+        onTap: () {Navigator.push(context,
+            MaterialPageRoute(builder: (context) => DetailedImage(visual[i])));},
+      ));
+    }
+    return res;
+  }
+
   void mks() async {
     audio = new List();
     terms = new List();
+    visual = new List();
     List<String> audioUids = new List();
     List<String> visualUids = new List();
     List<String> termUids = new List();
 
     print("build");
     String q = """{
-      users(func: uid(${appData.appState.user.uid})) {
+      users(func: uid(${isCurrentUser?appData.appState.user.uid:widget.user.uid})) {
         uid
         like {
           uid
@@ -157,7 +215,8 @@ class _ProfileState extends State<UserProfile> {
       if (likes[i]['url'].toString().contains('.mp3')) {
         //audio.add(new MediaInfo.fromJson(likes[i]));
         audioUids.add(likes[i]['uid']);
-      } else if (likes[i]['url'].toString().contains('.jpg')) {
+      } else if (likes[i]['url'].toString().contains('.jpg') ||
+          likes[i]['url'].toString().contains('.gif')) {
         //audio.add(new MediaInfo.fromJson(likes[i]));
         visualUids.add(likes[i]['uid']);
       } else {
@@ -165,6 +224,7 @@ class _ProfileState extends State<UserProfile> {
       }
       //print(likes[i]);
     }
+    makeVisuals(visualUids);
     makeTerms(termUids);
     makeAudios(audioUids);
   }
@@ -222,7 +282,9 @@ class _ProfileState extends State<UserProfile> {
         children: audio.length > 0 ? makeAudiosBox() : new List<Widget>(),
       );
     } else if (currentTab == 2) {
-      return Container();
+      return Column(
+        children: visual.length > 0 ? makeVisualsBox() : new List<Widget>(),
+      );
     } else if (currentTab == 3) {
       return Column(
         children: terms.length > 0 ? makeTermsBox() : new List<Widget>(),
