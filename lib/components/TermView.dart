@@ -368,10 +368,10 @@ class _TermState extends State<TermView> {
             ),
             onTap: () {
               //debugPrint(firstAudio.uid);
-              like(appState.user.uid, firstAudio.uid);
+              like(appState.user.uid, term.uid);
             }),
         Text(
-          firstAudio.likes.toString() + " likes",
+          term.likes.toString() + " likes",
           style: TextStyle(color: textColor),
         )
       ],
@@ -388,10 +388,10 @@ class _TermState extends State<TermView> {
               ),
             ),
             onTap: () {
-              dislike(appState.user.uid, firstAudio.uid);
+              dislike(appState.user.uid, term.uid);
             }),
         Text(
-          firstAudio.dislikes.toString() + " dislikes",
+          term.dislikes.toString() + " dislikes",
           style: TextStyle(color: textColor),
         )
       ],

@@ -238,6 +238,8 @@ class TermQuery {
         text
         lang
         transcription {$termBody}
+        likes: count(like)
+        dislikes: count(dislike)
         tag {
           uid
           text

@@ -141,7 +141,7 @@ class TermInfo {
   List<TermInfo> definitionOf;
   List<TermInfo> synonyms;
   List<TermInfo> antonyms;
-
+  int likes=0, dislikes=0;
 
 
   TermInfo.fromJson(Map<String, dynamic> json,
@@ -162,7 +162,8 @@ class TermInfo {
     definitionOf = mapList(json, 'definition_of', (t) => TermInfo.fromJson(t));
     synonyms = mapList(json, 'synonyms', (t) => TermInfo.fromJson(t));
     antonyms = mapList(json, 'antonym', (t) => TermInfo.fromJson(t));
-
+    likes = json.containsKey('likes') ? json['likes'] : 0;
+    dislikes = json.containsKey('dislikes') ? json['dislikes'] : 0;
 
 
     var audioItems = mapList(json, 'audio', (t) => MediaInfo.fromJson(t));

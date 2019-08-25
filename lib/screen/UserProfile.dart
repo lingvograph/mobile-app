@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:memoapp/AppData.dart';
 import 'package:memoapp/api/api.dart';
 import 'package:memoapp/api/model.dart';
+import 'package:memoapp/api/termquery.dart';
 import 'package:memoapp/components/AudioList.dart';
+import 'package:memoapp/components/TermView.dart';
 import 'package:memoapp/components/nonCachedImage.dart';
 import 'package:memoapp/locale.dart';
 
 import '../AppState.dart';
 
+//TODO Refactor this file, many extra code, not sure now what to delete and what not
 class UserProfile extends StatefulWidget {
   UserInfo user;
 
@@ -25,6 +28,7 @@ class _ProfileState extends State<UserProfile> {
   bool isCurrentUser;
   List<MediaInfo> audio;
   List<TermInfo> terms;
+  int currentTab = 1;
 
   initState() {
     super.initState();
@@ -46,7 +50,6 @@ class _ProfileState extends State<UserProfile> {
     currentProfileWindow = new UserAchievments();
 
     mks();
-
   }
 
   void openAchievements() {
@@ -98,15 +101,37 @@ class _ProfileState extends State<UserProfile> {
     }
   }
 
-  List<Widget> makeAudiosBox()
-  {
+  void makeTerms(List<String> termUids) async {
+    for (int i = 0; i < termUids.length; i++) {
+      //TermFilter tf = TermF
+      TermQuery tq = TermQuery(kind: KIND.term, termUid: termUids[i]);
+      var res = await query(tq.makeTermQuery());
+      print(res);
+      setState(() {
+        terms.add(new TermInfo.fromJson(res['terms'][0]));
+      });
+    }
+  }
+
+  List<Widget> makeTermsBox() {
     List<Widget> res = new List();
-    for (int i = 0; i < audio.length; i++)
-      {
-        res.add(LoadedAudio(audio[i],null, 'en'));
-      }
+    for (int i = 0; i < terms.length; i++) {
+      res.add(TermView(
+        term: terms[i],
+        tappable: true,
+      ));
+    }
     return res;
   }
+
+  List<Widget> makeAudiosBox() {
+    List<Widget> res = new List();
+    for (int i = 0; i < audio.length; i++) {
+      res.add(LoadedAudio(audio[i], null, 'en'));
+    }
+    return res;
+  }
+
   void mks() async {
     audio = new List();
     terms = new List();
@@ -114,7 +139,6 @@ class _ProfileState extends State<UserProfile> {
     List<String> visualUids = new List();
     List<String> termUids = new List();
 
-    //What a shaitan
     print("build");
     String q = """{
       users(func: uid(${appData.appState.user.uid})) {
@@ -133,8 +157,7 @@ class _ProfileState extends State<UserProfile> {
       if (likes[i]['url'].toString().contains('.mp3')) {
         //audio.add(new MediaInfo.fromJson(likes[i]));
         audioUids.add(likes[i]['uid']);
-      }
-      if (likes[i]['url'].toString().contains('.jpg')) {
+      } else if (likes[i]['url'].toString().contains('.jpg')) {
         //audio.add(new MediaInfo.fromJson(likes[i]));
         visualUids.add(likes[i]['uid']);
       } else {
@@ -142,10 +165,70 @@ class _ProfileState extends State<UserProfile> {
       }
       //print(likes[i]);
     }
-
+    makeTerms(termUids);
     makeAudios(audioUids);
   }
 
+  Widget getPageControlWidget() {
+    return Container(
+      padding: EdgeInsets.only(right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(5),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.audiotrack,
+              color: currentTab == 1 ? Colors.blue[500] : Colors.blue[200],
+            ),
+            onPressed: () {
+              setState(() {
+                currentTab = 1;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.image,
+              color: currentTab == 2 ? Colors.blue[500] : Colors.blue[200],
+            ),
+            onPressed: () {
+              setState(() {
+                currentTab = 2;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.text_fields,
+              color: currentTab == 3 ? Colors.blue[500] : Colors.blue[200],
+            ),
+            onPressed: () {
+              setState(() {
+                currentTab = 3;
+              });
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget getPage() {
+    if (currentTab == 1) {
+      return Column(
+        children: audio.length > 0 ? makeAudiosBox() : new List<Widget>(),
+      );
+    } else if (currentTab == 2) {
+      return Container();
+    } else if (currentTab == 3) {
+      return Column(
+        children: terms.length > 0 ? makeTermsBox() : new List<Widget>(),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,19 +240,21 @@ class _ProfileState extends State<UserProfile> {
             shape: BoxShape.circle,
             image: new DecorationImage(
                 fit: BoxFit.fill,
-                image: !isCurrentUser?NonCachedImage(
-                  isCurrentUser
-                      ? verifyAvatarUrl(appData.appState.user.avatar)
-                      : verifyAvatarUrl(widget.user.avatar),
-                  isCurrentUser
-                      ? verifyAvatarUrl(appData.appState.user.uid)
-                      : verifyAvatarUrl(widget.user.uid),
-                  useDiskCache: false,
-                  disableMemoryCache: true,
-                  retryLimit: 1,
-                ):CachedNetworkImageProvider(isCurrentUser
-                    ? verifyAvatarUrl(appData.appState.user.avatar)
-                    : verifyAvatarUrl(widget.user.avatar)))));
+                image: !isCurrentUser
+                    ? NonCachedImage(
+                        isCurrentUser
+                            ? verifyAvatarUrl(appData.appState.user.avatar)
+                            : verifyAvatarUrl(widget.user.avatar),
+                        isCurrentUser
+                            ? verifyAvatarUrl(appData.appState.user.uid)
+                            : verifyAvatarUrl(widget.user.uid),
+                        useDiskCache: false,
+                        disableMemoryCache: true,
+                        retryLimit: 1,
+                      )
+                    : CachedNetworkImageProvider(isCurrentUser
+                        ? verifyAvatarUrl(appData.appState.user.avatar)
+                        : verifyAvatarUrl(widget.user.avatar)))));
     var userName = Container(
       padding: EdgeInsets.only(top: 10),
       child: new Text(
@@ -292,9 +377,10 @@ class _ProfileState extends State<UserProfile> {
       Padding(
         padding: EdgeInsets.all(10),
       ),
+      getPageControlWidget(),
       //tabsSelector,
       //currentProfileWindow,
-      Column(children: audio.length>0?makeAudiosBox():new List<Widget>(),),
+      getPage()
     ]);
     return isCurrentUser
         ? body
