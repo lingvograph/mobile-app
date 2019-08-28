@@ -44,7 +44,7 @@ class TermView extends StatefulWidget {
   int viewMode;
 
   static loadImg(MediaInfo visual) {
-    var url = visual.url==null?randomImageUrl:visual.url;
+    var url = visual.url == null ? randomImageUrl : visual.url;
     if (url.contains("unsplash.com") || url.contains("picsum")) {
       //print("spec "+url);
       ImageProvider img;
@@ -199,6 +199,10 @@ class _TermState extends State<TermView> {
                             ],
                           )
                         : Container(),
+                  ],
+                ),
+                Row(
+                  children: <Widget>[
                     Padding(
                       padding: EdgeInsets.all(2),
                     ),
@@ -219,9 +223,9 @@ class _TermState extends State<TermView> {
                       onPressed: () {
                         playSound();
                       },
-                    ),
+                    )
                   ],
-                ),
+                )
               ],
             ),
           ),

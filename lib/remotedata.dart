@@ -11,7 +11,7 @@ class RealLingvoService implements ILingvoService {
   Future<ListResult<TermInfo>> fetchTerms(int offset, int limit,
       {TermFilter filter = null, String lang}) async {
     var appState = appData.appState;
-    var firstLang = lang ?? appState.user.firstLang;
+    var firstLang = lang==null? appState.user.targetLang:lang;
     return api.fetchTerms(firstLang, offset, limit, filter: filter);
   }
 }

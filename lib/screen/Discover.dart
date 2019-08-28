@@ -35,7 +35,9 @@ var audioPlayer = new AudioPlayer();
 // main screen with terms
 class DiscoverScreen extends StatefulWidget {
   TermFilter filter;
-  DiscoverScreen({this.filter}){}
+
+  DiscoverScreen({this.filter}) {}
+
   @override
   State<StatefulWidget> createState() => DiscoverState();
 }
@@ -50,6 +52,8 @@ class DiscoverState extends State<DiscoverScreen> {
   List<TermInfo> searchTags;
   TermFilter globalFilter;
 
+  int viewMode = 1;
+
   get appState {
     return appData.appState;
   }
@@ -59,11 +63,10 @@ class DiscoverState extends State<DiscoverScreen> {
     super.initState();
     searchTags = new List();
 
-    if(widget.filter!=null)
-      {
-        globalFilter = widget.filter;
-        searchTags.add(globalFilter.tags[0]);
-      }
+    if (widget.filter != null) {
+      globalFilter = widget.filter;
+      searchTags.add(globalFilter.tags[0]);
+    }
     tags = new List();
 
     fetchPage();
@@ -99,6 +102,53 @@ class DiscoverState extends State<DiscoverScreen> {
 
   List<TermInfo> tags;
 
+  Widget getPageControlWidget() {
+    return Container(
+      padding: EdgeInsets.only(right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.all(5),
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.image,
+              color: viewMode == 1 ? Colors.blue[500] : Colors.blue[200],
+            ),
+            onPressed: () {
+              setState(() {
+                viewMode = 1;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.list,
+              color: viewMode == 2 ? Colors.blue[500] : Colors.blue[200],
+            ),
+            onPressed: () {
+              setState(() {
+                viewMode = 2;
+              });
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.text_fields,
+              color: viewMode == 3 ? Colors.blue[500] : Colors.blue[200],
+            ),
+            onPressed: () {
+              setState(() {
+                viewMode = 3;
+              });
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   getTagList() async {
     var result = await getData("/api/data/tag/list");
     var terms = result['items'] as List<dynamic>;
@@ -133,7 +183,7 @@ class DiscoverState extends State<DiscoverScreen> {
   //TODO REFACTOR THIS
   Future<int> getTermsAndAppend(
       int start, int offset, TermFilter filter) async {
-    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
+    var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
     if (result.total > 0) {
       total += result.total;
 
@@ -218,7 +268,7 @@ class DiscoverState extends State<DiscoverScreen> {
     } else {
       var filter = new TermFilter(t);
       globalFilter = filter;
-      var result = await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
+      var result = await appData.lingvo.fetchTerms(0, 5, filter: filter);
       //print(result.items.toList().toString());
       if (result.total > 0) {
         total = result.total;
@@ -248,7 +298,7 @@ class DiscoverState extends State<DiscoverScreen> {
   fetchPage() async {
     var filter = globalFilter == null ? new TermFilter("") : globalFilter;
     var result =
-        await appData.lingvo.fetchTerms(terms.length, 5, filter: filter, lang: "en");
+        await appData.lingvo.fetchTerms(terms.length, 5, filter: filter);
 
     //print("loaded");
     loading = false;
@@ -305,25 +355,53 @@ class DiscoverState extends State<DiscoverScreen> {
     ].toList();
   }
 
+  Widget getTerms() {
+    List<TermView> res = new List();
+    for (int i = 0; i < terms.length; i++) {
+      res.add(new TermView(
+        term: terms[i],
+        onSearch: loadWithTag,
+        viewMode: viewMode,
+      ));
+    }
+    if (viewMode == 2) {
+      return GridView.count(
+        primary: false,
+        shrinkWrap: true,
+        // Create a grid with 2 columns. If you change the scrollDirection to
+        // horizontal, this would produce 2 rows.
+        crossAxisCount: 2,
+        // Generate 100 Widgets that display their index in the List
+        children: res,
+      );
+    }
+    return Column(
+      children: res,
+    );
+  }
+
   Widget makeListView() {
     return NotificationListener<ScrollNotification>(
         child: ListView(
-          //shrinkWrap: true,
+          shrinkWrap: true,
           children: <Widget>[
+            getPageControlWidget(),
+            currentTags(),
+            getTerms(),
             //currentTags(),
-            new ListView.builder(
-                controller: scrollController,
-                shrinkWrap: true,
-                itemCount: terms.length + 1,
-                itemBuilder: (BuildContext context, int index) {
-                  if (index == 0) {
-                    return currentTags();
-                  }
-                  return new TermView(
-                    term: terms[index - 1],
-                    onSearch: loadWithTag,
-                  );
-                }),
+            //new ListView.builder(
+            //    controller: scrollController,
+            //    shrinkWrap: true,
+            //    itemCount: terms.length + 1,
+            //    itemBuilder: (BuildContext context, int index) {
+            //      if (index == 0) {
+            //        return currentTags();
+            //      }
+            //      return new TermView(
+            //        term: terms[index - 1],
+            //        onSearch: loadWithTag,viewMode: viewMode,
+            //      );
+            //    }),
             new MyObservableWidget(key: key),
           ],
         ),
@@ -384,7 +462,7 @@ class DiscoverState extends State<DiscoverScreen> {
                     color: Colors.redAccent,
                   ),
                   onTap: () {
-                    print("remove "+searchTags[i].text);
+                    print("remove " + searchTags[i].text);
                     TermInfo.remove(searchTags, searchTags[i]);
                     if (searchTags.length == 0) {
                       //print("empty");

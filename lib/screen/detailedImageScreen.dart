@@ -39,7 +39,7 @@ class _DetailedState extends State<DetailedImage> {
     //List<TermInfo> termsData;
     TermFilter filter = new TermFilter('', visualUid: widget.image.uid);
     var result =
-        await appData.lingvo.fetchTerms(0, 5, filter: filter, lang: 'en');
+        await appData.lingvo.fetchTerms(0, 5, filter: filter);
     //print(result.items.length);
 
     for (int i = 0; i < result.total; i++) {
